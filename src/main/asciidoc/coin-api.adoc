@@ -1,0 +1,164 @@
+= Coin server API Guide
+Oleksandr Vovchuk;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+[[overview]]
+= Overview
+
+[[overview-http-verbs]]
+== HTTP verbs
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP verbs.
+
+|===
+| Verb | Usage
+
+| `GET`
+| Used to retrieve a resource
+
+| `POST`
+| Used to create a new resource or update an existing resource, including partial updates
+
+| `DELETE`
+| Used to delete an existing resource
+|===
+
+[[overview-http-status-codes]]
+== HTTP status codes
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its
+use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `400 Bad Request`
+| The request was malformed. The response body will include an error providing further information
+
+| `404 Not Found`
+| The requested resource did not exist
+
+| `409 Conflict`
+| Cant process request due to error like such item already presented or not enough money to buy item
+|===
+
+[[overview-errors]]
+== Errors
+
+Whenever an error response (status code >= 400) is returned, the body will contain a JSON object
+that describes the problem. The error object has the following structure:
+
+[[resources]]
+= Resources
+
+
+[[resources]]
+== Endpoints
+
+[[resources-amount]]
+=== Amount
+
+A `GET` request will get amount of coins that available for account
+
+==== Response structure
+
+include::{snippets}/amount/response-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/amount/http-request.adoc[]
+
+==== Example response
+
+include::{snippets}/amount/http-response.adoc[]
+
+
+[[resources-spent]]
+=== Spent
+
+A `POST` request will withdraw passed amount of coins from account
+
+==== Response structure
+
+include::{snippets}/spent/response-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/spent/http-request.adoc[]
+
+==== Example response
+
+include::{snippets}/spent/http-response.adoc[]
+
+
+[[resources-move]]
+=== Spent
+
+A `POST` request will move passed amount of coins from account to other account
+
+==== Response structure
+
+include::{snippets}/move/response-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/move/http-request.adoc[]
+
+==== Example response
+
+include::{snippets}/move/http-response.adoc[]
+
+
+[[resources-add]]
+=== Spent
+
+A `POST` request will add passed amount of coins to account
+
+==== Response structure
+
+include::{snippets}/add/response-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/add/http-request.adoc[]
+
+==== Example response
+
+include::{snippets}/add/http-response.adoc[]
