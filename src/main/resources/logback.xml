@@ -6,13 +6,14 @@
         </encoder>
     </appender>
 
+<!--
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logFile.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- daily rollover -->
+            &lt;!&ndash; daily rollover &ndash;&gt;
             <fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
 
-            <!-- keep 30 days' worth of history -->
+            &lt;!&ndash; keep 30 days' worth of history &ndash;&gt;
             <maxHistory>30</maxHistory>
         </rollingPolicy>
 
@@ -20,9 +21,10 @@
             <pattern>%highlight(%d{HH:mm:ss.SSS} %-5level [%thread] %-5level %logger{36} - %msg%n)</pattern>
         </encoder>
     </appender>
+-->
 
     <root level="info">
         <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
+        <!--<appender-ref ref="FILE" />-->
     </root>
 </configuration>
