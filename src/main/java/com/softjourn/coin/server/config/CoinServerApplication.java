@@ -5,6 +5,8 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -81,4 +83,12 @@ public class CoinServerApplication extends ResourceServerConfigurerAdapter {
                 .csrf().disable()
         ;
     }
+
+	public static class ServletInit extends SpringBootServletInitializer {
+
+		@Override
+		protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+			return application.sources(CoinServerApplication.class);
+		}
+	}
 }
