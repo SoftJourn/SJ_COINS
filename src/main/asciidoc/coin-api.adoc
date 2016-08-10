@@ -115,7 +115,7 @@ include::{snippets}/spent/http-response.adoc[]
 
 
 [[resources-move]]
-=== Spent
+=== Move
 
 A `POST` request will move passed amount of coins from account to other account
 
@@ -140,7 +140,7 @@ include::{snippets}/move/http-response.adoc[]
 
 
 [[resources-add]]
-=== Spent
+=== Add
 
 A `POST` request will add passed amount of coins to account
 
