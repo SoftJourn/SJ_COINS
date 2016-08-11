@@ -75,7 +75,7 @@ public class CoinServerApplication extends ResourceServerConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/v1/add/**").hasRole("COIN_ADMIN")
+                .antMatchers(HttpMethod.POST, "/api/v1/add/**").authenticated()
 				.anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
