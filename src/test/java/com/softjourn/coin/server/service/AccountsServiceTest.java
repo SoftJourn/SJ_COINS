@@ -91,4 +91,9 @@ public class AccountsServiceTest {
         assertEquals(0, accountsService.add("nonExistingAccount").getAmount().intValue());
     }
 
+    @Test(expected = AccountNotFoundException.class)
+    public void addAccountThatNotExistsInLDAPBase() throws Exception {
+        accountsService.add("testLdapId");
+    }
+
 }

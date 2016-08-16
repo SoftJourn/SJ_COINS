@@ -98,10 +98,6 @@ public class AccountsService {
         else return account;
     }
 
-    private boolean accountExist(String ldapId) {
-        return accountRepository.findOne(ldapId) != null;
-    }
-
     private Account createAccount(String ldapId) {
         if (isAccountExistInLdapBase(ldapId)) {
             Account newAccount = new Account(ldapId, new BigDecimal(0));
