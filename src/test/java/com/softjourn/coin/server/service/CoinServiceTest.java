@@ -4,7 +4,6 @@ package com.softjourn.coin.server.service;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
-import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,9 +28,6 @@ public class CoinServiceTest {
     Principal principal;
 
     @Mock
-    AccountRepository accountRepository;
-
-    @Mock
     TransactionRepository transactionRepository;
 
     @Mock
@@ -45,25 +41,25 @@ public class CoinServiceTest {
         account = new Account("user", new BigDecimal(100));
         when(principal.getName()).thenReturn("user");
 
-        when(accountRepository.findOne(anyString())).thenReturn(account);
+        when(accountsService.getAccount(anyString())).thenReturn(account);
 
-        coinService = new CoinService(accountRepository, transactionRepository, accountsService);
+        coinService = new CoinService(accountsService);
     }
 
     @Test
     public void testFillAccount() throws Exception {
         coinService.fillAccount("user", new BigDecimal(100), "");
 
-        verify(accountRepository, times(1)).findOne(anyString());
-        verify(accountRepository, times(1)).save(account);
+        verify(accountsService, times(1)).getAccount(anyString());
+        verify(accountsService, times(1)).update(account);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testFillAccountNegative() throws Exception {
         assertEquals(new BigDecimal(200), coinService.fillAccount("user", new BigDecimal(-100), ""));
 
-        verify(accountRepository, times(0)).findOne(anyString());
-        verify(accountRepository, times(0)).save(account);
+        verify(accountsService, times(0)).getAccount(anyString());
+        verify(accountsService, times(0)).update(account);
     }
 
     @Test
@@ -71,8 +67,8 @@ public class CoinServiceTest {
         coinService.spent(principal.getName(), new BigDecimal(50), "");
         assertEquals(new BigDecimal(50), account.getAmount());
 
-        verify(accountRepository, times(1)).findOne(anyString());
-        verify(accountRepository, times(1)).save(account);
+        verify(accountsService, times(1)).getAccount(anyString());
+        verify(accountsService, times(1)).update(account);
     }
 
     @Test(expected = NotEnoughAmountInAccountException.class)
@@ -80,8 +76,8 @@ public class CoinServiceTest {
         assertTrue(coinService.spent(principal.getName(), new BigDecimal(150), "").getStatus().equals(TransactionStatus.FAILED));
         assertEquals(new BigDecimal(100), account.getAmount());
 
-        verify(accountRepository, times(1)).findOne(anyString());
-        verify(accountRepository, times(0)).save(account);
+        verify(accountsService, times(1)).getAccount(anyString());
+        verify(accountsService, times(0)).update(account);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -89,8 +85,8 @@ public class CoinServiceTest {
         assertTrue(coinService.spent(principal.getName(), new BigDecimal(-150), "").getStatus().equals(TransactionStatus.FAILED));
         assertEquals(new BigDecimal(100), account.getAmount());
 
-        verify(accountRepository, times(0)).findOne(anyString());
-        verify(accountRepository, times(0)).save(account);
+        verify(accountsService, times(0)).getAccount(anyString());
+        verify(accountsService, times(0)).update(account);
     }
 
 }

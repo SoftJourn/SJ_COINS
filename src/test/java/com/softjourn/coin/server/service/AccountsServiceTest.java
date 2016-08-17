@@ -27,6 +27,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AccountsServiceTest {
 
+    private static final String NOT_EXISTING_LDAP_ID = "notExist";
+    private static final String ID_EXISTING_IN_DB = "existsInDB";
+    private static final String EXISTING_LDAP_ID = "ldapId";
     @Mock
     private RestTemplate restTemplate;
 
@@ -44,14 +47,14 @@ public class AccountsServiceTest {
         when(restTemplate.getForEntity(anyString(), any()))
                 .thenReturn(new ResponseEntity<>(true, HttpStatus.OK));
 
-        when(restTemplate.getForEntity("http://test.com/users/testLdapId/exist", Boolean.class))
+        when(restTemplate.getForEntity("http://test.com/users/" + NOT_EXISTING_LDAP_ID + "/exist", Boolean.class))
                 .thenReturn(new ResponseEntity<>(false, HttpStatus.OK));
 
 
-        Account account = new Account("testId", new BigDecimal(100));
+        Account account = new Account(ID_EXISTING_IN_DB, new BigDecimal(100));
         when(accountRepository.findAll()).thenReturn(Collections.singletonList(account));
 
-        when(accountRepository.findOne("testId")).thenReturn(account);
+        when(accountRepository.findOne(ID_EXISTING_IN_DB)).thenReturn(account);
 
         when(accountRepository.save(any(Account.class))).thenAnswer(new Answer<Account>() {
             @Override
@@ -65,8 +68,8 @@ public class AccountsServiceTest {
 
     @Test
     public void isAccountExistInLdapBase() throws Exception {
-        assertTrue(accountsService.isAccountExistInLdapBase("ldapId"));
-        assertFalse(accountsService.isAccountExistInLdapBase("testLdapId"));
+        assertTrue(accountsService.isAccountExistInLdapBase(EXISTING_LDAP_ID));
+        assertFalse(accountsService.isAccountExistInLdapBase(NOT_EXISTING_LDAP_ID));
     }
 
     @Test
@@ -77,23 +80,29 @@ public class AccountsServiceTest {
 
     @Test
     public void getAccount() throws Exception {
-        assertNotNull(accountsService.getAccount("testId"));
+        assertNotNull(accountsService.getAccount(ID_EXISTING_IN_DB));
+    }
+
+    @Test()
+    public void getNotExistingAccountThatExistsInLDAP() {
+        assertNotNull(accountsService.getAccount(EXISTING_LDAP_ID));
+        assertEquals(0, accountsService.getAccount(EXISTING_LDAP_ID).getAmount().intValue());
     }
 
     @Test(expected = AccountNotFoundException.class)
     public void getNotExistingAccount() {
-        accountsService.getAccount("notExistingId");
+        accountsService.getAccount(NOT_EXISTING_LDAP_ID);
     }
 
     @Test
     public void add() throws Exception {
-        assertEquals(100, accountsService.add("testId").getAmount().intValue());
-        assertEquals(0, accountsService.add("nonExistingAccount").getAmount().intValue());
+        assertEquals(100, accountsService.add(ID_EXISTING_IN_DB).getAmount().intValue());
+        assertEquals(0, accountsService.add(EXISTING_LDAP_ID).getAmount().intValue());
     }
 
     @Test(expected = AccountNotFoundException.class)
     public void addAccountThatNotExistsInLDAPBase() throws Exception {
-        accountsService.add("testLdapId");
+        accountsService.add(NOT_EXISTING_LDAP_ID);
     }
 
 }

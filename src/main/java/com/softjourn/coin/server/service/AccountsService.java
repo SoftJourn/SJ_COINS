@@ -95,13 +95,17 @@ public class AccountsService {
     public Account getAccount(String ldapId) {
         return Optional
                 .ofNullable(accountRepository.findOne(ldapId))
-                .orElseThrow(() -> new AccountNotFoundException(ldapId));
+                .orElseGet(() -> createAccount(ldapId));
     }
 
     public Account add(String ldapId) {
         Account account = accountRepository.findOne(ldapId);
         if (account == null) return createAccount(ldapId);
         else return account;
+    }
+
+    public Account update(Account account) {
+        return accountRepository.save(account);
     }
 
     private Account createAccount(String ldapId) {

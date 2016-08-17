@@ -13,6 +13,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceException;
@@ -20,6 +21,10 @@ import java.math.BigDecimal;
 import java.security.Principal;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.mockito.AdditionalMatchers.not;
+import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,7 +54,11 @@ public class CoinServiceTransactionsTest {
 
         accountsService = mock(AccountsService.class);
 
-        coinService = new CoinService(accountRepository, transactionRepository, accountsService);
+        ReflectionTestUtils.setField(accountsService, "accountRepository", accountRepository);
+
+        when(accountsService.getAccount(anyString())).thenCallRealMethod();
+
+        coinService = new CoinService(accountsService);
     }
 
     @Test

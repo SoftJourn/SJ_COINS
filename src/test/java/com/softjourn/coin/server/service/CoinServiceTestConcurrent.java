@@ -2,7 +2,6 @@ package com.softjourn.coin.server.service;
 
 
 import com.softjourn.coin.server.entity.Account;
-import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -33,9 +32,6 @@ public class CoinServiceTestConcurrent {
     Principal principal;
 
     @Mock
-    AccountRepository accountRepository;
-
-    @Mock
     TransactionRepository transactionRepository;
 
     @Mock
@@ -49,9 +45,9 @@ public class CoinServiceTestConcurrent {
         account = new Account("user", new BigDecimal(200000));
         when(principal.getName()).thenReturn("user");
 
-        when(accountRepository.findOne(anyString())).thenReturn(account);
+        when(accountsService.getAccount(anyString())).thenReturn(account);
 
-        coinService = new CoinService(accountRepository, transactionRepository, accountsService);
+        coinService = new CoinService(accountsService);
     }
 
     /*
