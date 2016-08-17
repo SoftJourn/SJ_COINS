@@ -22,10 +22,16 @@ import java.util.stream.StreamSupport;
 @Service
 public class AccountsService {
 
+    /*
+     * TODO
+     * This method allow to ignore wrong certificates on testing.
+     * It trust all certificates what is insecure.
+     * Only for testing.
+     * Remove for using in production environment.
+     */
     static {
         disableSslVerification();
     }
-
     private static void disableSslVerification() {
         try {
             // Create a trust manager that does not validate certificate chains
