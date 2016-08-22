@@ -1,9 +1,9 @@
-CREATE TABLE accounts
+CREATE TABLE IF NOT EXISTS accounts
 (
     ldap_id VARCHAR(255) PRIMARY KEY NOT NULL,
     amount DECIMAL(10)
 );
-CREATE TABLE transactions
+CREATE TABLE IF NOT EXISTS transactions
 (
     id INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,
     account_id VARCHAR(255),
