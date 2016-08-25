@@ -68,8 +68,8 @@ public class AccountsServiceTest {
 
     @Test
     public void isAccountExistInLdapBase() throws Exception {
-        assertNotNull(accountsService.isAccountExistInLdapBase(EXISTING_LDAP_ID));
-        assertNull(accountsService.isAccountExistInLdapBase(NOT_EXISTING_LDAP_ID));
+        assertNotNull(accountsService.getAccountIfExistInLdapBase(EXISTING_LDAP_ID));
+        assertNull(accountsService.getAccountIfExistInLdapBase(NOT_EXISTING_LDAP_ID));
     }
 
     @Test

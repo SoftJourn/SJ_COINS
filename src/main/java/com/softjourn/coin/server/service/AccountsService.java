@@ -7,6 +7,7 @@ import com.softjourn.coin.server.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.*;
@@ -84,8 +85,12 @@ public class AccountsService {
     @Value("${auth.server.url}")
     private String authServerUrl;
 
-    public Account isAccountExistInLdapBase(String ldapId) {
-        return restTemplate.getForEntity(authServerUrl + "/users/" + ldapId , Account.class).getBody();
+    public Account getAccountIfExistInLdapBase(String ldapId) {
+        try {
+            return restTemplate.getForEntity(authServerUrl + "/users/" + ldapId, Account.class).getBody();
+        } catch (RestClientException rce) {
+            return null;
+        }
     }
 
     public List<Account> getAll() {
@@ -111,7 +116,7 @@ public class AccountsService {
     }
 
     private Account createAccount(String ldapId) {
-        Account account = isAccountExistInLdapBase(ldapId);
+        Account account = getAccountIfExistInLdapBase(ldapId);
         if (account != null) {
             account.setLdapId(ldapId);
             account.setAmount(new BigDecimal(0));
