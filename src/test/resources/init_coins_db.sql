@@ -4,7 +4,9 @@ DROP TABLE accounts IF EXISTS;
 CREATE TABLE accounts
 (
     ldap_id VARCHAR(255) NOT NULL PRIMARY KEY,
-    amount DECIMAL(10)
+    amount DECIMAL(10),
+    fullName VARCHAR(255),
+    image VARCHAR(255)
 );
 
 INSERT INTO accounts (ldap_id, amount) VALUES ('account1', 100);

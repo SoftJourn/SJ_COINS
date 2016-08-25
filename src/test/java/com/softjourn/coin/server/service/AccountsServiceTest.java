@@ -47,8 +47,8 @@ public class AccountsServiceTest {
         when(restTemplate.getForEntity(anyString(), any()))
                 .thenReturn(new ResponseEntity<>(new Account(), HttpStatus.OK));
 
-        when(restTemplate.getForEntity("http://test.com/users/" + NOT_EXISTING_LDAP_ID + "/exist", Account.class))
-                .thenReturn(new ResponseEntity<>(new Account(), HttpStatus.NOT_FOUND));
+        when(restTemplate.getForEntity("http://test.com/users/" + NOT_EXISTING_LDAP_ID, Account.class))
+                .thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
 
         Account account = new Account(ID_EXISTING_IN_DB, new BigDecimal(100));
