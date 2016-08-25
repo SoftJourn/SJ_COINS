@@ -4,6 +4,7 @@ package com.softjourn.coin.server.service;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@Slf4j
 public class AccountsService {
 
     /*
@@ -122,7 +124,7 @@ public class AccountsService {
             account.setAmount(new BigDecimal(0));
             account.setImage(DEFAULT_IMAGE_NAME);
             accountRepository.save(account);
-            System.out.println("+++++++++++++++++++" + account.getFullName());
+            log.info("+++++++++++++++++++" + account.getFullName());
             return account;
         } else {
             throw new AccountNotFoundException(ldapId);
