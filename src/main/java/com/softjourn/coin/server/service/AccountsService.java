@@ -113,6 +113,7 @@ public class AccountsService {
     private Account createAccount(String ldapId) {
         Account account = isAccountExistInLdapBase(ldapId);
         if (account != null) {
+            account.setLdapId(ldapId);
             account.setAmount(new BigDecimal(0));
             account.setImage(DEFAULT_IMAGE_NAME);
             accountRepository.save(account);

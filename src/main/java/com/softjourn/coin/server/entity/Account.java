@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,6 +25,7 @@ public class Account {
     private BigDecimal amount;
 
     @Column
+    @JsonIgnore
     private String fullName;
 
     @Column
@@ -32,6 +34,16 @@ public class Account {
     public Account(String ldapId, BigDecimal amount) {
         this.amount = amount;
         this.ldapId = ldapId;
+    }
+
+    public String getName() {
+        String[] splitted = fullName.split("\\s");
+        return splitted.length > 0 ? splitted[0] : "";
+    }
+
+    public String getSurname() {
+        String[] splitted = fullName.split("\\s");
+        return splitted.length > 1 ? splitted[1] : "";
     }
 
     @Override

@@ -45,10 +45,10 @@ public class AccountsServiceTest {
         ReflectionTestUtils.setField(accountsService, "authServerUrl", "http://test.com");
 
         when(restTemplate.getForEntity(anyString(), any()))
-                .thenReturn(new ResponseEntity<>(true, HttpStatus.OK));
+                .thenReturn(new ResponseEntity<>(new Account(), HttpStatus.OK));
 
-        when(restTemplate.getForEntity("http://test.com/users/" + NOT_EXISTING_LDAP_ID + "/exist", Boolean.class))
-                .thenReturn(new ResponseEntity<>(false, HttpStatus.OK));
+        when(restTemplate.getForEntity("http://test.com/users/" + NOT_EXISTING_LDAP_ID + "/exist", Account.class))
+                .thenReturn(new ResponseEntity<>(new Account(), HttpStatus.NOT_FOUND));
 
 
         Account account = new Account(ID_EXISTING_IN_DB, new BigDecimal(100));
@@ -68,8 +68,8 @@ public class AccountsServiceTest {
 
     @Test
     public void isAccountExistInLdapBase() throws Exception {
-        assertTrue(accountsService.isAccountExistInLdapBase(EXISTING_LDAP_ID));
-        assertFalse(accountsService.isAccountExistInLdapBase(NOT_EXISTING_LDAP_ID));
+        assertNotNull(accountsService.isAccountExistInLdapBase(EXISTING_LDAP_ID));
+        assertNull(accountsService.isAccountExistInLdapBase(NOT_EXISTING_LDAP_ID));
     }
 
     @Test
