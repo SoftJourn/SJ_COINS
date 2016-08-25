@@ -122,6 +122,7 @@ public class AccountsService {
             account.setAmount(new BigDecimal(0));
             account.setImage(DEFAULT_IMAGE_NAME);
             accountRepository.save(account);
+            System.out.println("+++++++++++++++++++" + account.getFullName());
             return account;
         } else {
             throw new AccountNotFoundException(ldapId);
