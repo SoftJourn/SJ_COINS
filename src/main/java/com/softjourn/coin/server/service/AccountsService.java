@@ -70,7 +70,7 @@ public class AccountsService {
         }
     }
 
-    private static final String DEFAULT_IMAGE_NAME = "images/default.jpg";
+    private static final String DEFAULT_IMAGE_NAME = "images/default.png";
 
     private AccountRepository accountRepository;
 
