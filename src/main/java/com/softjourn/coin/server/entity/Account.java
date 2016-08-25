@@ -37,11 +37,13 @@ public class Account {
     }
 
     public String getName() {
+        if (fullName == null) return "";
         String[] splitted = fullName.split("\\s");
         return splitted.length > 0 ? splitted[0] : "";
     }
 
     public String getSurname() {
+        if (fullName == null) return "";
         String[] splitted = fullName.split("\\s");
         return splitted.length > 1 ? splitted[1] : "";
     }
