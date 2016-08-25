@@ -23,6 +23,12 @@ public class Account {
     @Column
     private BigDecimal amount;
 
+    @Column
+    private String fullName;
+
+    @Column
+    private String image;
+
     public Account(String ldapId, BigDecimal amount) {
         this.amount = amount;
         this.ldapId = ldapId;

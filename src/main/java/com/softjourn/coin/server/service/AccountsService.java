@@ -69,6 +69,8 @@ public class AccountsService {
         }
     }
 
+    private static final String DEFAULT_IMAGE_NAME = "images/default.jpg";
+
     private AccountRepository accountRepository;
 
     private RestTemplate restTemplate;
@@ -82,8 +84,8 @@ public class AccountsService {
     @Value("${auth.server.url}")
     private String authServerUrl;
 
-    public boolean isAccountExistInLdapBase(String ldapId) {
-        return restTemplate.getForEntity(authServerUrl + "/users/" + ldapId + "/exist", Boolean.class).getBody();
+    public Account isAccountExistInLdapBase(String ldapId) {
+        return restTemplate.getForEntity(authServerUrl + "/users/" + ldapId , Account.class).getBody();
     }
 
     public List<Account> getAll() {
@@ -109,10 +111,12 @@ public class AccountsService {
     }
 
     private Account createAccount(String ldapId) {
-        if (isAccountExistInLdapBase(ldapId)) {
-            Account newAccount = new Account(ldapId, new BigDecimal(0));
-            accountRepository.save(newAccount);
-            return newAccount;
+        Account account = isAccountExistInLdapBase(ldapId);
+        if (account != null) {
+            account.setAmount(new BigDecimal(0));
+            account.setImage(DEFAULT_IMAGE_NAME);
+            accountRepository.save(account);
+            return account;
         } else {
             throw new AccountNotFoundException(ldapId);
         }
