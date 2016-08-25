@@ -1,7 +1,8 @@
 package com.softjourn.coin.server.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.softjourn.coin.server.util.JsonViews;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,13 +23,14 @@ public class Account {
     private String ldapId;
 
     @Column
+    @JsonView(JsonViews.REGULAR.class)
     private BigDecimal amount;
 
     @Column
-    @JsonIgnore
     private String fullName;
 
     @Column
+    @JsonView(JsonViews.REGULAR.class)
     private String image;
 
     public Account(String ldapId, BigDecimal amount) {
@@ -36,12 +38,14 @@ public class Account {
         this.ldapId = ldapId;
     }
 
+    @JsonView(JsonViews.REGULAR.class)
     public String getName() {
         if (fullName == null) return "";
         String[] splitted = fullName.split("\\s");
         return splitted.length > 0 ? splitted[0] : "";
     }
 
+    @JsonView(JsonViews.REGULAR.class)
     public String getSurname() {
         if (fullName == null) return "";
         String[] splitted = fullName.split("\\s");
