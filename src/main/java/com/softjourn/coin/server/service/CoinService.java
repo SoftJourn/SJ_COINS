@@ -98,7 +98,7 @@ public class CoinService {
     }
 
     private boolean isEnoughAmount(@NonNull String from, BigDecimal amount) {
-        return accountsService.getAccount(from).getAmount().compareTo(amount) > 0;
+        return accountsService.getAccount(from).getAmount().compareTo(amount) >= 0;
     }
 
     private void checkAmountIsPositive(@NonNull BigDecimal amount) {

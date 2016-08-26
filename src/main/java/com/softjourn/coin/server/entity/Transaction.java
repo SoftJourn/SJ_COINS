@@ -42,5 +42,8 @@ public class Transaction {
     private TransactionStatus status;
 
     @Column
+    private BigDecimal remain;
+
+    @Column
     private String error;
 }
