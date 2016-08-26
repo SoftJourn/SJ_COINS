@@ -162,3 +162,27 @@ include::{snippets}/add/http-request.adoc[]
 ==== Example response
 
 include::{snippets}/add/http-response.adoc[]
+
+[[resources-account]]
+=== Account
+
+A `GET` request will get account of user that makes request
+
+==== Response structure
+
+include::{snippets}/account/response-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/account/http-request.adoc[]
+
+==== Example response
+
+include::{snippets}/account/http-response.adoc[]

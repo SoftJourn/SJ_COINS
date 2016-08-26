@@ -3,6 +3,7 @@ package com.softjourn.coin.server.controller
 import com.softjourn.coin.server.entity.Account
 import com.softjourn.coin.server.entity.Transaction
 import com.softjourn.coin.server.entity.TransactionStatus
+import com.softjourn.coin.server.service.AccountsService
 import com.softjourn.coin.server.service.CoinService
 import org.apache.commons.io.IOUtils
 import org.mockito.Mockito
@@ -27,6 +28,7 @@ import java.security.Principal
 import java.time.Instant
 
 import static org.mockito.Matchers.any
+import static org.mockito.Matchers.anyString
 import static org.mockito.Mockito.when
 
 @Configuration
@@ -54,6 +56,18 @@ class ControllerTestConfig {
                 .thenReturn(transactionMove)
 
         coinService
+    }
+
+    @Bean
+    AccountsService accountsService() {
+        def accountsService = Mockito.mock(AccountsService.class)
+        def account = new Account("user", 1000)
+        account.fullName = "Bruce Wayne"
+        account.image = "images/default.png"
+
+        when(accountsService.getAccount(anyString())).thenReturn(account)
+
+        accountsService
     }
 
     private Transaction createTransaction(Account account, Account destinationAccount) {
