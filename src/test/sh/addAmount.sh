@@ -1,19 +1,31 @@
 #!/usr/bin/env bash
+
+source ./init.sh
+
+declare -r AMOUNT=10
+declare -r DESTINATION="vromanchuk"
+
+#### ADDITIONAL INFO ######
+### Store username asd password in init.sh file and do NOT include this file in commit
+
 ##get token
-tokens=(`curl --silent -i -G -X POST \
+tokens=(`curl --silent -i -k -G -X POST \
   -H "Authorization: Basic dXNlcl9jcmVkOnN1cGVyc2VjcmV0" \
   -H "Content-Type:application/x-www-form-urlencoded" \
-  -d "username={yourLDAPid}" \
-  -d "password={yourLDAPpassword}" \
+  -d "username="${yourLDAPid} \
+  -d "password="${yourLDAPpassword} \
   -d "grant_type=password" \
-  localhost:8111/oauth/token \
+  https://localhost:8111/oauth/token \
   | grep -Po "((?<=access_token\":\")[^\"]+)|((?<=refresh_token\":\")[^\"]+)"`)
 
 echo "ACCESS_TOKEN: "${tokens[0]}
 echo "REFRESH_TOKEN: "${tokens[1]}
 
-curl --silent -i -G -X POST \
-  localhost:8080/v1/coins/add \
-  -d "amount=500" \
-  -d "account=vdanyliuk" \
-  -H "Authorization: Bearer "${tokens[0]}
+declare data='{"comment": "Pass some money to '${DESTINATION}'", "amount":'${AMOUNT}"}"
+
+curl --silent -i -k -X POST \
+  https://localhost:8080/api/v1/add/${DESTINATION} \
+  -d "${data}" \
+  -H "Authorization: Bearer "${tokens[0]} \
+  -H "Content-Type: application/json"
+

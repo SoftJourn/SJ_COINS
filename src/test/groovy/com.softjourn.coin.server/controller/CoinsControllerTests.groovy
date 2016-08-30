@@ -99,6 +99,9 @@ class CoinsControllerTests {
                             fieldWithPath('status')
                                     .type(JsonFieldType.STRING)
                                     .description('Transaction status'),
+                            fieldWithPath('remain')
+                                    .type(JsonFieldType.NUMBER)
+                                    .description('Remaining amount after transaction'),
                             fieldWithPath('error')
                                     .type(JsonFieldType.STRING)
                                     .description('Error description')
@@ -138,6 +141,9 @@ class CoinsControllerTests {
                             fieldWithPath('status')
                                     .type(JsonFieldType.STRING)
                                     .description('Transaction status'),
+                            fieldWithPath('remain')
+                                    .type(JsonFieldType.NUMBER)
+                                    .description('Remaining amount after transaction'),
                             fieldWithPath('error')
                                     .type(JsonFieldType.STRING)
                                     .description('Error description')
@@ -177,6 +183,9 @@ class CoinsControllerTests {
                             fieldWithPath('status')
                                     .type(JsonFieldType.STRING)
                                     .description('Transaction status'),
+                            fieldWithPath('remain')
+                                    .type(JsonFieldType.NUMBER)
+                                    .description('Remaining amount after transaction'),
                             fieldWithPath('error')
                                     .type(JsonFieldType.STRING)
                                     .description('Error description')

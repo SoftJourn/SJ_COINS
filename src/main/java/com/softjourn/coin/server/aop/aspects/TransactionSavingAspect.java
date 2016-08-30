@@ -53,8 +53,11 @@ public class TransactionSavingAspect {
         transaction.setAccount(getAccount(signature, arguments, "accountName"));
         transaction.setDestination(getAccount(signature, arguments, "destinationName"));
         transaction.setAmount(getArg(signature, arguments, "amount", BigDecimal.class));
-
-        BigDecimal remain= transaction.getAccount().getAmount().subtract(transaction.getAmount());
+        BigDecimal remain;
+        if(transaction.getAccount()==null)
+            remain=transaction.getDestination().getAmount().add(transaction.getAmount());
+        else
+            remain= transaction.getAccount().getAmount().subtract(transaction.getAmount());
         transaction.setRemain(remain);
 
         transaction.setComment(getArg(signature, arguments, "comment", String.class));
