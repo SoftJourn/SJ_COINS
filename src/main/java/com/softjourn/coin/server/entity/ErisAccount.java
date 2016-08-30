@@ -12,10 +12,8 @@ import java.util.Map;
 @Data
 @Table(name = "eris")
 public class ErisAccount {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
+    @Id
     @Column
     private String address;
 
@@ -27,5 +25,8 @@ public class ErisAccount {
 
     @Column
     private String type;
+
+    @OneToOne//(cascade=CascadeType)
+    private Account account;
 
 }
