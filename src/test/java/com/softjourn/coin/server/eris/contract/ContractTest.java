@@ -48,7 +48,7 @@ public class ContractTest extends TestCase {
             put("send", sendFunction);
         }};
 
-        testContract = new ContractManager("", null).new ContractImpl("", null, contractUnits);
+        testContract = new ContractManager("", "").new ContractImpl("", null, contractUnits, null);
 
     }
 

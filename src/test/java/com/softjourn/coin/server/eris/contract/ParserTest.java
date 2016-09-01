@@ -71,9 +71,9 @@ public class ParserTest extends TestCase {
         }};
 
 
-        testContract1 = new ContractManager("", null).new ContractImpl("", null, testUnits1);
+        testContract1 = new ContractManager("", "").new ContractImpl("", null, testUnits1, null);
 
-        testContract = new ContractManager("", null).new ContractImpl("", null, contractUnits);
+        testContract = new ContractManager("", "").new ContractImpl("", null, contractUnits, null);
 
     }
 
@@ -104,7 +104,7 @@ public class ParserTest extends TestCase {
                 "    \"type\": \"function\"\n" +
                 "  }\n" +
                 "]";
-        assertEquals(testContract, new ContractManager("", null).parseContract(TEST_DATA).build());
+        assertEquals(testContract, new ContractManager("", TEST_DATA).parseContract(TEST_DATA).build());
         String TEST_DATA_1 = "[\n" +
                 "  {\n" +
                 "    \"constant\": true,\n" +
@@ -182,7 +182,7 @@ public class ParserTest extends TestCase {
                 "    \"type\": \"event\"\n" +
                 "  }\n" +
                 "]";
-        assertEquals(testContract1, new ContractManager("", null).parseContract(TEST_DATA_1).build());
+        assertEquals(testContract1, new ContractManager("", TEST_DATA_1).parseContract(TEST_DATA_1).build());
     }
 
 }

@@ -30,24 +30,31 @@ public class ContractManager {
 
     private final String erisChainUrl;
 
-    private final ErisAccountData accountData;
+    private final String contractAbiString;
 
-    public ContractManager(String erisChainUrl, ErisAccountData accountData) {
+    public ContractManager(String erisChainUrl, File contractAbiFile) throws IOException {
+        this(erisChainUrl, readContract(contractAbiFile));
+    }
+
+    public ContractManager(String erisChainUrl, String contractAbiString) {
         this.erisChainUrl = erisChainUrl;
-        this.accountData = accountData;
+        this.contractAbiString = contractAbiString;
 
         ObjectMapper mapper = new ObjectMapper();
         contractUnitReader = mapper.readerFor(ContractUnit.class);
     }
 
-    public ContractBuilder parseContract(File contractAbiFile) throws IOException {
+    public ContractBuilder contractBuilder() throws IOException {
+        return parseContract(contractAbiString);
+    }
+
+    private static String readContract(File contractAbiFile) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(contractAbiFile))) {
-            String contractJson = reader.lines().collect(Collectors.joining("\n"));
-            return parseContract(contractJson);
+            return reader.lines().collect(Collectors.joining("\n"));
         }
     }
 
-    public ContractBuilder parseContract(String abiJson) throws IOException {
+    ContractBuilder parseContract(String abiJson) throws IOException {
         try {
             HashMap<String, ContractUnit> result = new HashMap<>();
             Iterator<ContractUnit> contractUnitIterator = contractUnitReader.readValues(abiJson);
@@ -64,6 +71,8 @@ public class ContractManager {
 
     public class ContractBuilder {
 
+        private ErisAccountData accountData;
+
         private String contractAddress;
 
         private RPCClient client;
@@ -74,19 +83,24 @@ public class ContractManager {
             this.contractUnits = contractUnits;
         }
 
-        public ContractBuilder with(String contractAddress) {
+        public ContractBuilder withContractAddress(String contractAddress) {
             this.contractAddress = contractAddress;
             return this;
         }
 
-        public ContractBuilder with(RPCClient client) {
+        public ContractBuilder withRPCClient(RPCClient client) {
             this.client = client;
+            return this;
+        }
+
+        public ContractBuilder withCallerAccount(ErisAccountData accountData) {
+            this.accountData = accountData;
             return this;
         }
 
         @SuppressWarnings("unchecked")
         public Contract build() {
-            return new ContractImpl(contractAddress, client, (Map<String, ContractUnit>) contractUnits.clone());
+            return new ContractImpl(contractAddress, client, (Map<String, ContractUnit>) contractUnits.clone(), accountData);
         }
     }
 
@@ -98,10 +112,13 @@ public class ContractManager {
 
         private final Map<String, ContractUnit> contractUnits;
 
-        ContractImpl(String contractAddress, RPCClient client, @NonNull Map<String, ContractUnit> contractUnits) {
+        private final ErisAccountData accountData;
+
+        ContractImpl(String contractAddress, RPCClient client, @NonNull Map<String, ContractUnit> contractUnits, ErisAccountData accountData) {
             this.contractAddress = contractAddress;
             this.client = client;
             this.contractUnits = contractUnits;
+            this.accountData = accountData;
         }
 
         @SuppressWarnings("unchecked")
@@ -115,7 +132,9 @@ public class ContractManager {
                 parser = new ResponseParser<>(retVars[0]);
             }
 
-            return parser.parse(client.call(erisChainUrl, callRPCParams(function, args)));
+            String response = client.call(erisChainUrl, callRPCParams(function, args));
+
+            return parser.parse(response);
         }
 
         ErisRPCRequestEntity callRPCParams(String contractUnitName, Object... args) {
