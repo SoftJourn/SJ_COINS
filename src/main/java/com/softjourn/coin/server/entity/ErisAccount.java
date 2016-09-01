@@ -3,7 +3,7 @@ package com.softjourn.coin.server.entity;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Map;
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by volodymyr on 8/30/16.
@@ -15,44 +15,50 @@ import java.util.Map;
 public class ErisAccount {
 
     @Id
+    @NotNull
     @Column
     private String address;
 
     @Column
+    @NotNull
     private String pubKey;
 
     @Column
+    @NotNull
     private String privKey;
 
     @Column
-    private ErisType type;
+    @NotNull
+    private ErisAccountType type;
 
     @OneToOne//(cascade=CascadeType)
     private Account account;
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ErisAccount account = (ErisAccount) o;
-
-        if(address.equals(account.getAddress())&&
-                pubKey.equals(account.getPubKey())&&
-                privKey.equals(account.getPrivKey())&&
-                type.equals(account.getType())&&
-                account.equals(account.getAccount()))
+        if (this == o)
             return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
-        return false;
+        ErisAccount eris = (ErisAccount) o;
+
+        return address.equals(eris.getAddress())&&
+                pubKey.equals(eris.getPubKey())&&
+                privKey.equals(eris.getPrivKey())&&
+                type.equals(eris.getType());
     }
+
     @Override
     public int hashCode(){
         int hash=17;
         hash= hash*31 + address.hashCode();
-        hash= hash*13 + (account == null ? 0 : account.hashCode());
+        hash= hash*31 + pubKey.hashCode();
+        hash= hash*31 + privKey.hashCode();
+        hash+= type.hashCode();
         return hash;
     }
+
     @Override
     public String toString(){
         return "Account: "+(account==null?"null":account.getLdapId())+
