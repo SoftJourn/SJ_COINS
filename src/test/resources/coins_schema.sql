@@ -1,5 +1,6 @@
+DROP TABLE eris IF EXISTS CASCADE;
+DROP TABLE accounts IF EXISTS CASCADE;
 DROP TABLE transactions IF EXISTS;
-DROP TABLE accounts IF EXISTS;
 
 CREATE TABLE accounts
 (
@@ -8,9 +9,6 @@ CREATE TABLE accounts
     fullName VARCHAR(255),
     image VARCHAR(255)
 );
-
-INSERT INTO accounts (ldap_id, amount) VALUES ('account1', 100);
-INSERT INTO accounts (ldap_id, amount) VALUES ('account2', 200);
 
 CREATE TABLE transactions
 (
@@ -26,3 +24,14 @@ CREATE TABLE transactions
 );
 CREATE INDEX account_fk ON transactions (account_id);
 CREATE INDEX destination_fk ON transactions (destination_id);
+CREATE TABLE eris
+(
+    address VARCHAR(255) PRIMARY KEY NOT NULL,
+    privKey VARCHAR(255),
+    pubKey VARCHAR(255),
+    type INT,
+    account_ldap_id VARCHAR(255),
+    CONSTRAINT FK55s0o6jfa48iqty8bc1nxxrf2 FOREIGN KEY (account_ldap_id) REFERENCES accounts (ldap_id)
+);
+CREATE INDEX FK55s0o6jfa48iqty8bc1nxxrf2 ON eris (account_ldap_id);
+CREATE UNIQUE INDEX UKrpsbty0f34qu89n6juppia3ge ON eris (type, account_ldap_id);

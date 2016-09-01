@@ -26,7 +26,8 @@ public class CoinServiceTransactionsTestContextConfiguration {
     public EmbeddedDatabase dataSource() {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.HSQL)
-                .addScript("init_coins_db.sql")
+                .addScript("coins_schema.sql")
+                .addScript("coins_values.sql")
                 .build();
     }
 

@@ -26,6 +26,9 @@ public class Account {
     @Column
     private String fullName;
 
+    @OneToOne(mappedBy = "account")
+    private ErisAccount erisAccount;
+
     @Column
     @JsonView(JsonViews.REGULAR.class)
     private String image;
