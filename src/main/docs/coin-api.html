@@ -703,6 +703,11 @@ Content-Length: 20
 <td class="tableblock halign-left valign-top"><p class="tableblock">Transaction status</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>remain</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Remaining amount after transaction</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>error</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Error description</p></td>
@@ -755,7 +760,7 @@ Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
 Content-Type: application/json;charset=UTF-8
-Content-Length: 235
+Content-Length: 254
 
 {
   "id" : 1,
@@ -764,10 +769,11 @@ Content-Length: 235
   "amount" : 10,
   "comment" : "Some comment",
   "created" : {
-    "nano" : 310000000,
-    "epochSecond" : 1472195773
+    "epochSecond" : 1472827816,
+    "nano" : 818000000
   },
   "status" : "SUCCESS",
+  "remain" : null,
   "error" : null
 }</code></pre>
 </div>
@@ -831,6 +837,11 @@ Content-Length: 235
 <td class="tableblock halign-left valign-top"><p class="tableblock">Transaction status</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>remain</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Remaining amount after transaction</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>error</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Error description</p></td>
@@ -883,7 +894,7 @@ Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
 Content-Type: application/json;charset=UTF-8
-Content-Length: 235
+Content-Length: 254
 
 {
   "id" : 1,
@@ -892,10 +903,11 @@ Content-Length: 235
   "amount" : 10,
   "comment" : "Some comment",
   "created" : {
-    "nano" : 314000000,
-    "epochSecond" : 1472195773
+    "epochSecond" : 1472827816,
+    "nano" : 822000000
   },
   "status" : "SUCCESS",
+  "remain" : null,
   "error" : null
 }</code></pre>
 </div>
@@ -959,6 +971,11 @@ Content-Length: 235
 <td class="tableblock halign-left valign-top"><p class="tableblock">Transaction status</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>remain</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Remaining amount after transaction</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>error</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Error description</p></td>
@@ -1011,7 +1028,7 @@ Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
 Content-Type: application/json;charset=UTF-8
-Content-Length: 235
+Content-Length: 254
 
 {
   "id" : 1,
@@ -1020,10 +1037,11 @@ Content-Length: 235
   "amount" : 10,
   "comment" : "Some comment",
   "created" : {
-    "nano" : 310000000,
-    "epochSecond" : 1472195773
+    "epochSecond" : 1472827816,
+    "nano" : 818000000
   },
   "status" : "SUCCESS",
+  "remain" : null,
   "error" : null
 }</code></pre>
 </div>
@@ -1129,7 +1147,7 @@ Content-Length: 98
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-26 10:15:55 EEST
+Last updated 2016-08-29 17:28:46 EEST
 </div>
 </div>
 </body>
