@@ -4,6 +4,7 @@ package com.softjourn.coin.server.eris.contract;
 import com.softjourn.coin.server.eris.contract.response.Response;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public interface Contract {
 
@@ -14,6 +15,9 @@ public interface Contract {
      * @return JSON representation of result of call
      */
     <T> Response<T> call(String function, Object... args) throws IOException;
+
+
+    void subscribeToUserIn(String address, Consumer<Response> callBack);
 
 
 }

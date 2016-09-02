@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.eris.contract;
 
 import com.softjourn.coin.server.eris.ErisAccountData;
+import com.softjourn.coin.server.eris.contract.event.EventHandler;
 import com.softjourn.coin.server.eris.contract.response.Response;
 import com.softjourn.coin.server.eris.contract.types.Type;
 import com.softjourn.coin.server.eris.rpc.ErisRPCRequestEntity;
@@ -10,6 +11,7 @@ import lombok.NonNull;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.function.Consumer;
 
 
 class ContractImpl implements Contract, Cloneable {
@@ -46,6 +48,17 @@ class ContractImpl implements Contract, Cloneable {
         String response = client.call(chainUrl, callRPCParams(function, args));
 
         return parser.parse(response);
+    }
+
+    @Override
+    public void subscribeToUserIn(String address, Consumer<Response> callBack) {
+        EventHandler handler = new EventHandler();
+        Consumer<String> mapping = s -> callBack.accept(new ResponseParser<>(null).apply(s));
+        handler.subscribe(chainUrl, constructAccountInEventId(address), mapping);
+    }
+
+    private String constructAccountInEventId(String accountAddress) {
+        return "Acc/" + accountAddress + "/Input";
     }
 
     ErisRPCRequestEntity callRPCParams(String contractUnitName, Object... args) {
