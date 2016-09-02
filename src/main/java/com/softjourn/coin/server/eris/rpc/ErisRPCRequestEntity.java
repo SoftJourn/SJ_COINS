@@ -1,5 +1,8 @@
 package com.softjourn.coin.server.eris.rpc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.Getter;
 
 import java.util.Map;
@@ -23,7 +26,7 @@ public class ErisRPCRequestEntity {
     private Map<String, Object> params;
 
 
-    private ErisRPCRequestEntity(Map<String, Object> params, String method) {
+    public ErisRPCRequestEntity(Map<String, Object> params, String method) {
         this.params = params;
         this.method = method;
     }
@@ -46,4 +49,15 @@ public class ErisRPCRequestEntity {
         return new ErisRPCRequestEntity(params, TRANSACTIONAL_CALL_METHOD);
     }
 
+    @Override
+    public String toString() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectWriter writer = mapper.writer();
+            return writer.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            //should newer happened
+            throw new RuntimeException("Can't write request entity as JSON.", e);
+        }
+    }
 }
