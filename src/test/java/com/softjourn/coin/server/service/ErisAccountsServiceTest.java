@@ -6,7 +6,11 @@ import com.softjourn.coin.server.entity.ErisAccount;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
@@ -23,7 +27,9 @@ import static org.junit.Assert.assertNotEquals;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
+
 @ContextConfiguration(classes = CoinServiceTransactionsTestContextConfiguration.class, loader=AnnotationConfigContextLoader.class)
+
 public class ErisAccountsServiceTest {
 
 
@@ -38,12 +44,17 @@ public class ErisAccountsServiceTest {
 
 
     @Autowired
+    private String rootUser;
+
+
+    @Autowired
     AccountsService accountsService;
 
     @Autowired
     ErisAccountsService erisAccountsService;
 
-//    @Before
+
+    //    @Before
 //    public void init(){
 //        List<Account> accounts=new ArrayList<>();
 //        accounts.add(new Account("vromanchuk",new BigDecimal("200")));
@@ -65,6 +76,7 @@ public class ErisAccountsServiceTest {
         assertEquals("Size > 0",accountMap.size()>0,true);
 
     }
+
     @Test
     public void testErisAccountFill(){
         accountsService.getAll().forEach(account -> {
@@ -72,6 +84,7 @@ public class ErisAccountsServiceTest {
             System.out.println(account.getErisAccount().toString());
         });
     }
+
     @Test
     public void testValidity() throws IOException{
         File erisJsonFile=new File(JSON_PATH);
@@ -83,5 +96,8 @@ public class ErisAccountsServiceTest {
         });
     }
 
-
+    @Test
+    public void testRoot(){
+        System.out.println(rootUser);
+    }
 }

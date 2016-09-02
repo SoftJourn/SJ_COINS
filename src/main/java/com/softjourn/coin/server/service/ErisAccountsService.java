@@ -36,9 +36,9 @@ public class ErisAccountsService {
 
     private ResourceLoader resourceLoader;
 
-    private static final String CHAIN = "mychain";
-    private static final String CHAIN_PARTICIPANT = CHAIN.toLowerCase() + "_participant_.*";
-    private static final String CHAIN_ROOT = CHAIN.toLowerCase() + "_root_.*";
+
+    private static final String CHAIN_PARTICIPANT = ".*_participant_.*";
+    private static final String CHAIN_ROOT = ".*_root_.*";
 
 
     @Autowired
@@ -59,8 +59,14 @@ public class ErisAccountsService {
         repository.save(erisAccountMap.values());
     }
 
+//    public TreeMap<String, ErisAccount> erisAccountMapping(File erisJsonFile,TreeMap<String,ErisAccount> rootAccounts) throws IOException{
+//        return new TreeMap<>();
+//    }
+
+
     public TreeMap<String, ErisAccount> erisAccountMapping(File erisJsonFile) throws IOException{
         TreeMap<String,ErisAccount> erisAccountMap = new TreeMap<>();
+        //TreeMap<String,ErisAccount> erisRootAccountMap = new TreeMap<>();
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, ErisAccount> accountMap;
@@ -70,10 +76,8 @@ public class ErisAccountsService {
             if (k.matches(CHAIN_ROOT)) {
                 v.setType(ErisAccountType.ROOT);
 
-            } else {
-                if (k.matches(CHAIN_PARTICIPANT)) {
+            } else if (k.matches(CHAIN_PARTICIPANT)) {
                     v.setType(ErisAccountType.PARTICIPANT);
-                }
             }
             erisAccountMap.put(v.getAddress(), v);
 

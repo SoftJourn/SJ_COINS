@@ -450,7 +450,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel3">
 <li><a href="#_response_structure_2">Response structure</a></li>
 <li><a href="#_example_request_2">Example request</a></li>
-<li><a href="#_path_parameters">Path parameters</a></li>
 <li><a href="#_example_response_2">Example response</a></li>
 </ul>
 </li>
@@ -458,7 +457,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel3">
 <li><a href="#_response_structure_3">Response structure</a></li>
 <li><a href="#_example_request_3">Example request</a></li>
-<li><a href="#_path_parameters_2">Path parameters</a></li>
 <li><a href="#_example_response_3">Example response</a></li>
 </ul>
 </li>
@@ -466,7 +464,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel3">
 <li><a href="#_response_structure_4">Response structure</a></li>
 <li><a href="#_example_request_4">Example request</a></li>
-<li><a href="#_path_parameters_3">Path parameters</a></li>
 <li><a href="#_example_response_4">Example response</a></li>
 </ul>
 </li>
@@ -739,7 +736,7 @@ Content-Length: 20
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/buy/0849FFFCAAA4C0115DB35B15036E5B0C7587563E HTTP/1.1
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/spent HTTP/1.1
 Content-Type: application/json;charset=UTF-8
 Host: localhost
 Content-Length: 47
@@ -750,28 +747,6 @@ Content-Length: 47
 }</code></pre>
 </div>
 </div>
-</div>
-<div class="sect3">
-<h4 id="_path_parameters"><a class="link" href="#_path_parameters">Path parameters</a></h4>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 1. /api/v1/buy/{vendingMachineErisAccountAddress}</caption>
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Parameter</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>vendingMachineErisAccountAddress</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The vending machine where you want to buy eris account address</p></td>
-</tr>
-</tbody>
-</table>
 </div>
 <div class="sect3">
 <h4 id="_example_response_2"><a class="link" href="#_example_response_2">Example response</a></h4>
@@ -794,8 +769,8 @@ Content-Length: 254
   "amount" : 10,
   "comment" : "Some comment",
   "created" : {
-    "nano" : 515000000,
-    "epochSecond" : 1472803811
+    "epochSecond" : 1472827816,
+    "nano" : 818000000
   },
   "status" : "SUCCESS",
   "remain" : null,
@@ -908,28 +883,6 @@ Content-Length: 54
 </div>
 </div>
 <div class="sect3">
-<h4 id="_path_parameters_2"><a class="link" href="#_path_parameters_2">Path parameters</a></h4>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 2. /api/v1/move/{account}</caption>
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Parameter</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>account</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Account to send coins</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
 <h4 id="_example_response_3"><a class="link" href="#_example_response_3">Example response</a></h4>
 <div class="listingblock">
 <div class="content">
@@ -950,8 +903,8 @@ Content-Length: 254
   "amount" : 10,
   "comment" : "Some comment",
   "created" : {
-    "nano" : 518000000,
-    "epochSecond" : 1472803811
+    "epochSecond" : 1472827816,
+    "nano" : 822000000
   },
   "status" : "SUCCESS",
   "remain" : null,
@@ -1064,28 +1017,6 @@ Content-Length: 54
 </div>
 </div>
 <div class="sect3">
-<h4 id="_path_parameters_3"><a class="link" href="#_path_parameters_3">Path parameters</a></h4>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 3. /api/v1/add/{account}</caption>
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Parameter</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>account</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Account to add coins</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
 <h4 id="_example_response_4"><a class="link" href="#_example_response_4">Example response</a></h4>
 <div class="listingblock">
 <div class="content">
@@ -1106,8 +1037,8 @@ Content-Length: 254
   "amount" : 10,
   "comment" : "Some comment",
   "created" : {
-    "nano" : 515000000,
-    "epochSecond" : 1472803811
+    "epochSecond" : 1472827816,
+    "nano" : 818000000
   },
   "status" : "SUCCESS",
   "remain" : null,
@@ -1216,7 +1147,7 @@ Content-Length: 98
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-09-02 11:05:56 EEST
+Last updated 2016-08-29 17:28:46 EEST
 </div>
 </div>
 </body>
