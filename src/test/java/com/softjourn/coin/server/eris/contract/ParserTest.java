@@ -64,10 +64,21 @@ public class ParserTest extends TestCase {
         });
         send.setOutputs(new Variable[0]);
 
+        final ContractUnit sendEvent = new ContractUnit();
+        sendEvent.setName("Send");
+        sendEvent.setType(ContractUnitType.event);
+        sendEvent.setAnonymous(false);
+        sendEvent.setInputs(new Variable[]{
+                new Variable("from", new Address()),
+                new Variable("to", new Address()),
+                new Variable("value", uintType)
+        });
+
         Map<String, ContractUnit> testUnits1 = new HashMap<String, ContractUnit>() {{
             put("queryBalance", queryBalance);
             put("mint", mint);
             put("send", send);
+            put("Send", sendEvent);
         }};
 
 

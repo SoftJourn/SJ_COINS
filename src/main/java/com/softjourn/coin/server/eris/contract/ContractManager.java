@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.softjourn.coin.server.eris.contract.ContractUnitType.*;
+
 /**
  * Contract manager to create contract objects
  * for specified chain url and account
@@ -60,7 +62,7 @@ public class ContractManager {
             Iterator<ContractUnit> contractUnitIterator = contractUnitReader.readValues(abiJson);
             while (contractUnitIterator.hasNext()) {
                 ContractUnit contractUnit = contractUnitIterator.next();
-                if (contractUnit.getType() == ContractUnitType.function)
+                if (contractUnit.getType() == function || contractUnit.getType() == event)
                     result.put(contractUnit.getName(), contractUnit);
             }
             return new ContractBuilder(result);

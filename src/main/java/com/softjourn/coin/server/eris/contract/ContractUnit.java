@@ -24,6 +24,8 @@ class ContractUnit {
 
     private ContractUnitType type;
 
+    private boolean anonymous;
+
     private Variable[] inputs;
 
     private Variable[] outputs;
