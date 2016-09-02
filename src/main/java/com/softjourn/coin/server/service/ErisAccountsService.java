@@ -59,14 +59,8 @@ public class ErisAccountsService {
         repository.save(erisAccountMap.values());
     }
 
-//    public TreeMap<String, ErisAccount> erisAccountMapping(File erisJsonFile,TreeMap<String,ErisAccount> rootAccounts) throws IOException{
-//        return new TreeMap<>();
-//    }
-
-
     public TreeMap<String, ErisAccount> erisAccountMapping(File erisJsonFile) throws IOException{
         TreeMap<String,ErisAccount> erisAccountMap = new TreeMap<>();
-        //TreeMap<String,ErisAccount> erisRootAccountMap = new TreeMap<>();
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, ErisAccount> accountMap;
@@ -120,6 +114,13 @@ public class ErisAccountsService {
 
         return newAssignedErisAccounts;
 
+    }
+
+    public ErisAccount bindFreeAccount() {
+        return repository
+                .getFree()
+                .findFirst()
+                .orElse(null);
     }
 
     public List<ErisAccount> getAll() {

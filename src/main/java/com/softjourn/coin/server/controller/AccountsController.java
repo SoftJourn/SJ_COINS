@@ -3,6 +3,7 @@ package com.softjourn.coin.server.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.service.AccountsService;
+import com.softjourn.coin.server.service.CoinService;
 import com.softjourn.coin.server.util.JsonViews;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,16 +17,20 @@ import java.security.Principal;
 public class AccountsController {
 
     private AccountsService accountsService;
+    private CoinService coinService;
 
     @Autowired
-    public AccountsController(AccountsService accountsService) {
+    public AccountsController(AccountsService accountsService, CoinService coinService) {
         this.accountsService = accountsService;
+        this.coinService = coinService;
     }
 
     @RequestMapping(method = RequestMethod.GET)
     @JsonView(JsonViews.REGULAR.class)
     public Account getAccount(Principal principal) {
-        return accountsService.getAccount(principal.getName());
+        Account account = accountsService.getAccount(principal.getName());
+        account.setAmount(coinService.getAmount(account.getLdapId()));
+        return account;
     }
 
 }

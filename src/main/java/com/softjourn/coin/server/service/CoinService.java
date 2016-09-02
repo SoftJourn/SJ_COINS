@@ -90,7 +90,7 @@ public class CoinService {
     public BigDecimal getAmount(String ldapId) {
         try {
             ErisAccount account = getErisAccount(ldapId);
-            Response<BigDecimal> response = contractService.getForAccount(account).call(GET_MONEY);
+            Response<BigDecimal> response = contractService.getForAccount(account).call(GET_MONEY, account.getAddress());
             processResponse(response);
             return response.getReturnValue().getVal();
         } catch (Exception e) {

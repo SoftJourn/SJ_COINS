@@ -81,6 +81,7 @@ public class ResponseParser<T> {
     private ReturnValue<T> getReturnValue(JsonNode res) throws ResponseParsingException {
         if (outVariable == null) return null;
         JsonNode result = res.get("result");
+        if (result.isNull()) return null;
         if (! (result.isObject() || result.isArray())) throw new ResponseParsingException("Wrong response. Result field is not object type.");
 
         if (result.isArray()) {
