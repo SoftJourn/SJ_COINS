@@ -2,7 +2,12 @@ package com.softjourn.coin.server.service;
 
 
 import com.softjourn.coin.server.entity.Account;
+import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.TransactionStatus;
+import com.softjourn.coin.server.eris.contract.Contract;
+import com.softjourn.coin.server.eris.contract.response.Response;
+import com.softjourn.coin.server.eris.contract.response.ReturnValue;
+import com.softjourn.coin.server.eris.contract.response.TxParams;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
 import com.softjourn.coin.server.repository.TransactionRepository;
@@ -34,7 +39,13 @@ public class CoinServiceMoveTest {
     AccountsService accountsService;
 
     @Mock
+    ErisContractService contractService;
+
+    @Mock
     TransactionRepository transactionRepository;
+
+    @Mock
+    Contract contract;
 
     CoinService coinService;
 
@@ -44,23 +55,49 @@ public class CoinServiceMoveTest {
         account1 = new Account("account1", new BigDecimal(100));
         account2 = new Account("account2", new BigDecimal(200));
 
+        ErisAccount erisAccount1 = new ErisAccount();
+        erisAccount1.setAddress("address1");
+        ErisAccount erisAccount2 = new ErisAccount();
+        erisAccount2.setAddress("address1");
+
+        account1.setErisAccount(erisAccount1);
+        account2.setErisAccount(erisAccount2);
+
+
+
         when(principal.getName()).thenReturn("account1");
 
-        coinService = new CoinService(accountsService);
+        coinService = new CoinService(accountsService, contractService);
 
         when(accountsService.getAccount("account1")).thenReturn(account1);
         when(accountsService.getAccount("account2")).thenReturn(account2);
         when(accountsService.getAccount(not(or(eq("account1"), eq("account2"))))).thenThrow(new AccountNotFoundException(""));
+
+        when(contractService.getForAccount(any())).thenReturn(contract);
+
+        Response<Object> getResp = new Response<>("",
+                new ReturnValue<>(Object.class, new BigDecimal(100)),
+                null,
+                null);
+
+        Response<Object> sendResp = new Response<>("",
+                null,
+                null,
+                new TxParams("address", "txId"));
+
+        when(contract.call("queryBalance"))
+                .thenReturn(getResp);
+
+        when(contract.call(eq("send"), org.mockito.Matchers.anyVararg()))
+                .thenReturn(sendResp);
     }
 
     @Test
     public void testMove() throws Exception {
         coinService.move(principal.getName(), "account2", new BigDecimal(50), "");
 
-        assertEquals(new BigDecimal(50), account1.getAmount());
-        assertEquals(new BigDecimal(250), account2.getAmount());
-
-        verify(accountsService, times(2)).update(any(Account.class));
+        verify(contract, times(1)).call("queryBalance");
+        verify(contract, times(1)).call(eq("send"), anyVararg());
     }
 
     @Test(expected = NotEnoughAmountInAccountException.class)

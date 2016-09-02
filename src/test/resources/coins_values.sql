@@ -2,6 +2,8 @@ INSERT INTO accounts (ldap_id, amount) VALUES ('vromanchuk', 100);
 INSERT INTO accounts (ldap_id, amount) VALUES ('vdanyliuk', 200);
 INSERT INTO accounts (ldap_id, amount) VALUES ('ovovchuk', 300);
 INSERT INTO accounts (ldap_id, amount) VALUES ('vkraietskyi', 400);
+INSERT INTO accounts (ldap_id, amount) VALUES ('account1', 100);
+INSERT INTO accounts (ldap_id, amount) VALUES ('account2', 200);
 
 INSERT INTO eris VALUES ('7B5FC7B0DB19D7F73C4105424CB02A00EF290D3B',
                          '709757B52CDBAE5E3B60704E00D6BADEE41F1386EA073379D09E682ADB5C993D',

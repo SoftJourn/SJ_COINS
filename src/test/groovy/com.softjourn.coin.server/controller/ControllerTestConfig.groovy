@@ -24,7 +24,6 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore
 import org.springframework.test.context.web.WebAppConfiguration
 
-import java.security.Principal
 import java.time.Instant
 
 import static org.mockito.Matchers.any
@@ -47,10 +46,10 @@ class ControllerTestConfig {
         def transaction = createTransaction(account, account)
         def transactionMove = createTransaction(account, account2)
 
-        when(coinService.getAmount(any(Principal.class))).thenReturn(new BigDecimal('100'))
-        when(coinService.spent(any(String.class), any(BigDecimal.class), any(String.class)))
+        when(coinService.getAmount(any(String.class))).thenReturn(new BigDecimal('100'))
+        when(coinService.spent(any(String.class) ,any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transaction)
-        when(coinService.fillAccount(any(String.class), any(BigDecimal.class), any(String.class)))
+        when(coinService.fillAccount(any(String.class), any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transaction)
         when(coinService.move(any(String.class), any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transactionMove)

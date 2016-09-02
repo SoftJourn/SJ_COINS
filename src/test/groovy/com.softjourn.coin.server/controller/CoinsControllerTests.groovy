@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.SpringApplicationConfiguration
 import org.springframework.http.MediaType
 import org.springframework.restdocs.JUnitRestDocumentation
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
@@ -24,9 +25,10 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @RunWith(SpringJUnit4ClassRunner)
@@ -68,8 +70,8 @@ class CoinsControllerTests {
 
     @Test
     @WithMockUser
-    void 'test of POST request to /api/v1/spent endpoint'() {
-        mockMvc.perform(post('/api/v1/spent')
+    void 'test of POST request to /api/v1/buy/{vendingMachineErisAccountAddress} endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/buy/{vendingMachineErisAccountAddress}', "0849FFFCAAA4C0115DB35B15036E5B0C7587563E")
                 .content('{\n  "amount": 10,\n  "comment": "Buying Pepsi"\n}')
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
@@ -77,6 +79,10 @@ class CoinsControllerTests {
                 .andExpect(jsonPath('$.id', Matchers.is(notNullValue())))
                 .andDo(document('spent',
                     preprocessResponse(prettyPrint()),
+                    pathParameters(
+                        parameterWithName("vendingMachineErisAccountAddress")
+                                .description("The vending machine where you want to buy eris account address")
+                    ),
                     responseFields(
                             fieldWithPath('id')
                                     .type(JsonFieldType.NUMBER)
@@ -112,13 +118,17 @@ class CoinsControllerTests {
     @Test
     @WithMockUser
     void 'test of POST request to /api/v1/move/{account} endpoint'() {
-        mockMvc.perform(post('/api/v1/move/account2')
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/move/{account}', "account2")
                 .content('{\n  "amount": 10,\n  "comment": "Bonus for hard work"\n}')
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath('$.id', Matchers.is(notNullValue())))
                 .andDo(document('move',
                     preprocessResponse(prettyPrint()),
+                    pathParameters(
+                            parameterWithName("account")
+                                    .description("Account to send coins")
+                    ),
                     responseFields(
                             fieldWithPath('id')
                                     .type(JsonFieldType.NUMBER)
@@ -154,13 +164,17 @@ class CoinsControllerTests {
     @Test
     @WithMockUser(roles = ['COIN_ADMIN'])
     void 'test of POST request to /api/v1/add/{account} endpoint'() {
-        mockMvc.perform(post('/api/v1/add/account1')
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/add/{account}', "account1")
                 .content('{\n  "amount": 10,\n  "comment": "Bonus for hard work"\n}')
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath('$.id', Matchers.is(notNullValue())))
                 .andDo(document('add',
                     preprocessResponse(prettyPrint()),
+                    pathParameters(
+                            parameterWithName("account")
+                                .description("Account to add coins")
+                    ),
                     responseFields(
                             fieldWithPath('id')
                                     .type(JsonFieldType.NUMBER)

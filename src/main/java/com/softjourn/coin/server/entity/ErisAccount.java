@@ -1,18 +1,17 @@
 package com.softjourn.coin.server.entity;
 
+import com.softjourn.coin.server.eris.ErisAccountData;
 import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-/**
- * Created by volodymyr on 8/30/16.
- */
+
 @Entity
 @Data
 @Table(name = "eris",uniqueConstraints=
 @UniqueConstraint(columnNames = {"type", "account_ldap_id"}))
-public class ErisAccount {
+public class ErisAccount implements ErisAccountData {
 
     @Id
     @NotNull
