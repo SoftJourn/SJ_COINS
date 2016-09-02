@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class ContractTest extends TestCase {
 
-    private ContractManager.ContractImpl testContract;
+    private ContractImpl testContract;
 
     public void setUp() throws Exception {
         Type uintType = new Uint(256);
@@ -48,7 +48,7 @@ public class ContractTest extends TestCase {
             put("send", sendFunction);
         }};
 
-        testContract = new ContractManager("", "").new ContractImpl("", null, contractUnits, null);
+        testContract = new ContractImpl("", null, contractUnits, null, "");
 
     }
 

@@ -38,8 +38,9 @@ public class ErisContractService {
     void initContract() {
         try {
             File initFile = resourceLoader.getResource("classpath:" + erisContractFile).getFile();
-            builder = new ContractManager(erisChainUrl, initFile)
+            builder = new ContractManager(initFile)
                     .contractBuilder()
+                    .withChainUrl(erisChainUrl)
                     .withContractAddress(erisContractAddress)
                     .withRPCClient(new HTTPRPCClient());
 

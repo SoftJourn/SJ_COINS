@@ -10,8 +10,8 @@ import java.util.Map;
 
 public class ParserTest extends TestCase {
 
-    private ContractManager.ContractImpl testContract;
-    private ContractManager.ContractImpl testContract1;
+    private ContractImpl testContract;
+    private ContractImpl testContract1;
 
     public void setUp() throws Exception {
 
@@ -82,9 +82,9 @@ public class ParserTest extends TestCase {
         }};
 
 
-        testContract1 = new ContractManager("", "").new ContractImpl("", null, testUnits1, null);
+        testContract1 = new ContractImpl("", null, testUnits1, null, "");
 
-        testContract = new ContractManager("", "").new ContractImpl("", null, contractUnits, null);
+        testContract = new ContractImpl("", null, contractUnits, null, "");
 
     }
 
@@ -115,7 +115,7 @@ public class ParserTest extends TestCase {
                 "    \"type\": \"function\"\n" +
                 "  }\n" +
                 "]";
-        assertEquals(testContract, new ContractManager("", TEST_DATA).parseContract(TEST_DATA).build());
+        assertEquals(testContract, new ContractManager(TEST_DATA).parseContract(TEST_DATA).build());
         String TEST_DATA_1 = "[\n" +
                 "  {\n" +
                 "    \"constant\": true,\n" +
@@ -193,7 +193,7 @@ public class ParserTest extends TestCase {
                 "    \"type\": \"event\"\n" +
                 "  }\n" +
                 "]";
-        assertEquals(testContract1, new ContractManager("", TEST_DATA_1).parseContract(TEST_DATA_1).build());
+        assertEquals(testContract1, new ContractManager(TEST_DATA_1).parseContract(TEST_DATA_1).build());
     }
 
 }
