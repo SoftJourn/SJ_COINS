@@ -23,7 +23,7 @@ public class HTTPRPCClient implements RPCClient {
 
     @Override
     public String call(String URL, Object entity) throws IOException {
-        HttpResponse response =  makeRequest(URL, entity.toString());
+        HttpResponse response =  makeRequest(URL + "/rpc", entity.toString());
         try {
             StatusLine statusLine = response.getStatusLine();
             if (statusLine.getStatusCode() >= 400) throw new IOException(statusLine.getReasonPhrase());

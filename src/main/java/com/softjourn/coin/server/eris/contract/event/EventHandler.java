@@ -28,7 +28,7 @@ public class EventHandler {
 
     public void subscribe(String url, String eventId, Consumer<String> callBack) {
         try {
-            WebSocket socket = factory.createSocket(url);
+            WebSocket socket = factory.createSocket(url + "/socketrpc");
             socket.connect();
             socket.addListener(new Listener(callBack));
             socket.sendText(createSubscribeRequest(eventId));
