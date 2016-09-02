@@ -84,7 +84,7 @@ public class CoinServiceTestConcurrent {
                 null,
                 new TxParams("address", "txId"));
 
-        when(contract.call("queryBalance"))
+        when(contract.call(eq("queryBalance"), anyVararg()))
                 .thenReturn(getResp);
 
         when(contract.call(eq("send"), org.mockito.Matchers.anyVararg()))

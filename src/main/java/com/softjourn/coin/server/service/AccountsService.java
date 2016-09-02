@@ -84,6 +84,13 @@ public class AccountsService {
 
     private RestTemplate restTemplate;
 
+    public AccountsService(AccountRepository accountRepository, ErisAccountsService erisAccountsService, ErisAccountRepository erisAccountRepository, RestTemplate restTemplate) {
+        this.accountRepository = accountRepository;
+        this.erisAccountsService = erisAccountsService;
+        this.erisAccountRepository = erisAccountRepository;
+        this.restTemplate = restTemplate;
+    }
+
     @Autowired
     public AccountsService(AccountRepository accountRepository, ErisAccountRepository erisAccountRepository, RestTemplate restTemplate) {
         this.accountRepository = accountRepository;

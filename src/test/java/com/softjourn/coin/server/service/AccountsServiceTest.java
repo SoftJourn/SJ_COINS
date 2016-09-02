@@ -1,8 +1,10 @@
 package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.entity.Account;
+import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
+import com.softjourn.coin.server.repository.ErisAccountRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +38,12 @@ public class AccountsServiceTest {
     @Mock
     private AccountRepository accountRepository;
 
+    @Mock
+    ErisAccountsService erisAccountsService;
+
+    @Mock
+    ErisAccountRepository erisAccountRepository;
+
     @InjectMocks
     private AccountsService accountsService;
 
@@ -63,6 +71,8 @@ public class AccountsServiceTest {
                 return (Account)args[0];
             }
         });
+
+        when(erisAccountsService.bindFreeAccount()).thenReturn(new ErisAccount());
 
     }
 

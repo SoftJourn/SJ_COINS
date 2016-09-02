@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class CoinService {
@@ -128,13 +129,12 @@ public class CoinService {
     }
 
     private ErisAccount getErisAccount(String ldapId) {
-        Account account = accountsService.getAccount(ldapId);
-        ErisAccount erisAccount = account.getErisAccount();
-        if (erisAccount == null) {
-            throw  new ErisProcessingException("Eris account for user " + account.getLdapId() +
-                    "is not set. You can't pass coins for this account");
-        }
-        return erisAccount;
+        return Optional
+                .ofNullable(accountsService.getAccount(ldapId))
+                .map(Account::getErisAccount)
+                .orElseThrow(() -> new ErisProcessingException("Eris account for user " + ldapId +
+                        "is not set. You can't pass coins for this account"));
+
     }
 
     private void processResponse(Response response) {

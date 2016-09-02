@@ -85,7 +85,7 @@ public class CoinServiceMoveTest {
                 null,
                 new TxParams("address", "txId"));
 
-        when(contract.call("queryBalance"))
+        when(contract.call(eq("queryBalance"), org.mockito.Matchers.anyVararg()))
                 .thenReturn(getResp);
 
         when(contract.call(eq("send"), org.mockito.Matchers.anyVararg()))
@@ -96,7 +96,7 @@ public class CoinServiceMoveTest {
     public void testMove() throws Exception {
         coinService.move(principal.getName(), "account2", new BigDecimal(50), "");
 
-        verify(contract, times(1)).call("queryBalance");
+        verify(contract, times(1)).call(eq("queryBalance"), anyVararg());
         verify(contract, times(1)).call(eq("send"), anyVararg());
     }
 

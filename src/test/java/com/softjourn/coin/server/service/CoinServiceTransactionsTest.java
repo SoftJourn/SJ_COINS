@@ -65,6 +65,8 @@ public class CoinServiceTransactionsTest {
         ReflectionTestUtils.setField(accountsService, "accountRepository", accountRepository);
 
         when(accountsService.getAccount(anyString())).thenCallRealMethod();
+        when(accountsService.createAccount("account23")).thenThrow(AccountNotFoundException.class);
+
         contract = mock(Contract.class);
         contractService = mock(ErisContractService.class);
 
@@ -82,7 +84,7 @@ public class CoinServiceTransactionsTest {
                 null,
                 new TxParams("address", "txId"));
 
-        when(contract.call("queryBalance"))
+        when(contract.call(eq("queryBalance"), anyVararg()))
                 .thenReturn(getResp);
 
         when(contract.call(eq("send"), org.mockito.Matchers.anyVararg()))
@@ -98,7 +100,7 @@ public class CoinServiceTransactionsTest {
 
         coinService.spent("address", "account1", spentAmount, "Buying Pepsi.");
 
-        verify(contract, times(1)).call(eq("queryBalance"));
+        verify(contract, times(1)).call(eq("queryBalance"), anyVararg());
         verify(contract, times(1)).call(eq("send"), anyVararg());
     }
 
@@ -108,7 +110,7 @@ public class CoinServiceTransactionsTest {
             coinService.move(principal.getName(), "account2", new BigDecimal(50), "");
         } catch (PersistenceException ignored) {}
 
-        verify(contract, times(1)).call(eq("queryBalance"));
+        verify(contract, times(1)).call(eq("queryBalance"), anyVararg());
         verify(contract, times(1)).call(eq("send"), anyVararg());
     }
 
