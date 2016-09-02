@@ -11,9 +11,10 @@ import com.softjourn.coin.server.eris.contract.types.Type;
 import com.softjourn.coin.server.eris.contract.response.Error;
 
 import java.io.IOException;
+import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
-public class ResponseParser<T> {
+public class ResponseParser<T> implements Function<String, Response<T>>{
 
     private ObjectMapper mapper;
 
@@ -26,7 +27,7 @@ public class ResponseParser<T> {
     }
 
 
-    public Response parse(String responseBody) throws IOException {
+    public Response<T> parse(String responseBody) throws IOException {
         JsonNode res = mapper.readTree(responseBody);
 
         String id = getId(res);
@@ -52,6 +53,15 @@ public class ResponseParser<T> {
         }
 
         return null;
+    }
+
+    @Override
+    public Response<T> apply(String s) {
+        try {
+            return parse(s);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static class ReadException extends RuntimeException {}
