@@ -2,6 +2,8 @@ INSERT INTO accounts (ldap_id, amount) VALUES ('vromanchuk', 100);
 INSERT INTO accounts (ldap_id, amount) VALUES ('vdanyliuk', 200);
 INSERT INTO accounts (ldap_id, amount) VALUES ('ovovchuk', 300);
 INSERT INTO accounts (ldap_id, amount) VALUES ('vkraietskyi', 400);
+INSERT INTO accounts (ldap_id, amount) VALUES ('account1', 100);
+INSERT INTO accounts (ldap_id, amount) VALUES ('account2', 200);
 
 INSERT INTO accounts (ldap_id, amount) VALUES ('account1', 100);
 INSERT INTO accounts (ldap_id, amount) VALUES ('account2', 200);

@@ -122,6 +122,13 @@ public class ErisAccountsService {
 
     }
 
+    public ErisAccount bindFreeAccount() {
+        return repository
+                .getFree()
+                .findFirst()
+                .orElse(null);
+    }
+
     public List<ErisAccount> getAll() {
         return StreamSupport
                 .stream(repository.findAll().spliterator(), false)

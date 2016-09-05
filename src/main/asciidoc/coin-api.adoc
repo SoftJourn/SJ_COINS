@@ -109,6 +109,9 @@ Don't forget to add authorization headers to the request
 
 include::{snippets}/spent/http-request.adoc[]
 
+==== Path parameters
+include::{snippets}/spent/path-parameters.adoc[]
+
 ==== Example response
 
 include::{snippets}/spent/http-response.adoc[]
@@ -134,6 +137,9 @@ Don't forget to add authorization headers to the request
 
 include::{snippets}/move/http-request.adoc[]
 
+==== Path parameters
+include::{snippets}/move/path-parameters.adoc[]
+
 ==== Example response
 
 include::{snippets}/move/http-response.adoc[]
@@ -158,6 +164,9 @@ Don't forget to add authorization headers to the request
 ====
 
 include::{snippets}/add/http-request.adoc[]
+
+==== Path parameters
+include::{snippets}/add/path-parameters.adoc[]
 
 ==== Example response
 
