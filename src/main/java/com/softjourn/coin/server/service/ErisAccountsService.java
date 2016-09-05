@@ -8,6 +8,7 @@ import com.softjourn.coin.server.entity.ErisAccountType;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,9 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-/**
- * Created by volodymyr on 8/30/16.
- */
+
 @Service
 public class ErisAccountsService {
 
@@ -35,6 +34,9 @@ public class ErisAccountsService {
     private RestTemplate restTemplate;
 
     private ResourceLoader resourceLoader;
+
+    @Value("${eris.accounts.json.path}")
+    private String accountsJsonPath;
 
 
     private static final String CHAIN_PARTICIPANT = ".*_participant_.*";
@@ -52,17 +54,12 @@ public class ErisAccountsService {
 
     @PostConstruct
     private void init() throws IOException {
-        File erisJsonFile = resourceLoader.getResource("classpath:accounts.json").getFile();
+        File erisJsonFile = resourceLoader.getResource("classpath:" + accountsJsonPath).getFile();
         TreeMap<String, ErisAccount> erisAccountMap=erisAccountMapping(erisJsonFile);
         LinkedList<ErisAccount> newAssignedErisAccounts = shareAccounts(erisAccountMap);
         repository.save(newAssignedErisAccounts);
         repository.save(erisAccountMap.values());
     }
-
-//    public TreeMap<String, ErisAccount> erisAccountMapping(File erisJsonFile,TreeMap<String,ErisAccount> rootAccounts) throws IOException{
-//        return new TreeMap<>();
-//    }
-
 
     public TreeMap<String, ErisAccount> erisAccountMapping(File erisJsonFile) throws IOException{
         TreeMap<String,ErisAccount> erisAccountMap = new TreeMap<>();
