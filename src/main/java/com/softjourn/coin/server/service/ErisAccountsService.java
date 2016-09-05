@@ -15,10 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -173,7 +175,7 @@ public class ErisAccountsService {
     }
 
     public ErisAccount getByName(String ldapId){
-        return accountsService.getAccount(ldapId).getErisAccount();
+        return accountRepository.findOne(ldapId).getErisAccount();
     }
 
 }

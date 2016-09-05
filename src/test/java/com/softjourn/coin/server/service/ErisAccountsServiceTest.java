@@ -4,21 +4,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.ErisAccountType;
-import com.softjourn.coin.server.exceptions.ErisRootAccountOverFlow;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -35,7 +31,7 @@ public class ErisAccountsServiceTest {
 
     private static final int PARTICIPANT_NUM=1;
     private static final int ROOT_NUM=0;
-    private final String JSON_PATH="./src/main/resources/accounts.json";
+    private final String JSON_PATH="./src/test/resources/accounts.json";
     private static final String CHAIN="mychain";
     private static final String CHAIN_PARTICIPANT=CHAIN.toLowerCase()+"_participant_";
     private static final String CHAIN_ROOT=CHAIN.toLowerCase()+"_root_";
