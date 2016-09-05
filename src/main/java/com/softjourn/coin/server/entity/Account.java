@@ -19,6 +19,7 @@ public class Account {
     @Column(name = "ldap_id")
     private String ldapId;
 
+    @Transient
     @JsonView(JsonViews.REGULAR.class)
     private BigDecimal amount;
 
