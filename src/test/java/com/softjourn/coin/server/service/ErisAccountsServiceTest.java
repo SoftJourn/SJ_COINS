@@ -6,24 +6,17 @@ import com.softjourn.coin.server.entity.ErisAccount;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-
-/**
- * Created by volodymyr on 8/30/16.
- */
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -35,7 +28,7 @@ public class ErisAccountsServiceTest {
 
     private static final int PARTICIPANT_NUM=1;
     private static final int ROOT_NUM=0;
-    private final String JSON_PATH="./src/main/resources/accounts.json";
+    private final String JSON_PATH="./src/test/resources/accounts.json";
     private static final String CHAIN="mychain";
     private static final String CHAIN_PARTICIPANT=CHAIN.toLowerCase()+"_participant_";
     private static final String CHAIN_ROOT=CHAIN.toLowerCase()+"_root_";
@@ -53,15 +46,6 @@ public class ErisAccountsServiceTest {
     @Autowired
     ErisAccountsService erisAccountsService;
 
-
-    //    @Before
-//    public void init(){
-//        List<Account> accounts=new ArrayList<>();
-//        accounts.add(new Account("vromanchuk",new BigDecimal("200")));
-//        accounts.add(new Account("vdanyliuk",new BigDecimal("300")));
-//        accounts.add(new Account("ovovchuk",new BigDecimal("400")));
-//        when(accountsService.getAll()).thenReturn(accounts);
-//    }
 
     @Test
     public void testErisAccountsJsonFile() throws IOException{
