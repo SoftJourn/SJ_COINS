@@ -4,6 +4,7 @@ package com.softjourn.coin.server.service;
 
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
@@ -22,6 +23,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.Resource;
+import java.util.List;
+
 
 @Configuration
 
@@ -29,22 +33,13 @@ import org.springframework.web.client.RestTemplate;
 @EnableJpaRepositories(basePackages = "com.softjourn.coin.server.repository", entityManagerFactoryRef="entityManagerFactory")
 @EntityScan(basePackages = "com.softjourn.coin.server.entity")
 @EnableTransactionManagement
-@PropertySource(value= {"classpath:application-test.properties"})
+@PropertySource(value= {"classpath:application.properties"})
 public class CoinServiceTransactionsTestContextConfiguration {
 
     //To resolve ${} in @Value
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
         return new PropertySourcesPlaceholderConfigurer();
-    }
-
-    @Value(value="${root}")
-    private String rootUser;
-
-    @Bean
-    public String rootUser(){
-        System.out.println(rootUser);
-        return rootUser;
     }
 
     @Bean

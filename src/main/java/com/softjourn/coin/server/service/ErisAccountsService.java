@@ -5,14 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.ErisAccountType;
+import com.softjourn.coin.server.exceptions.ErisRootAccountOverFlow;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -40,6 +43,9 @@ public class ErisAccountsService {
     private static final String CHAIN_PARTICIPANT = ".*_participant_.*";
     private static final String CHAIN_ROOT = ".*_root_.*";
 
+    @Value(value="#{'${root}'.split(',')}")
+    private List<String> rootUsers;
+
 
     @Autowired
     public ErisAccountsService(ErisAccountRepository accountRepository, AccountsService accountsService, RestTemplate restTemplate, ResourceLoader resourceLoader) throws IOException {
@@ -59,14 +65,9 @@ public class ErisAccountsService {
         repository.save(erisAccountMap.values());
     }
 
-//    public TreeMap<String, ErisAccount> erisAccountMapping(File erisJsonFile,TreeMap<String,ErisAccount> rootAccounts) throws IOException{
-//        return new TreeMap<>();
-//    }
-
 
     public TreeMap<String, ErisAccount> erisAccountMapping(File erisJsonFile) throws IOException{
         TreeMap<String,ErisAccount> erisAccountMap = new TreeMap<>();
-        //TreeMap<String,ErisAccount> erisRootAccountMap = new TreeMap<>();
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, ErisAccount> accountMap;
@@ -85,6 +86,8 @@ public class ErisAccountsService {
 
         return erisAccountMap;
     }
+
+
 
     private LinkedList<ErisAccount> shareAccounts(TreeMap<String, ErisAccount> accountCollection) {
 
@@ -110,22 +113,61 @@ public class ErisAccountsService {
                             }
                         }
                 );
+
+        rootUsers.forEach(root->{
+           linkedAccounts.forEach(user->{
+               if(user.getLdapId().matches(root)){
+                   ErisAccount erisAccount=popRootErisAccount(accountCollection);
+                   if(erisAccount==null){
+                       throw new ErisRootAccountOverFlow();
+                   } else {
+                       user.setErisAccount(erisAccount);
+                       user.getErisAccount().setAccount(user);
+                       newAssignedErisAccounts.add(user.getErisAccount());
+                   }
+               }
+           });
+        });
+
         linkedAccounts.stream()
                 .filter(account -> account.getErisAccount() == null)
                 .forEach(account -> {
                     ErisAccount newEris = accountCollection.pollFirstEntry().getValue();
-                    newEris.setAccount(account);
-                    newAssignedErisAccounts.add(newEris);
+                    if(newEris.getType()==ErisAccountType.PARTICIPANT) {
+                        newEris.setAccount(account);
+                        newAssignedErisAccounts.add(newEris);
+                    }
                 });
 
         return newAssignedErisAccounts;
 
     }
 
+    /** Returns first root eris account and removes from collection
+     * If there is not free root account returns null
+     * @param accountCollection
+     * @return
+     */
+    private ErisAccount popRootErisAccount(TreeMap<String, ErisAccount> accountCollection){
+        ErisAccount erisAccount=null;
+        for (ErisAccount ea:
+                accountCollection.values()) {
+            if(ea.getType()==ErisAccountType.ROOT) {
+                accountCollection.remove(ea.getAddress());
+                return ea;
+            }
+        }
+        return erisAccount;
+    }
+
     public List<ErisAccount> getAll() {
         return StreamSupport
                 .stream(repository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
+    }
+
+    public ErisAccount getByName(String ldapId){
+        return accountsService.getAccount(ldapId).getErisAccount();
     }
 
 }

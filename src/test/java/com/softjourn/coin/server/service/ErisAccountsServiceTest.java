@@ -3,6 +3,8 @@ package com.softjourn.coin.server.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.entity.ErisAccount;
+import com.softjourn.coin.server.entity.ErisAccountType;
+import com.softjourn.coin.server.exceptions.ErisRootAccountOverFlow;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -42,26 +45,16 @@ public class ErisAccountsServiceTest {
     private static final String TEST_PARTICIPANT=CHAIN_PARTICIPANT+String.format("%03d",PARTICIPANT_NUM);
     private static final String TEST_ROOT=CHAIN_ROOT+String.format("%03d",ROOT_NUM);
 
+    //@Autowired
 
-    @Autowired
-    private String rootUser;
-
+    @Value(value="#{'${root}'.split(',')}")
+    private List<String> rootUsers;
 
     @Autowired
     AccountsService accountsService;
 
     @Autowired
     ErisAccountsService erisAccountsService;
-
-
-    //    @Before
-//    public void init(){
-//        List<Account> accounts=new ArrayList<>();
-//        accounts.add(new Account("vromanchuk",new BigDecimal("200")));
-//        accounts.add(new Account("vdanyliuk",new BigDecimal("300")));
-//        accounts.add(new Account("ovovchuk",new BigDecimal("400")));
-//        when(accountsService.getAll()).thenReturn(accounts);
-//    }
 
     @Test
     public void testErisAccountsJsonFile() throws IOException{
@@ -98,6 +91,11 @@ public class ErisAccountsServiceTest {
 
     @Test
     public void testRoot(){
-        System.out.println(rootUser);
+        for (String user:rootUsers) {
+            assertEquals("Root user is not assigned for "+user,ErisAccountType.ROOT,erisAccountsService.getByName(user).getType());
+        }
+
     }
+    
+
 }
