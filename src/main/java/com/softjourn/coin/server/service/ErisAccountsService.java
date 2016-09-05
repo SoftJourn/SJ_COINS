@@ -24,9 +24,6 @@ import java.util.stream.StreamSupport;
 @Service
 public class ErisAccountsService {
 
-
-    private AccountsService accountsService;
-
     private AccountRepository accountRepository;
 
     private ErisAccountRepository repository;
@@ -44,10 +41,13 @@ public class ErisAccountsService {
 
 
     @Autowired
-    public ErisAccountsService(ErisAccountRepository accountRepository, AccountsService accountsService, RestTemplate restTemplate, ResourceLoader resourceLoader) throws IOException {
-        this.repository = accountRepository;
+    public ErisAccountsService(ErisAccountRepository repository,
+                               RestTemplate restTemplate,
+                               ResourceLoader resourceLoader,
+                               AccountRepository accountRepository) throws IOException {
+        this.repository = repository;
+        this.accountRepository = accountRepository;
         this.restTemplate = restTemplate;
-        this.accountsService = accountsService;
         this.resourceLoader = resourceLoader;
         this.restTemplate = restTemplate;
     }
@@ -63,7 +63,6 @@ public class ErisAccountsService {
 
     public TreeMap<String, ErisAccount> erisAccountMapping(File erisJsonFile) throws IOException{
         TreeMap<String,ErisAccount> erisAccountMap = new TreeMap<>();
-        //TreeMap<String,ErisAccount> erisRootAccountMap = new TreeMap<>();
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, ErisAccount> accountMap;
@@ -85,7 +84,7 @@ public class ErisAccountsService {
 
     private LinkedList<ErisAccount> shareAccounts(TreeMap<String, ErisAccount> accountCollection) {
 
-        LinkedList<Account> linkedAccounts = new LinkedList<>(accountsService.getAll());
+        LinkedList<Account> linkedAccounts = new LinkedList<>(accountRepository.getAll());
         LinkedList<ErisAccount> newAssignedErisAccounts = new LinkedList<>();
 
         linkedAccounts.stream()
