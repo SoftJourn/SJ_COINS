@@ -26,15 +26,16 @@ public class CoinsController {
     @RequestMapping(value = "/amount", method = RequestMethod.GET)
     public Map<String, BigDecimal> getAmount(Principal principal) {
         Map<String, BigDecimal> responseBody = new HashMap<>();
-        responseBody.put("amount", coinService.getAmount(principal));
+        responseBody.put("amount", coinService.getAmount(principal.getName()));
 
         return responseBody;
     }
 
-    @RequestMapping(value = "/spent", method = RequestMethod.POST)
+    @RequestMapping(value = "/buy/{sellerAddress}", method = RequestMethod.POST)
     public Transaction spentAmount(Principal principal,
-                               @RequestBody AmountDTO amountDto) {
-        return coinService.spent(principal.getName(), amountDto.getAmount(), amountDto.getComment());
+                                   @RequestBody AmountDTO amountDto,
+                                   @PathVariable String sellerAddress) {
+        return coinService.spent(sellerAddress, principal.getName(), amountDto.getAmount(), amountDto.getComment());
     }
 
     @RequestMapping(value = "/move/{account}", method = RequestMethod.POST)
@@ -46,7 +47,8 @@ public class CoinsController {
 
     @RequestMapping(value = "/add/{account}", method = RequestMethod.POST)
     public Transaction addAmount(@RequestBody AmountDTO amount,
-                                 @PathVariable String account) {
-        return coinService.fillAccount(account, amount.getAmount(), amount.getComment());
+                                 @PathVariable String account,
+                                 Principal principal) {
+        return coinService.fillAccount(principal.getName(), account, amount.getAmount(), amount.getComment());
     }
 }

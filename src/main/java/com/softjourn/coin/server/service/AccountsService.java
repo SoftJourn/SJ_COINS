@@ -2,8 +2,10 @@ package com.softjourn.coin.server.service;
 
 
 import com.softjourn.coin.server.entity.Account;
+import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
+import com.softjourn.coin.server.repository.ErisAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.*;
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -74,11 +77,24 @@ public class AccountsService {
 
     private AccountRepository accountRepository;
 
+    @Autowired
+    private ErisAccountsService erisAccountsService;
+
+    private ErisAccountRepository erisAccountRepository;
+
     private RestTemplate restTemplate;
 
-    @Autowired
-    public AccountsService(AccountRepository accountRepository, RestTemplate restTemplate) {
+    public AccountsService(AccountRepository accountRepository, ErisAccountsService erisAccountsService, ErisAccountRepository erisAccountRepository, RestTemplate restTemplate) {
         this.accountRepository = accountRepository;
+        this.erisAccountsService = erisAccountsService;
+        this.erisAccountRepository = erisAccountRepository;
+        this.restTemplate = restTemplate;
+    }
+
+    @Autowired
+    public AccountsService(AccountRepository accountRepository, ErisAccountRepository erisAccountRepository, RestTemplate restTemplate) {
+        this.accountRepository = accountRepository;
+        this.erisAccountRepository = erisAccountRepository;
         this.restTemplate = restTemplate;
     }
 
@@ -115,13 +131,20 @@ public class AccountsService {
         return accountRepository.save(account);
     }
 
-    private Account createAccount(String ldapId) {
+    @Transactional
+    public Account createAccount(String ldapId) {
         Account account = getAccountIfExistInLdapBase(ldapId);
         if (account != null) {
             account.setLdapId(ldapId);
             account.setAmount(new BigDecimal(0));
             account.setImage(DEFAULT_IMAGE_NAME);
+            ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
+            if (erisAccount == null) throw new RuntimeException("Can't create account for " + ldapId + ". " +
+                    "There is no free eris accounts");
             accountRepository.save(account);
+            account.setErisAccount(erisAccount);
+            erisAccount.setAccount(account);
+            erisAccountRepository.save(erisAccount);
             return account;
         } else {
             throw new AccountNotFoundException(ldapId);

@@ -22,14 +22,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-/**
- * Created by volodymyr on 8/30/16.
- */
+
 @Service
 public class ErisAccountsService {
-
-
-    private AccountsService accountsService;
 
     private AccountRepository accountRepository;
 
@@ -38,6 +33,9 @@ public class ErisAccountsService {
     private RestTemplate restTemplate;
 
     private ResourceLoader resourceLoader;
+
+    @Value("${eris.accounts.json.path}")
+    private String accountsJsonPath;
 
 
     private static final String CHAIN_PARTICIPANT = ".*_participant_.*";
@@ -48,17 +46,20 @@ public class ErisAccountsService {
 
 
     @Autowired
-    public ErisAccountsService(ErisAccountRepository accountRepository, AccountsService accountsService, RestTemplate restTemplate, ResourceLoader resourceLoader) throws IOException {
-        this.repository = accountRepository;
+    public ErisAccountsService(ErisAccountRepository repository,
+                               RestTemplate restTemplate,
+                               ResourceLoader resourceLoader,
+                               AccountRepository accountRepository) throws IOException {
+        this.repository = repository;
+        this.accountRepository = accountRepository;
         this.restTemplate = restTemplate;
-        this.accountsService = accountsService;
         this.resourceLoader = resourceLoader;
         this.restTemplate = restTemplate;
     }
 
     @PostConstruct
     private void init() throws IOException {
-        File erisJsonFile = resourceLoader.getResource("classpath:accounts.json").getFile();
+        File erisJsonFile = resourceLoader.getResource("classpath:" + accountsJsonPath).getFile();
         TreeMap<String, ErisAccount> erisAccountMap=erisAccountMapping(erisJsonFile);
         LinkedList<ErisAccount> newAssignedErisAccounts = shareAccounts(erisAccountMap);
         repository.save(newAssignedErisAccounts);
@@ -87,11 +88,9 @@ public class ErisAccountsService {
         return erisAccountMap;
     }
 
-
-
     private LinkedList<ErisAccount> shareAccounts(TreeMap<String, ErisAccount> accountCollection) {
 
-        LinkedList<Account> linkedAccounts = new LinkedList<>(accountsService.getAll());
+        LinkedList<Account> linkedAccounts = new LinkedList<>(accountRepository.getAll());
         LinkedList<ErisAccount> newAssignedErisAccounts = new LinkedList<>();
 
         linkedAccounts.stream()
@@ -158,6 +157,13 @@ public class ErisAccountsService {
             }
         }
         return erisAccount;
+    }
+
+    public ErisAccount bindFreeAccount() {
+        return repository
+                .getFree()
+                .findFirst()
+                .orElse(null);
     }
 
     public List<ErisAccount> getAll() {

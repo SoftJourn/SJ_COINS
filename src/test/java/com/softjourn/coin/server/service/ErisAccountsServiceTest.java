@@ -19,14 +19,11 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-
-/**
- * Created by volodymyr on 8/30/16.
- */
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -45,8 +42,6 @@ public class ErisAccountsServiceTest {
     private static final String TEST_PARTICIPANT=CHAIN_PARTICIPANT+String.format("%03d",PARTICIPANT_NUM);
     private static final String TEST_ROOT=CHAIN_ROOT+String.format("%03d",ROOT_NUM);
 
-    //@Autowired
-
     @Value(value="#{'${root}'.split(',')}")
     private List<String> rootUsers;
 
@@ -55,6 +50,7 @@ public class ErisAccountsServiceTest {
 
     @Autowired
     ErisAccountsService erisAccountsService;
+
 
     @Test
     public void testErisAccountsJsonFile() throws IOException{
@@ -96,6 +92,4 @@ public class ErisAccountsServiceTest {
         }
 
     }
-    
-
 }
