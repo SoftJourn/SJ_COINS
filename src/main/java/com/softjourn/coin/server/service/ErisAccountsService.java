@@ -43,7 +43,7 @@ public class ErisAccountsService {
     private static final String CHAIN_PARTICIPANT = ".*_participant_.*";
     private static final String CHAIN_ROOT = ".*_root_.*";
 
-    @Value(value="#{'${root}'.split(',')}")
+    @Value(value="#{'${root:}'.split(',')}")
     private List<String> rootUsers;
 
 
