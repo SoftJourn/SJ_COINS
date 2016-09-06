@@ -2,6 +2,7 @@ package com.softjourn.coin.server.entity;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.softjourn.coin.server.util.InstantJsonSerializer;
 import com.softjourn.coin.server.util.TransactionAccountJSONSerializer;
 import lombok.Data;
 
@@ -35,6 +36,7 @@ public class Transaction {
     private String comment;
 
     @Column
+    @JsonSerialize(using = InstantJsonSerializer.class)
     private Instant created;
 
     @Column

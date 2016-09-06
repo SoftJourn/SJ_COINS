@@ -16,6 +16,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Aspect
 @Order(value=100)
@@ -59,6 +60,7 @@ public class TransactionSavingAspect {
         transaction.setDestination(getAccount(signature, arguments, "destinationName"));
         transaction.setAmount(getArg(signature, arguments, "amount", BigDecimal.class));
         transaction.setComment(getArg(signature, arguments, "comment", String.class));
+        transaction.setCreated(Instant.now());
         return transaction;
     }
 
