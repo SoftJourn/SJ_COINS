@@ -1,4 +1,5 @@
 ALTER TABLE accounts DROP amount;
+ALTER TABLE transactions ADD remain DECIMAL(19,2);
 
 CREATE TABLE eris
 (
