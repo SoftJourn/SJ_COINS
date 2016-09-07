@@ -99,6 +99,7 @@ public class CoinService {
         }
     }
 
+    @SaveTransaction
     public Transaction spent(@NonNull String sellerAddress, @NonNull String accountName, @NonNull BigDecimal amount, String comment) {
         synchronized (getMonitor(accountName)) {
             checkAmountIsPositive(amount);
