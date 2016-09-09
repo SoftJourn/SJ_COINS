@@ -1,11 +1,10 @@
-package com.softjourn.coin.server.config;
+package com.softjourn.coin.server.service;
 
 
 import com.softjourn.coin.server.eris.contract.Contract;
 import com.softjourn.coin.server.eris.contract.response.Response;
 import com.softjourn.coin.server.eris.contract.response.ReturnValue;
 import com.softjourn.coin.server.eris.contract.response.TxParams;
-import com.softjourn.coin.server.service.ErisContractService;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.*;
@@ -33,7 +32,7 @@ import static org.mockito.Mockito.*;
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
                 classes = {ErisContractService.class})
 )
-@EnableJpaRepositories(basePackages = "com.softjourn.coin.server.repository")
+@EnableJpaRepositories(basePackages = "com.softjourn.coin.server.repository", entityManagerFactoryRef="entityManagerFactory")
 @EntityScan(basePackages = "com.softjourn.coin.server.entity")
 @EnableTransactionManagement
 @PropertySource(value= {"classpath:application-test.properties"})

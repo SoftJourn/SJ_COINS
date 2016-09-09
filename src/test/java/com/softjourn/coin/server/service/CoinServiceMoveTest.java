@@ -4,13 +4,13 @@ package com.softjourn.coin.server.service;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.TransactionStatus;
-import com.softjourn.coin.server.eris.contract.Contract;
-import com.softjourn.coin.server.eris.contract.response.Response;
-import com.softjourn.coin.server.eris.contract.response.ReturnValue;
-import com.softjourn.coin.server.eris.contract.response.TxParams;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
 import com.softjourn.coin.server.repository.TransactionRepository;
+import com.softjourn.eris.contract.Contract;
+import com.softjourn.eris.contract.response.Response;
+import com.softjourn.eris.contract.response.ReturnValue;
+import com.softjourn.eris.contract.response.TxParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,7 +81,7 @@ public class CoinServiceMoveTest {
                 null);
 
         Response<Object> sendResp = new Response<>("",
-                null,
+                new ReturnValue<>(Object.class, true),
                 null,
                 new TxParams("address", "txId"));
 
