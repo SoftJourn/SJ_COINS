@@ -61,7 +61,7 @@ class ContractImpl implements Contract, Cloneable {
         return "Acc/" + accountAddress + "/Input";
     }
 
-    ErisRPCRequestEntity callRPCParams(String contractUnitName, Object... args) {
+    private ErisRPCRequestEntity callRPCParams(String contractUnitName, Object... args) {
         if (contractUnits.get(contractUnitName).isConstant()) {
             Map<String, Object> params = Params.constantCallParams(accountData.getAddress(), contractAddress, callRPCData(contractUnitName, args));
             return ErisRPCRequestEntity.constantCallEntity(params);

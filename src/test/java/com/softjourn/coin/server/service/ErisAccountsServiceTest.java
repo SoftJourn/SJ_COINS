@@ -2,6 +2,7 @@ package com.softjourn.coin.server.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.softjourn.coin.server.config.CoinServiceTransactionsTestContextConfiguration;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.ErisAccountType;
 import org.junit.Test;

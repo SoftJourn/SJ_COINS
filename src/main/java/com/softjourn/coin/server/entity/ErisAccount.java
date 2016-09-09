@@ -54,7 +54,8 @@ public class ErisAccount implements ErisAccountData {
         hash= hash*31 + address.hashCode();
         hash= hash*31 + pubKey.hashCode();
         hash= hash*31 + privKey.hashCode();
-        hash+= type.hashCode();
+        hash+= type
+                .hashCode();
         return hash;
     }
 

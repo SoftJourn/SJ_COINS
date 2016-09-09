@@ -42,6 +42,9 @@ public class ErisAccountsService {
 
     private static final String CHAIN_PARTICIPANT = ".*_participant_.*";
     private static final String CHAIN_ROOT = ".*_root_.*";
+    private static final String CHAIN_FULL = ".*_full_.*";
+    private static final String CHAIN_DEVELOPER = ".*_developer_.*";
+    private static final String CHAIN_VALIDATOR = ".*_validator_.*";
 
     @Value(value="#{'${root:}'.split(',')}")
     private List<String> rootUsers;
@@ -79,9 +82,14 @@ public class ErisAccountsService {
         accountMap.forEach((k, v) -> {
             if (k.matches(CHAIN_ROOT)) {
                 v.setType(ErisAccountType.ROOT);
-
             } else if (k.matches(CHAIN_PARTICIPANT)) {
                     v.setType(ErisAccountType.PARTICIPANT);
+            } else if (k.matches(CHAIN_FULL)) {
+                v.setType(ErisAccountType.FULL);
+            }else if (k.matches(CHAIN_VALIDATOR)) {
+                v.setType(ErisAccountType.VALIDATOR);
+            }else if (k.matches(CHAIN_DEVELOPER)) {
+                v.setType(ErisAccountType.DEVELOPER);
             }
             erisAccountMap.put(v.getAddress(), v);
 
@@ -118,13 +126,16 @@ public class ErisAccountsService {
         rootUsers.forEach(root->{
            linkedAccounts.forEach(user->{
                if(user.getLdapId().matches(root)){
-                   ErisAccount erisAccount=popRootErisAccount(accountCollection);
-                   if(erisAccount==null){
-                       throw new ErisRootAccountOverFlow();
-                   } else {
-                       user.setErisAccount(erisAccount);
-                       user.getErisAccount().setAccount(user);
-                       newAssignedErisAccounts.add(user.getErisAccount());
+                   if(user.getErisAccount()==null
+                           ||user.getErisAccount().getType()!=ErisAccountType.ROOT) {
+                       ErisAccount erisAccount = popRootErisAccount(accountCollection);
+                       if (erisAccount == null) {
+                           throw new ErisRootAccountOverFlow();
+                       } else {
+                           user.setErisAccount(erisAccount);
+                           user.getErisAccount().setAccount(user);
+                           newAssignedErisAccounts.add(user.getErisAccount());
+                       }
                    }
                }
            });

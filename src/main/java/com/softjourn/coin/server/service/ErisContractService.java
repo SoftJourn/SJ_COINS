@@ -35,7 +35,7 @@ public class ErisContractService {
     }
 
     @PostConstruct
-    void initContract() {
+    public void initContract() {
         try {
             File initFile = resourceLoader.getResource("classpath:" + erisContractFile).getFile();
             builder = new ContractManager(initFile)

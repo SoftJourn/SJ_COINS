@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.service;
 
 
+import com.softjourn.coin.server.config.CoinServiceTransactionsTestContextConfiguration;
 import com.softjourn.coin.server.eris.contract.Contract;
 import com.softjourn.coin.server.eris.contract.response.Response;
 import com.softjourn.coin.server.eris.contract.response.ReturnValue;
