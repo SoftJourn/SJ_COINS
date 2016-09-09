@@ -57,7 +57,7 @@ public class CoinService {
                 Response response = contractService
                         .getForAccount(rootErisAccount)
                         .call(ADD_MONEY, erisAccount.getAddress(), amount);
-                processResponse(response);
+                processResponseError(response);
             } catch (IOException e) {
                 throw new ErisProcessingException("Can't add money for account " + destinationName, e);
             }
@@ -92,7 +92,7 @@ public class CoinService {
         try {
             ErisAccount account = getErisAccount(ldapId);
             Response<BigDecimal> response = contractService.getForAccount(account).call(GET_MONEY, account.getAddress());
-            processResponse(response);
+            processResponseError(response);
             return response.getReturnValue().getVal();
         } catch (Exception e) {
             throw new ErisProcessingException("Can't query balance for account " + ldapId, e);
@@ -123,7 +123,8 @@ public class CoinService {
             Response response = contractService
                     .getForAccount(account)
                     .call(SEND_MONEY, address, amount);
-            processResponse(response);
+            if (! (Boolean) response.getReturnValue().getVal()) throw new NotEnoughAmountInAccountException();
+            processResponseError(response);
         } catch (Exception e) {
             throw new ErisProcessingException("Can't move money for account " + address, e);
         }
@@ -138,8 +139,7 @@ public class CoinService {
 
     }
 
-    private void processResponse(Response response) {
-        if (! (Boolean) response.getReturnValue().getVal()) throw new NotEnoughAmountInAccountException();
+    private void processResponseError(Response response) {
         if (response.getError() != null) throw new ErisProcessingException(response.getError().getMessage());
     }
 

@@ -81,7 +81,7 @@ public class CoinServiceMoveTest {
                 null);
 
         Response<Object> sendResp = new Response<>("",
-                null,
+                new ReturnValue<>(Object.class, true),
                 null,
                 new TxParams("address", "txId"));
 
