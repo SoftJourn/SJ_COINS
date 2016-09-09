@@ -139,6 +139,7 @@ public class CoinService {
     }
 
     private void processResponse(Response response) {
+        if (! (Boolean) response.getReturnValue().getVal()) throw new NotEnoughAmountInAccountException();
         if (response.getError() != null) throw new ErisProcessingException(response.getError().getMessage());
     }
 
