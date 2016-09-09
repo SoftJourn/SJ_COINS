@@ -1,6 +1,6 @@
 package com.softjourn.coin.server.entity;
 
-import com.softjourn.coin.server.eris.ErisAccountData;
+import com.softjourn.eris.ErisAccountData;
 import lombok.Data;
 
 import javax.persistence.*;

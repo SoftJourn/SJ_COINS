@@ -1,9 +1,9 @@
 package com.softjourn.coin.server.service;
 
-import com.softjourn.coin.server.eris.ErisAccountData;
-import com.softjourn.coin.server.eris.contract.Contract;
-import com.softjourn.coin.server.eris.contract.ContractManager;
-import com.softjourn.coin.server.eris.rpc.HTTPRPCClient;
+import com.softjourn.eris.ErisAccountData;
+import com.softjourn.eris.contract.Contract;
+import com.softjourn.eris.contract.ContractManager;
+import com.softjourn.eris.rpc.HTTPRPCClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
