@@ -1,10 +1,6 @@
 package com.softjourn.coin.server.service;
 
 
-import com.softjourn.coin.server.eris.contract.Contract;
-import com.softjourn.coin.server.eris.contract.response.Response;
-import com.softjourn.coin.server.eris.contract.response.ReturnValue;
-import com.softjourn.coin.server.eris.contract.response.TxParams;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
@@ -36,7 +32,7 @@ import static org.mockito.Mockito.anyVararg;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = CoinServiceTransactionsTestContextConfiguration.class, loader=AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = com.softjourn.coin.server.config.CoinServiceTransactionsTestContextConfiguration.class, loader=AnnotationConfigContextLoader.class)
 @Rollback
 @Transactional
 public class CoinServiceTransactionsTest {

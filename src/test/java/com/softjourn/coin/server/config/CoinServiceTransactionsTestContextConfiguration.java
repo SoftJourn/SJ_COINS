@@ -1,10 +1,11 @@
-package com.softjourn.coin.server.service;
+package com.softjourn.coin.server.config;
 
 
-import com.softjourn.coin.server.eris.contract.Contract;
-import com.softjourn.coin.server.eris.contract.response.Response;
-import com.softjourn.coin.server.eris.contract.response.ReturnValue;
-import com.softjourn.coin.server.eris.contract.response.TxParams;
+import com.softjourn.coin.server.service.ErisContractService;
+import com.softjourn.eris.contract.Contract;
+import com.softjourn.eris.contract.response.Response;
+import com.softjourn.eris.contract.response.ReturnValue;
+import com.softjourn.eris.contract.response.TxParams;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.*;
