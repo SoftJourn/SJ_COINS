@@ -32,8 +32,6 @@ public class ErisAccountsService {
 
     private ErisAccountRepository repository;
 
-    private RestTemplate restTemplate;
-
     private ResourceLoader resourceLoader;
 
     @Value("${eris.accounts.json.path}")
@@ -52,20 +50,19 @@ public class ErisAccountsService {
 
     @Autowired
     public ErisAccountsService(ErisAccountRepository repository,
-                               RestTemplate restTemplate,
                                ResourceLoader resourceLoader,
                                AccountRepository accountRepository) throws IOException {
         this.repository = repository;
         this.accountRepository = accountRepository;
-        this.restTemplate = restTemplate;
         this.resourceLoader = resourceLoader;
-        this.restTemplate = restTemplate;
     }
 
     @PostConstruct
     private void init() throws IOException {
         File erisJsonFile = resourceLoader.getResource("classpath:" + accountsJsonPath).getFile();
         TreeMap<String, ErisAccount> erisAccountMap=erisAccountMapping(erisJsonFile);
+        LinkedList<ErisAccount> removeAccounts=invalidExistingAccounts(erisAccountMap);
+        repository.delete(removeAccounts);
         LinkedList<ErisAccount> newAssignedErisAccounts = shareAccounts(erisAccountMap);
         repository.save(newAssignedErisAccounts);
         repository.save(erisAccountMap.values());
@@ -98,6 +95,17 @@ public class ErisAccountsService {
         return erisAccountMap;
     }
 
+    private LinkedList<ErisAccount> invalidExistingAccounts(TreeMap<String, ErisAccount> accountCollection){
+        LinkedList<ErisAccount> dbErisAccounts=new LinkedList<>(this.getAll());
+        LinkedList<ErisAccount> removeAccounts=new LinkedList<>();
+        dbErisAccounts.forEach(erisAccount -> {
+              if(accountCollection.get(erisAccount.getAddress())==null
+                    ||!accountCollection.get(erisAccount.getAddress()).equals(erisAccount))
+                  removeAccounts.add(erisAccount);
+        });
+        return removeAccounts;
+    }
+
     private LinkedList<ErisAccount> shareAccounts(TreeMap<String, ErisAccount> accountCollection) {
 
         LinkedList<Account> linkedAccounts = new LinkedList<>(accountRepository.getAll());
@@ -123,23 +131,21 @@ public class ErisAccountsService {
                         }
                 );
 
-        rootUsers.forEach(root->{
-           linkedAccounts.forEach(user->{
-               if(user.getLdapId().matches(root)){
-                   if(user.getErisAccount()==null
-                           ||user.getErisAccount().getType()!=ErisAccountType.ROOT) {
-                       ErisAccount erisAccount = popRootErisAccount(accountCollection);
-                       if (erisAccount == null) {
-                           throw new ErisRootAccountOverFlow();
-                       } else {
-                           user.setErisAccount(erisAccount);
-                           user.getErisAccount().setAccount(user);
-                           newAssignedErisAccounts.add(user.getErisAccount());
-                       }
-                   }
-               }
-           });
-        });
+        rootUsers.forEach(root-> linkedAccounts.forEach(user->{
+            if(user.getLdapId().matches(root)){
+                if(user.getErisAccount()==null
+                        ||user.getErisAccount().getType()!=ErisAccountType.ROOT) {
+                    ErisAccount erisAccount = popRootErisAccount(accountCollection);
+                    if (erisAccount == null) {
+                        throw new ErisRootAccountOverFlow();
+                    } else {
+                        user.setErisAccount(erisAccount);
+                        user.getErisAccount().setAccount(user);
+                        newAssignedErisAccounts.add(user.getErisAccount());
+                    }
+                }
+            }
+        }));
 
         linkedAccounts.stream()
                 .filter(account -> account.getErisAccount() == null)
@@ -158,10 +164,10 @@ public class ErisAccountsService {
     /** Returns first root eris account and removes from collection
      * If there is not free root account returns null
      * @param accountCollection
-     * @return
+     * @return ErisAccount
      */
     private ErisAccount popRootErisAccount(TreeMap<String, ErisAccount> accountCollection){
-        ErisAccount erisAccount=null;
+
         for (ErisAccount ea:
                 accountCollection.values()) {
             if(ea.getType()==ErisAccountType.ROOT) {
@@ -169,7 +175,7 @@ public class ErisAccountsService {
                 return ea;
             }
         }
-        return erisAccount;
+        return null;
     }
 
     public ErisAccount bindFreeAccount() {
