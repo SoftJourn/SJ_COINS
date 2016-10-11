@@ -23,15 +23,19 @@ public class Account {
     @JsonView(JsonViews.REGULAR.class)
     private BigDecimal amount;
 
-    @Column
+    @Column(name = "fullName")
     private String fullName;
 
     @OneToOne(mappedBy = "account")
     private ErisAccount erisAccount;
 
-    @Column
+    @Column(name = "image")
     @JsonView(JsonViews.REGULAR.class)
     private String image;
+
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
 
     public Account(String ldapId, BigDecimal amount) {
         this.amount = amount;
