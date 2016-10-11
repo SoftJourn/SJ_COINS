@@ -32,7 +32,7 @@ public class Transaction {
     @Column
     private BigDecimal amount;
 
-    @Column
+    @Column(columnDefinition = "text")
     private String comment;
 
     @Column
@@ -46,6 +46,6 @@ public class Transaction {
     @Column
     private BigDecimal remain;
 
-    @Column
+    @Column(columnDefinition = "text")
     private String error;
 }
