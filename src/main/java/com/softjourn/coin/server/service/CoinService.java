@@ -93,8 +93,9 @@ public class CoinService {
     private synchronized Transaction refill(String accountName) {
         ErisAccount sellerAccount = accountsService.getAccount(accountName).getErisAccount();
         BigDecimal amount = getAmountForErisAccount(sellerAccount);
-        if (amount.signum() <= 0) throw new NotEnoughAmountInAccountException();
-        moveByEris(sellerAccount, treasuryAccountAddress, amount, "Move coins from seller " + accountName + "to treasury.");
+        if (amount.signum() > 0) {
+            moveByEris(sellerAccount, treasuryAccountAddress, amount, "Move coins from seller " + accountName + "to treasury.");
+        }
         return null;
     }
 
