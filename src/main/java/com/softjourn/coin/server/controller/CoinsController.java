@@ -31,11 +31,11 @@ public class CoinsController {
         return responseBody;
     }
 
-    @RequestMapping(value = "/buy/{sellerAddress}", method = RequestMethod.POST)
+    @RequestMapping(value = "/buy/{sellerName}", method = RequestMethod.POST)
     public Transaction spentAmount(Principal principal,
                                    @RequestBody AmountDTO amountDto,
-                                   @PathVariable String sellerAddress) {
-        return coinService.spent(sellerAddress, principal.getName(), amountDto.getAmount(), amountDto.getComment());
+                                   @PathVariable String sellerName) {
+        return coinService.buy(sellerName, principal.getName(), amountDto.getAmount(), amountDto.getComment());
     }
 
     @RequestMapping(value = "/move/{account}", method = RequestMethod.POST)
@@ -51,4 +51,11 @@ public class CoinsController {
                                  Principal principal) {
         return coinService.fillAccount(principal.getName(), account, amount.getAmount(), amount.getComment());
     }
+
+    @RequestMapping(value = "/distribute/{sellerName}", method = RequestMethod.POST)
+    public void distribute(@RequestBody AmountDTO amount, @PathVariable String sellerName) {
+        coinService.distribute(amount.getAmount(), sellerName);
+    }
+
+
 }

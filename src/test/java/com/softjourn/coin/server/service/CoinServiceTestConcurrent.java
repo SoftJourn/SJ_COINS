@@ -4,6 +4,7 @@ package com.softjourn.coin.server.service;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.ErisAccountType;
+import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
@@ -49,6 +50,9 @@ public class CoinServiceTestConcurrent {
     AccountsService accountsService;
 
     @Mock
+    ErisAccountRepository erisAccountRepository;
+
+    @Mock
     Contract contract;
 
     CoinService coinService;
@@ -70,7 +74,7 @@ public class CoinServiceTestConcurrent {
 
         when(accountsService.getAccount(anyString())).thenReturn(account);
 
-        coinService = new CoinService(accountsService, contractService);
+        coinService = new CoinService(accountsService, contractService, erisAccountRepository);
 
         when(contractService.getForAccount(any())).thenReturn(contract);
 
@@ -111,7 +115,7 @@ public class CoinServiceTestConcurrent {
 
         for (int i = 0; i < 1000; i++) {
             tasks.add(() -> coinService.fillAccount("user1", "user", new BigDecimal(100), ""));
-            tasks.add(() -> coinService.spent(principal.getName(), "address", new BigDecimal(200), ""));
+            tasks.add(() -> coinService.buy(principal.getName(), "address", new BigDecimal(200), ""));
         }
 
         executorService.invokeAll(tasks);

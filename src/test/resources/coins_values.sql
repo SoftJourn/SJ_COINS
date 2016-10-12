@@ -1,10 +1,11 @@
-INSERT INTO accounts (ldap_id, amount) VALUES ('vromanchuk', 100);
-INSERT INTO accounts (ldap_id, amount) VALUES ('vdanyliuk', 200);
-INSERT INTO accounts (ldap_id, amount) VALUES ('ovovchuk', 300);
-INSERT INTO accounts (ldap_id, amount) VALUES ('vkraietskyi', 400);
+INSERT INTO accounts (ldap_id, amount, type) VALUES ('vromanchuk', 100, 'REGULAR');
+INSERT INTO accounts (ldap_id, amount, type) VALUES ('vdanyliuk', 200, 'REGULAR');
+INSERT INTO accounts (ldap_id, amount, type) VALUES ('ovovchuk', 300, 'REGULAR');
+INSERT INTO accounts (ldap_id, amount, type) VALUES ('vkraietskyi', 400, 'REGULAR');
 
-INSERT INTO accounts (ldap_id, amount) VALUES ('account1', 100);
-INSERT INTO accounts (ldap_id, amount) VALUES ('account2', 200);
+INSERT INTO accounts (ldap_id, amount, type) VALUES ('account1', 100, 'REGULAR');
+INSERT INTO accounts (ldap_id, amount, type) VALUES ('VM1', 100, 'MERCHANT');
+INSERT INTO accounts (ldap_id, amount, type) VALUES ('account2', 200, 'REGULAR');
 
 INSERT INTO eris VALUES ('7B5FC7B0DB19D7F73C4105424CB02A00EF290D3B',
                          '709757B52CDBAE5E3B60704E00D6BADEE41F1386EA073379D09E682ADB5C993D',
@@ -21,3 +22,8 @@ INSERT INTO eris VALUES ('XXX',
                          '7ADCF08DC7C52942D14F5A2AFD42E5887FBD85242EB9F7425BCC2D9BCE365D9E709757B52CDBAE5E3B60704E00D6BADEE41F1386EA073379D09E682ADB5C993D',
                          1,
                          'vkraietskyi');
+INSERT INTO eris VALUES ('address',
+                         '709757B52CDBAE5E3B60704E00D6BADEE41F1386EA073379D09E682ADB5C993D',
+                         '7ADCF08DC7C52942D14F5A2AFD42E5887FBD85242EB9F7425BCC2D9BCE365D9E709757B52CDBAE5E3B60704E00D6BADEE41F1386EA073379D09E682ADB5C993D',
+                         1,
+                         'VM1');

@@ -6,6 +6,7 @@ import com.softjourn.coin.server.service.AccountsService;
 import com.softjourn.coin.server.service.CoinService;
 import com.softjourn.coin.server.util.JsonViews;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +32,12 @@ public class AccountsController {
         Account account = accountsService.getAccount(principal.getName());
         account.setAmount(coinService.getAmount(account.getLdapId()));
         return account;
+    }
+
+    @RequestMapping(value = "/{merchantName}", method = RequestMethod.POST)
+    @JsonView(JsonViews.ADMIN.class)
+    public Account addMerchant(@PathVariable String merchantName) {
+        return accountsService.addMerchant(merchantName);
     }
 
 }

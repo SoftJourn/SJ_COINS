@@ -6,12 +6,12 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.stream.Stream;
 
-/**
- * Created by volodymyr on 8/30/16.
- */
 public interface ErisAccountRepository extends CrudRepository<ErisAccount,Long> {
 
     @Query("SELECT ea FROM ErisAccount ea WHERE ea.account = null")
-    public Stream<ErisAccount> getFree();
+    Stream<ErisAccount> getFree();
+
+    @Query("SELECT ea FROM ErisAccount ea WHERE ea.address = ?1")
+    ErisAccount getAccountByAddress(String address);
 
 }

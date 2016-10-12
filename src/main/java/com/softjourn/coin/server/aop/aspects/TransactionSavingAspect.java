@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.aop.aspects;
 
 
+import com.softjourn.coin.server.aop.annotations.SaveTransaction;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 
 @Aspect
 @Order(value=100)
@@ -66,15 +68,18 @@ public class TransactionSavingAspect {
 
     private void setRemainAmount(MethodSignature signature, Object[] arguments, Transaction transaction) {
         BigDecimal remain;
-        if(transaction.getAccount()==null)
-            remain = coinService.getAmount(getArg(signature, arguments, "destinationName", String.class));
-        else
-            remain = coinService.getAmount(getArg(signature, arguments, "accountName", String.class));
-        transaction.setRemain(remain);
+        String accName = Optional.ofNullable(transaction.getAccount())
+                .map(Account::getLdapId)
+                .orElseGet(() -> getArg(signature, arguments, "accountName", String.class));
+        if(accName!=null) {
+            remain = coinService.getAmount(accName);
+            transaction.setRemain(remain);
+        }
     }
 
     private Account getAccount(MethodSignature signature, Object[] arguments, String argName) {
-        String accountName = getArg(signature, arguments, argName, String.class);
+        SaveTransaction annotation = signature.getMethod().getAnnotation(SaveTransaction.class);
+        String accountName = annotation.accountName().isEmpty() ? getArg(signature, arguments, argName, String.class) : annotation.accountName();
         return accountName == null ? null : accountRepository.findOne(accountName);
     }
 

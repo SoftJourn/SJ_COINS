@@ -195,3 +195,56 @@ include::{snippets}/account/http-request.adoc[]
 ==== Example response
 
 include::{snippets}/account/http-response.adoc[]
+
+[[resources-register]]
+=== Register
+
+A `POST` request will register new merchant account (vending machine)
+
+==== Response structure
+
+include::{snippets}/addSeller/response-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/addSeller/http-request.adoc[]
+
+==== Path parameters
+
+include::{snippets}/distribute/path-parameters.adoc[]
+
+==== Example response
+
+include::{snippets}/addSeller/http-response.adoc[]
+
+[[resources-distribute]]
+=== Distribute
+
+A `POST` request will move coins from specified merchant to treasury and if this merchant has more money then accounts
+will distribute different to accounts
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/distribute/http-request.adoc[]
+
+==== Path parameters
+
+include::{snippets}/distribute/path-parameters.adoc[]
+
+==== Example response
+
+include::{snippets}/distribute/http-response.adoc[]

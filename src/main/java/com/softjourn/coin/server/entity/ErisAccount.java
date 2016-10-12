@@ -1,5 +1,7 @@
 package com.softjourn.coin.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import com.softjourn.coin.server.util.JsonViews;
 import com.softjourn.eris.ErisAccountData;
 import lombok.Data;
 
@@ -16,6 +18,7 @@ public class ErisAccount implements ErisAccountData {
     @Id
     @NotNull
     @Column
+    @JsonView(JsonViews.ADMIN.class)
     private String address;
 
     @Column

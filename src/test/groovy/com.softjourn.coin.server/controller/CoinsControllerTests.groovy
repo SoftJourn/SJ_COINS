@@ -70,8 +70,8 @@ class CoinsControllerTests {
 
     @Test
     @WithMockUser
-    void 'test of POST request to /api/v1/buy/{vendingMachineErisAccountAddress} endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/buy/{vendingMachineErisAccountAddress}', "0849FFFCAAA4C0115DB35B15036E5B0C7587563E")
+    void 'test of POST request to /api/v1/buy/{vendingMachineName} endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/buy/{vendingMachineName}', "VM1")
                 .content('{\n  "amount": 10,\n  "comment": "Buying Pepsi"\n}')
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
@@ -80,8 +80,8 @@ class CoinsControllerTests {
                 .andDo(document('spent',
                     preprocessResponse(prettyPrint()),
                     pathParameters(
-                        parameterWithName("vendingMachineErisAccountAddress")
-                                .description("The vending machine where you want to buy eris account address")
+                        parameterWithName("vendingMachineName")
+                                .description("The name of vending machine where you want to buy eris account address")
                     ),
                     responseFields(
                             fieldWithPath('id')
@@ -112,6 +112,22 @@ class CoinsControllerTests {
                                     .type(JsonFieldType.STRING)
                                     .description('Error description')
                     )
+        ))
+    }
+
+    @Test
+    @WithMockUser
+    void 'test of POST request to /api/v1/distribute/{vendingMachineName} endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/distribute/{vendingMachineName}', "VM1")
+                .content('{\n  "amount": 10,\n  "comment": "Loading goods into machine VM1"\n}')
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andDo(document('distribute',
+                preprocessResponse(prettyPrint()),
+                pathParameters(
+                        parameterWithName("vendingMachineName")
+                                .description("The name of vending machine where you want to load goods.")
+                )
         ))
     }
 

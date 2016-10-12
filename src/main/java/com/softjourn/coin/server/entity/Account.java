@@ -42,7 +42,7 @@ public class Account {
         this.ldapId = ldapId;
     }
 
-    @JsonView(JsonViews.REGULAR.class)
+    @JsonView({JsonViews.REGULAR.class, JsonViews.ADMIN.class})
     public String getName() {
         if (fullName == null) return "";
         String[] splitted = fullName.split("\\s");

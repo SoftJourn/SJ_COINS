@@ -8,16 +8,18 @@ import com.softjourn.coin.server.entity.ErisAccountType;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.exceptions.ErisProcessingException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
+import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.eris.contract.response.Response;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CoinService {
@@ -30,12 +32,33 @@ public class CoinService {
 
     private ErisContractService contractService;
 
+    private ErisAccountRepository erisAccountRepository;
+
     private Map<String, String> monitors = new HashMap<>();
 
+    @Value("${eris.treasury.account.address}")
+    private String treasuryAccountAddress;
+    @Value("${eris.treasury.account.key.public}")
+    private String treasuryAccountPubKey;
+    @Value("${eris.treasury.account.key.private}")
+    private String treasuryAccountPrivKey;
+
+    private ErisAccount treasuryErisAccount;
+
+
     @Autowired
-    public CoinService(AccountsService accountsService, ErisContractService contractService) {
+    public CoinService(AccountsService accountsService, ErisContractService contractService, ErisAccountRepository erisAccountRepository) {
         this.accountsService = accountsService;
         this.contractService = contractService;
+        this.erisAccountRepository = erisAccountRepository;
+    }
+
+    @PostConstruct
+    private void setUp() {
+        treasuryErisAccount = new ErisAccount();
+        treasuryErisAccount.setAddress(treasuryAccountAddress);
+        treasuryErisAccount.setPubKey(treasuryAccountPubKey);
+        treasuryErisAccount.setPrivKey(treasuryAccountPrivKey);
     }
 
     @SaveTransaction
@@ -67,6 +90,52 @@ public class CoinService {
 
     }
 
+    private synchronized Transaction refill(String accountName) {
+        ErisAccount sellerAccount = accountsService.getAccount(accountName).getErisAccount();
+        BigDecimal amount = getAmountForErisAccount(sellerAccount);
+        if (amount.signum() <= 0) throw new NotEnoughAmountInAccountException();
+        moveByEris(sellerAccount, treasuryAccountAddress, amount, "Move coins from seller " + accountName + "to treasury.");
+        return null;
+    }
+
+
+    public void distribute(BigDecimal amount, String sellerName) {
+        refill(sellerName);
+        BigDecimal amountToDistribute = amount.add(getAllAccountsMoney().negate());
+
+        if (amountToDistribute.signum() > 0) {
+            distributeRest(amountToDistribute);
+        }
+    }
+
+    private void distributeRest(BigDecimal amount) {
+        List<Account> accounts = accountsService.getAll();
+        int accountCount = accounts.size();
+        int mean = amount.intValue() / accountCount;
+        int rest = amount.intValue() % accountCount;
+        Set<Account> luckyAccounts = accounts.stream()
+                .sorted((a1, a2) -> new Random().nextBoolean() ? 1 : -1)
+                .limit(rest)
+                .collect(Collectors.toSet());
+        Set<Account> unluckyAccounts = accounts.stream()
+                .filter(a -> ! luckyAccounts.contains(a))
+                .collect(Collectors.toSet());
+        addForAll(luckyAccounts, new BigDecimal(mean + 1));
+        addForAll(unluckyAccounts, new BigDecimal(mean));
+    }
+
+    private BigDecimal getAllAccountsMoney() {
+        return accountsService.getAll().stream()
+                .map(account -> getAmount(account.getLdapId()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private void addForAll(Collection<Account> accounts, BigDecimal amount) {
+        accounts.stream()
+                .forEach(a -> moveByEris(treasuryErisAccount, a.getErisAccount().getAddress(), amount, "Add coins for " + a.getFullName()));
+    }
+
+
     @SaveTransaction
     public synchronized Transaction move(@NonNull String accountName,
                                          @NonNull String destinationName,
@@ -81,7 +150,7 @@ public class CoinService {
             throw new NotEnoughAmountInAccountException();
         }
 
-        move(donor, acceptor.getAddress(), amount);
+        moveByEris(donor, acceptor.getAddress(), amount, comment);
 
         return null;
     }
@@ -91,16 +160,24 @@ public class CoinService {
     public BigDecimal getAmount(String ldapId) {
         try {
             ErisAccount account = getErisAccount(ldapId);
-            Response<BigDecimal> response = contractService.getForAccount(account).call(GET_MONEY, account.getAddress());
-            processResponseError(response);
-            return response.getReturnValue().getVal();
+            return getAmountForErisAccount(account);
         } catch (Exception e) {
             throw new ErisProcessingException("Can't query balance for account " + ldapId, e);
         }
     }
 
+    private BigDecimal getAmountForErisAccount(ErisAccount erisAccount) {
+        try {
+            Response<BigDecimal> response = contractService.getForAccount(erisAccount).call(GET_MONEY, erisAccount.getAddress());
+            processResponseError(response);
+            return response.getReturnValue().getVal();
+        } catch (Exception e) {
+            throw new ErisProcessingException("Can't query balance for account " + erisAccount.getAddress(), e);
+        }
+    }
+
     @SaveTransaction
-    public Transaction spent(@NonNull String sellerAddress, @NonNull String accountName, @NonNull BigDecimal amount, String comment) {
+    public Transaction buy(@NonNull String destinationName, @NonNull String accountName, @NonNull BigDecimal amount, String comment) {
         synchronized (getMonitor(accountName)) {
             checkAmountIsPositive(amount);
 
@@ -112,13 +189,16 @@ public class CoinService {
                 throw new NotEnoughAmountInAccountException();
             }
 
-            move(account, sellerAddress, amount);
+            ErisAccount sellerAccount = getErisAccount(destinationName);
+
+            moveByEris(account, sellerAccount.getAddress(), amount, comment);
 
             return null;
         }
     }
 
-    private void move(ErisAccount account, String address, BigDecimal amount) {
+    @SaveTransaction
+    public void moveByEris(ErisAccount account, String address, BigDecimal amount, String comment) {
         try {
             Response response = contractService
                     .getForAccount(account)

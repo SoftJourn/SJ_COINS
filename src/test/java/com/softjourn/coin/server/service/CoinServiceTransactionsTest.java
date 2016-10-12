@@ -3,6 +3,7 @@ package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
+import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
@@ -47,6 +48,8 @@ public class CoinServiceTransactionsTest {
 
     ErisContractService contractService;
 
+    ErisAccountRepository erisAccountRepository;
+
     Contract contract;
 
     AccountsService accountsService;
@@ -62,6 +65,8 @@ public class CoinServiceTransactionsTest {
 
         accountsService = mock(AccountsService.class);
 
+        erisAccountRepository = mock(ErisAccountRepository.class);
+
         ReflectionTestUtils.setField(accountsService, "accountRepository", accountRepository);
 
         when(accountsService.getAccount(anyString())).thenCallRealMethod();
@@ -70,7 +75,7 @@ public class CoinServiceTransactionsTest {
         contract = mock(Contract.class);
         contractService = mock(ErisContractService.class);
 
-        coinService = new CoinService(accountsService, contractService);
+        coinService = new CoinService(accountsService, contractService, erisAccountRepository);
 
         when(contractService.getForAccount(any())).thenReturn(contract);
 
@@ -98,7 +103,7 @@ public class CoinServiceTransactionsTest {
     public void testSpent() throws Exception {
         BigDecimal spentAmount = new BigDecimal("10");
 
-        coinService.spent("address", "account1", spentAmount, "Buying Pepsi.");
+        coinService.buy("VM1", "account1", spentAmount, "Buying Pepsi.");
 
         verify(contract, times(1)).call(eq("queryBalance"), anyVararg());
         verify(contract, times(1)).call(eq("send"), anyVararg());

@@ -6,6 +6,7 @@ import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
+import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
@@ -45,6 +46,9 @@ public class CoinServiceMoveTest {
     TransactionRepository transactionRepository;
 
     @Mock
+    ErisAccountRepository erisAccountRepository;
+
+    @Mock
     Contract contract;
 
     CoinService coinService;
@@ -67,7 +71,7 @@ public class CoinServiceMoveTest {
 
         when(principal.getName()).thenReturn("account1");
 
-        coinService = new CoinService(accountsService, contractService);
+        coinService = new CoinService(accountsService, contractService, erisAccountRepository);
 
         when(accountsService.getAccount("account1")).thenReturn(account1);
         when(accountsService.getAccount("account2")).thenReturn(account2);

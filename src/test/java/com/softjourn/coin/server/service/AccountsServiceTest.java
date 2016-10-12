@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.entity.Account;
+import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
@@ -60,6 +61,7 @@ public class AccountsServiceTest {
 
 
         Account account = new Account(ID_EXISTING_IN_DB, new BigDecimal(100));
+        account.setAccountType(AccountType.REGULAR);
         when(accountRepository.findAll()).thenReturn(Collections.singletonList(account));
 
         when(accountRepository.findOne(ID_EXISTING_IN_DB)).thenReturn(account);

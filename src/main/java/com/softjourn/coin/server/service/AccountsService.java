@@ -2,6 +2,7 @@ package com.softjourn.coin.server.service;
 
 
 import com.softjourn.coin.server.entity.Account;
+import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
@@ -112,6 +113,7 @@ public class AccountsService {
     public List<Account> getAll() {
         return StreamSupport
                 .stream(accountRepository.findAll().spliterator(), false)
+                .filter(a -> a.getAccountType().equals(AccountType.REGULAR))
                 .collect(Collectors.toList());
     }
 
@@ -149,5 +151,19 @@ public class AccountsService {
         } else {
             throw new AccountNotFoundException(ldapId);
         }
+    }
+
+    @Transactional
+    public Account addMerchant(String name) {
+        Account newMerchantAccount = new Account(name, BigDecimal.ZERO);
+        newMerchantAccount.setFullName(name);
+        newMerchantAccount.setAccountType(AccountType.MERCHANT);
+        ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
+        if (erisAccount == null) throw new RuntimeException("Can't create account for " + name + ". " +
+                "There is no free eris accounts");
+        newMerchantAccount = accountRepository.save(newMerchantAccount);
+        erisAccount.setAccount(newMerchantAccount);
+        erisAccountRepository.save(erisAccount);
+        return newMerchantAccount;
     }
 }

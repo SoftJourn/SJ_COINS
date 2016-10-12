@@ -7,6 +7,7 @@ CREATE TABLE accounts
     ldap_id VARCHAR(255) NOT NULL PRIMARY KEY,
     amount DECIMAL(10),
     fullName VARCHAR(255),
+    type VARCHAR(32) DEFAULT 'REGULAR',
     image VARCHAR(255)
 );
 

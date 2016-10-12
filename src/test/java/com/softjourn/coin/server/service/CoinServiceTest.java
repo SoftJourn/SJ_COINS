@@ -6,6 +6,7 @@ import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.ErisAccountType;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
+import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
@@ -43,6 +44,9 @@ public class CoinServiceTest {
     ErisContractService contractService;
 
     @Mock
+    ErisAccountRepository erisAccountRepository;
+
+    @Mock
     AccountsService accountsService;
 
     CoinService coinService;
@@ -63,7 +67,7 @@ public class CoinServiceTest {
 
         when(accountsService.getAccount(anyString())).thenReturn(account);
 
-        coinService = new CoinService(accountsService, contractService);
+        coinService = new CoinService(accountsService, contractService, erisAccountRepository);
 
         when(contractService.getForAccount(any())).thenReturn(contract);
 
@@ -106,15 +110,15 @@ public class CoinServiceTest {
 
     @Test
     public void testSpent() throws Exception {
-        coinService.spent(principal.getName(),"address", new BigDecimal(50), "");
+        coinService.buy(principal.getName(),"VM1", new BigDecimal(50), "");
 
-        verify(accountsService, times(2)).getAccount(anyString());
+        verify(accountsService, times(3)).getAccount(anyString());
         verify(contract, times(1)).call(eq("send"), anyVararg());
     }
 
     @Test(expected = NotEnoughAmountInAccountException.class)
     public void testSpentTooMach() throws Exception {
-        assertTrue(coinService.spent(principal.getName(), "address", new BigDecimal(150), "").getStatus().equals(TransactionStatus.FAILED));
+        assertTrue(coinService.buy(principal.getName(), "address", new BigDecimal(150), "").getStatus().equals(TransactionStatus.FAILED));
         assertEquals(new BigDecimal(100), account.getAmount());
 
         verify(accountsService, times(1)).getAccount(anyString());
@@ -123,7 +127,7 @@ public class CoinServiceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSpentNegative() throws Exception {
-        assertTrue(coinService.spent(principal.getName(),"address",  new BigDecimal(-150), "").getStatus().equals(TransactionStatus.FAILED));
+        assertTrue(coinService.buy(principal.getName(),"address",  new BigDecimal(-150), "").getStatus().equals(TransactionStatus.FAILED));
         assertEquals(new BigDecimal(100), account.getAmount());
 
         verify(accountsService, times(0)).getAccount(anyString());

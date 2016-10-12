@@ -47,7 +47,7 @@ class ControllerTestConfig {
         def transactionMove = createTransaction(account, account2)
 
         when(coinService.getAmount(any(String.class))).thenReturn(new BigDecimal('100'))
-        when(coinService.spent(any(String.class) ,any(String.class), any(BigDecimal.class), any(String.class)))
+        when(coinService.buy(any(String.class) ,any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transaction)
         when(coinService.fillAccount(any(String.class), any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transaction)
@@ -64,7 +64,12 @@ class ControllerTestConfig {
         account.fullName = "Bruce Wayne"
         account.image = "images/default.png"
 
+        def seller = new Account("VM1", 0)
+        account.fullName = "VM1"
+
         when(accountsService.getAccount(anyString())).thenReturn(account)
+
+        when(accountsService.addMerchant(anyString())).thenReturn(seller)
 
         accountsService
     }
