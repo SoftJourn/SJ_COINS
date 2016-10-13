@@ -140,6 +140,7 @@ public class AccountsService {
             account.setLdapId(ldapId);
             account.setAmount(new BigDecimal(0));
             account.setImage(DEFAULT_IMAGE_NAME);
+            account.setAccountType(AccountType.REGULAR);
             ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
             if (erisAccount == null) throw new RuntimeException("Can't create account for " + ldapId + ". " +
                     "There is no free eris accounts");
