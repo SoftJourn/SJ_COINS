@@ -132,8 +132,7 @@ public class CoinService {
     }
 
     private void addForAll(Collection<Account> accounts, BigDecimal amount) {
-        accounts.stream()
-                .forEach(a -> moveByEris(treasuryErisAccount, a.getErisAccount().getAddress(), amount, "Add coins for " + a.getFullName()));
+        accounts.forEach(a -> moveByEris(treasuryErisAccount, a.getErisAccount().getAddress(), amount, "Add coins for " + a.getFullName()));
     }
 
 
