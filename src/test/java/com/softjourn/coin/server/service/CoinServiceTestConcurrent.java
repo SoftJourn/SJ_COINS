@@ -19,6 +19,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashSet;
@@ -79,7 +80,7 @@ public class CoinServiceTestConcurrent {
         when(contractService.getForAccount(any())).thenReturn(contract);
 
         Response<Object> getResp = new Response<>("",
-                new ReturnValue<>(Object.class, new BigDecimal(100000)),
+                new ReturnValue<>(Object.class, BigInteger.valueOf(100000L)),
                 null,
                 null);
 

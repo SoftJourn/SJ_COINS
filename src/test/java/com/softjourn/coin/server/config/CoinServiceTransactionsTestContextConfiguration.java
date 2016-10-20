@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
@@ -76,7 +76,7 @@ public class CoinServiceTransactionsTestContextConfiguration {
         doNothing().when(contractService).initContract();
 
         Response<Object> getResp = new Response<>("",
-                new ReturnValue<>(Object.class, new BigDecimal(500)),
+                new ReturnValue<>(Object.class, BigInteger.valueOf(500L)),
                 null,
                 null);
 

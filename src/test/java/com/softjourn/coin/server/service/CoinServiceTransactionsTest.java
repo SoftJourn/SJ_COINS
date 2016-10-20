@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.security.Principal;
 
 import static junit.framework.TestCase.assertEquals;
@@ -80,7 +81,7 @@ public class CoinServiceTransactionsTest {
         when(contractService.getForAccount(any())).thenReturn(contract);
 
         Response<Object> getResp = new Response<>("",
-                new ReturnValue<>(Object.class, new BigDecimal(100)),
+                new ReturnValue<>(Object.class, BigInteger.valueOf(100)),
                 null,
                 null);
 

@@ -52,9 +52,9 @@ public class CoinsController {
         return coinService.fillAccount(principal.getName(), account, amount.getAmount(), amount.getComment());
     }
 
-    @RequestMapping(value = "/distribute/{sellerName}", method = RequestMethod.POST)
-    public void distribute(@RequestBody AmountDTO amount, @PathVariable String sellerName) {
-        coinService.distribute(amount.getAmount(), sellerName);
+    @RequestMapping(value = "/distribute", method = RequestMethod.POST)
+    public void distribute(@RequestBody AmountDTO amount) {
+        coinService.distribute(amount.getAmount(), "Distribute money for all accounts.");
     }
 
 

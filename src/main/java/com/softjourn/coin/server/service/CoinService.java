@@ -18,7 +18,11 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +30,7 @@ public class CoinService {
 
     private static final String ADD_MONEY = "mint";
     private static final String SEND_MONEY = "send";
+    private static final String DISTRIBUTE_MONEY = "distribute";
     private static final String GET_MONEY = "queryBalance";
 
     private AccountsService accountsService;
@@ -90,51 +95,22 @@ public class CoinService {
 
     }
 
-    private synchronized Transaction refill(String accountName) {
-        ErisAccount sellerAccount = accountsService.getAccount(accountName).getErisAccount();
-        BigDecimal amount = getAmountForErisAccount(sellerAccount);
-        if (amount.signum() > 0) {
-            moveByEris(sellerAccount, treasuryAccountAddress, amount, "Move coins from seller " + accountName + "to treasury.");
-        }
-        return null;
-    }
-
-
-    public void distribute(BigDecimal amount, String sellerName) {
-        refill(sellerName);
-        BigDecimal amountToDistribute = amount.add(getAllAccountsMoney().negate());
-
-        if (amountToDistribute.signum() > 0) {
-            distributeRest(amountToDistribute);
+    @SaveTransaction
+    public void distribute(BigDecimal amount, String comment) {
+        try {
+            List<String> accountsAddresses = accountsService.getAll().stream()
+                    .map(Account::getErisAccount)
+                    .map(ErisAccount::getAddress)
+                    .collect(Collectors.toList());
+            Response response = contractService
+                    .getForAccount(treasuryErisAccount)
+                    .call(DISTRIBUTE_MONEY, accountsAddresses, amount.toBigInteger());
+            if (! (Boolean) response.getReturnValue().getVal()) throw new NotEnoughAmountInAccountException();
+            processResponseError(response);
+        } catch (Exception e) {
+            throw new ErisProcessingException("Can't distribute money.", e);
         }
     }
-
-    private void distributeRest(BigDecimal amount) {
-        List<Account> accounts = accountsService.getAll();
-        int accountCount = accounts.size();
-        int mean = amount.intValue() / accountCount;
-        int rest = amount.intValue() % accountCount;
-        Set<Account> luckyAccounts = accounts.stream()
-                .sorted((a1, a2) -> new Random().nextBoolean() ? 1 : -1)
-                .limit(rest)
-                .collect(Collectors.toSet());
-        Set<Account> unluckyAccounts = accounts.stream()
-                .filter(a -> ! luckyAccounts.contains(a))
-                .collect(Collectors.toSet());
-        addForAll(luckyAccounts, new BigDecimal(mean + 1));
-        addForAll(unluckyAccounts, new BigDecimal(mean));
-    }
-
-    private BigDecimal getAllAccountsMoney() {
-        return accountsService.getAll().stream()
-                .map(account -> getAmount(account.getLdapId()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    private void addForAll(Collection<Account> accounts, BigDecimal amount) {
-        accounts.forEach(a -> moveByEris(treasuryErisAccount, a.getErisAccount().getAddress(), amount, "Add coins for " + a.getFullName()));
-    }
-
 
     @SaveTransaction
     public synchronized Transaction move(@NonNull String accountName,
@@ -168,9 +144,9 @@ public class CoinService {
 
     private BigDecimal getAmountForErisAccount(ErisAccount erisAccount) {
         try {
-            Response<BigDecimal> response = contractService.getForAccount(erisAccount).call(GET_MONEY, erisAccount.getAddress());
+            Response<BigInteger> response = contractService.getForAccount(erisAccount).call(GET_MONEY, erisAccount.getAddress());
             processResponseError(response);
-            return response.getReturnValue().getVal();
+            return new BigDecimal(response.getReturnValue().getVal());
         } catch (Exception e) {
             throw new ErisProcessingException("Can't query balance for account " + erisAccount.getAddress(), e);
         }
@@ -202,7 +178,7 @@ public class CoinService {
         try {
             Response response = contractService
                     .getForAccount(account)
-                    .call(SEND_MONEY, address, amount);
+                    .call(SEND_MONEY, address, amount.toBigInteger());
             if (! (Boolean) response.getReturnValue().getVal()) throw new NotEnoughAmountInAccountException();
             processResponseError(response);
         } catch (Exception e) {

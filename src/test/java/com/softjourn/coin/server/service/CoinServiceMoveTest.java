@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.security.Principal;
 
 import static junit.framework.TestCase.assertEquals;
@@ -80,7 +81,7 @@ public class CoinServiceMoveTest {
         when(contractService.getForAccount(any())).thenReturn(contract);
 
         Response<Object> getResp = new Response<>("",
-                new ReturnValue<>(Object.class, new BigDecimal(100)),
+                new ReturnValue<>(Object.class, BigInteger.valueOf(100L)),
                 null,
                 null);
 
