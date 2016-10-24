@@ -13,12 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.net.ssl.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,53 +22,6 @@ import java.util.stream.StreamSupport;
 
 @Service
 public class AccountsService {
-
-    /*
-     * TODO
-     * This method allow to ignore wrong certificates on testing.
-     * It trust all certificates what is insecure.
-     * Only for testing.
-     * Remove for using in production environment.
-     */
-    static {
-        disableSslVerification();
-    }
-    private static void disableSslVerification() {
-        try {
-            // Create a trust manager that does not validate certificate chains
-            TrustManager[] trustAllCerts = new TrustManager[]{
-                    new X509TrustManager() {
-                        @Override
-                        public void checkClientTrusted(java.security.cert.X509Certificate[] x509Certificates, String s) throws CertificateException {}
-
-                        @Override
-                        public void checkServerTrusted(java.security.cert.X509Certificate[] x509Certificates, String s) throws CertificateException {}
-
-                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {return null;}
-
-                    }
-            };
-
-            // Install the all-trusting trust manager
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-            // Create all-trusting host name verifier
-            HostnameVerifier allHostsValid = new HostnameVerifier() {
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            };
-
-            // Install the all-trusting host verifier
-            HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        }
-    }
 
     private static final String DEFAULT_IMAGE_NAME = "images/default.png";
 
