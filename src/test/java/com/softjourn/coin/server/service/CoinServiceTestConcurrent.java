@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 public class CoinServiceTestConcurrent {
 
     Account account;
+    Account sellerAccount;
 
     @Mock
     Principal principal;
@@ -64,16 +65,21 @@ public class CoinServiceTestConcurrent {
     public void setUp() throws Exception {
 
         account = new Account("user", new BigDecimal(200000));
+        sellerAccount = new Account("seller", new BigDecimal(0));
 
         ErisAccount erisAccount1 = new ErisAccount();
         erisAccount1.setAddress("address1");
         erisAccount1.setType(ErisAccountType.ROOT);
-
         account.setErisAccount(erisAccount1);
+
+        ErisAccount sellerErisAccount = new ErisAccount();
+        sellerErisAccount.setAddress("address");
+        sellerAccount.setErisAccount(sellerErisAccount);
 
         when(principal.getName()).thenReturn("user");
 
-        when(accountsService.getAccount(anyString())).thenReturn(account);
+        when(accountsService.getAccount("user")).thenReturn(account);
+        when(accountsService.getAccount("seller")).thenReturn(sellerAccount);
 
         coinService = new CoinService(accountsService, contractService, erisAccountRepository);
 
@@ -92,14 +98,14 @@ public class CoinServiceTestConcurrent {
         when(contract.call(eq("queryBalance"), anyVararg()))
                 .thenReturn(getResp);
 
-        when(contract.call(eq("send"), org.mockito.Matchers.anyVararg()))
+        when(contract.call(eq("send"), eq("address"), org.mockito.Matchers.anyVararg()))
                 .then((InvocationOnMock invocation) -> {
                         amount.addAndGet(-200);
                         return sendResp;
                     }
                 );
 
-        when(contract.call(eq("mint"), org.mockito.Matchers.anyVararg()))
+        when(contract.call(eq("send"), eq("address1"), org.mockito.Matchers.anyVararg()))
                 .then(inv -> {
                     amount.addAndGet(100);
                     return sendResp;
@@ -115,8 +121,8 @@ public class CoinServiceTestConcurrent {
         Collection<Callable<Object>> tasks = new HashSet<>();
 
         for (int i = 0; i < 1000; i++) {
-            tasks.add(() -> coinService.fillAccount("user1", "user", new BigDecimal(100), ""));
-            tasks.add(() -> coinService.buy(principal.getName(), "address", new BigDecimal(200), ""));
+            tasks.add(() -> coinService.fillAccount("user", new BigDecimal(100), ""));
+            tasks.add(() -> coinService.buy("seller", principal.getName(), new BigDecimal(200), ""));
         }
 
         executorService.invokeAll(tasks);

@@ -94,16 +94,15 @@ public class CoinServiceTest {
 
     @Test
     public void testFillAccount() throws Exception {
-        coinService.fillAccount("user", "user1", new BigDecimal(100), "");
+        coinService.fillAccount("user1", new BigDecimal(100), "");
 
-        verify(accountsService, times(1)).getAccount("user");
         verify(accountsService, times(1)).getAccount("user1");
-        verify(contract, times(1)).call(eq("mint"), anyVararg());
+        verify(contract, times(1)).call(eq("send"), anyVararg());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testFillAccountNegative() throws Exception {
-        assertEquals(new BigDecimal(200), coinService.fillAccount("user", "user1", new BigDecimal(-100), ""));
+        assertEquals(new BigDecimal(200), coinService.fillAccount("user1", new BigDecimal(-100), ""));
 
         verify(accountsService, times(0)).getAccount(anyString());
         verify(accountsService, times(0)).update(account);

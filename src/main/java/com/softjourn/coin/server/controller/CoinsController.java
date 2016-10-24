@@ -47,9 +47,8 @@ public class CoinsController {
 
     @RequestMapping(value = "/add/{account}", method = RequestMethod.POST)
     public Transaction addAmount(@RequestBody AmountDTO amount,
-                                 @PathVariable String account,
-                                 Principal principal) {
-        return coinService.fillAccount(principal.getName(), account, amount.getAmount(), amount.getComment());
+                                 @PathVariable String account) {
+        return coinService.fillAccount(account, amount.getAmount(), amount.getComment());
     }
 
     @RequestMapping(value = "/distribute", method = RequestMethod.POST)

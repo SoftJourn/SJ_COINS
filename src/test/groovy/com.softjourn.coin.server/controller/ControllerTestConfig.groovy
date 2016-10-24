@@ -49,7 +49,7 @@ class ControllerTestConfig {
         when(coinService.getAmount(any(String.class))).thenReturn(new BigDecimal('100'))
         when(coinService.buy(any(String.class) ,any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transaction)
-        when(coinService.fillAccount(any(String.class), any(String.class), any(BigDecimal.class), any(String.class)))
+        when(coinService.fillAccount(any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transaction)
         when(coinService.move(any(String.class), any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transactionMove)

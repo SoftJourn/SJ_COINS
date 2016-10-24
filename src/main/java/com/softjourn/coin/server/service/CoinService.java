@@ -65,8 +65,7 @@ public class CoinService {
     }
 
     @SaveTransaction
-    public Transaction fillAccount(@NonNull String user,
-                                   @NonNull String destinationName,
+    public Transaction fillAccount(@NonNull String destinationName,
                                    @NonNull BigDecimal amount,
                                    String comment) {
         synchronized (getMonitor(destinationName)) {
