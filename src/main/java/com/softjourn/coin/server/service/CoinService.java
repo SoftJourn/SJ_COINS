@@ -4,7 +4,6 @@ package com.softjourn.coin.server.service;
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.ErisAccount;
-import com.softjourn.coin.server.entity.ErisAccountType;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.exceptions.ErisProcessingException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -75,20 +73,8 @@ public class CoinService {
             checkAmountIsPositive(amount);
 
             ErisAccount erisAccount = getErisAccount(destinationName);
-            ErisAccount rootErisAccount = getErisAccount(user);
 
-            if (rootErisAccount.getType() != ErisAccountType.ROOT) {
-                throw new ErisProcessingException("Only ROOT user can create money.");
-            }
-
-            try {
-                Response response = contractService
-                        .getForAccount(rootErisAccount)
-                        .call(ADD_MONEY, erisAccount.getAddress(), amount);
-                processResponseError(response);
-            } catch (IOException e) {
-                throw new ErisProcessingException("Can't add money for account " + destinationName, e);
-            }
+            moveByEris(treasuryErisAccount, erisAccount.getAddress(), amount, comment);
 
             return null;
         }
@@ -102,9 +88,11 @@ public class CoinService {
                     .map(Account::getErisAccount)
                     .map(ErisAccount::getAddress)
                     .collect(Collectors.toList());
+
             Response response = contractService
                     .getForAccount(treasuryErisAccount)
                     .call(DISTRIBUTE_MONEY, accountsAddresses, amount.toBigInteger());
+
             if (! (Boolean) response.getReturnValue().getVal()) throw new NotEnoughAmountInAccountException();
             processResponseError(response);
         } catch (Exception e) {
