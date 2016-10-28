@@ -17,13 +17,15 @@ public class Account {
 
     @Id
     @Column(name = "ldap_id")
+    @JsonView(JsonViews.COINS_MANAGER.class)
     private String ldapId;
 
     @Transient
-    @JsonView(JsonViews.REGULAR.class)
+    @JsonView({JsonViews.REGULAR.class, JsonViews.COINS_MANAGER.class})
     private BigDecimal amount;
 
     @Column(name = "fullName")
+    @JsonView(JsonViews.COINS_MANAGER.class)
     private String fullName;
 
     @OneToOne(mappedBy = "account")

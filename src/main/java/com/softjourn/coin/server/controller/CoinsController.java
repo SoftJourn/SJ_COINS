@@ -2,6 +2,7 @@ package com.softjourn.coin.server.controller;
 
 
 import com.softjourn.coin.server.dto.AmountDTO;
+import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.service.CoinService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,11 @@ public class CoinsController {
         return coinService.move(principal.getName(), account, amountDTO.getAmount(), amountDTO.getComment());
     }
 
+    @RequestMapping(value = "/move/{account}/treasury", method = RequestMethod.POST)
+    public Transaction moveAmountToTreasury(@PathVariable String account, @RequestBody AmountDTO amountDTO) {
+        return coinService.moveToTreasury(account, amountDTO);
+    }
+
     @RequestMapping(value = "/add/{account}", method = RequestMethod.POST)
     public Transaction addAmount(@RequestBody AmountDTO amount,
                                  @PathVariable String account) {
@@ -56,5 +62,19 @@ public class CoinsController {
         coinService.distribute(amount.getAmount(), "Distribute money for all accounts.");
     }
 
+    @RequestMapping(value = "/amount/treasury", method = RequestMethod.GET)
+    public Map<String, BigDecimal> getTreasuryAmount() {
+        HashMap<String, BigDecimal> responseBody = new HashMap<>();
+        responseBody.put("amount", coinService.getTreasuryAmount());
 
+        return responseBody;
+    }
+
+    @RequestMapping(value = "/amount/{accountType}", method = RequestMethod.GET)
+    public Map<String, BigDecimal> getAmountByAccountType(@PathVariable String accountType) {
+        HashMap<String, BigDecimal> responseBody = new HashMap<>();
+        responseBody.put("amount", coinService.getAmountByAccountType(AccountType.valueOf(accountType.toUpperCase())));
+
+        return responseBody;
+    }
 }

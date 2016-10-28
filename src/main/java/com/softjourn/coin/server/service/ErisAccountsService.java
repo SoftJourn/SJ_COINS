@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -108,7 +107,7 @@ public class ErisAccountsService {
 
     private LinkedList<ErisAccount> shareAccounts(TreeMap<String, ErisAccount> accountCollection) {
 
-        LinkedList<Account> linkedAccounts = new LinkedList<>(accountRepository.getAll());
+        LinkedList<Account> linkedAccounts = new LinkedList<>(accountRepository.findAll());
         LinkedList<ErisAccount> newAssignedErisAccounts = new LinkedList<>();
 
         linkedAccounts.stream()

@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
 
 import static junit.framework.TestCase.*;
 import static org.mockito.Matchers.any;
@@ -62,7 +63,11 @@ public class AccountsServiceTest {
 
         Account account = new Account(ID_EXISTING_IN_DB, new BigDecimal(100));
         account.setAccountType(AccountType.REGULAR);
+
         when(accountRepository.findAll()).thenReturn(Collections.singletonList(account));
+
+        when(accountRepository.getAccountsByType(AccountType.MERCHANT)).thenReturn(Collections.emptyList());
+        when(accountRepository.getAccountsByType(AccountType.REGULAR)).thenReturn(Collections.singletonList(account));
 
         when(accountRepository.findOne(ID_EXISTING_IN_DB)).thenReturn(account);
 
@@ -117,4 +122,13 @@ public class AccountsServiceTest {
         accountsService.add(NOT_EXISTING_LDAP_ID);
     }
 
+    @Test
+    public void getAllWithArgument() throws Exception {
+        List<Account> merchants = accountsService.getAll(AccountType.MERCHANT);
+        List<Account> regularAccounts = accountsService.getAll(AccountType.REGULAR);
+
+        assertEquals(0, merchants.size());
+        assertEquals(1, regularAccounts.size());
+        assertEquals(new BigDecimal(100), regularAccounts.get(0).getAmount());
+    }
 }

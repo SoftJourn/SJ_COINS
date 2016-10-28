@@ -9,4 +9,8 @@ public class JsonViews {
     public static class REGULAR {
 
     }
+
+    public static class COINS_MANAGER {
+    }
+
 }

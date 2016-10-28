@@ -1,10 +1,8 @@
 package com.softjourn.coin.server.service;
 
 
-import com.softjourn.coin.server.entity.Account;
-import com.softjourn.coin.server.entity.ErisAccount;
-import com.softjourn.coin.server.entity.ErisAccountType;
-import com.softjourn.coin.server.entity.TransactionStatus;
+import com.softjourn.coin.server.dto.AmountDTO;
+import com.softjourn.coin.server.entity.*;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
@@ -15,15 +13,21 @@ import com.softjourn.eris.contract.response.TxParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -50,7 +54,14 @@ public class CoinServiceTest {
     @Mock
     AccountsService accountsService;
 
+    @InjectMocks
     CoinService coinService;
+
+    @Captor
+    ArgumentCaptor<Object> captor;
+
+    @Captor
+    ArgumentCaptor<ErisAccount> erisAccountCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -63,12 +74,23 @@ public class CoinServiceTest {
 
         account.setErisAccount(erisAccount1);
 
+        Account account2 = new Account("VM1", new BigDecimal(100));
+        account2.setAccountType(AccountType.MERCHANT);
+        account2.setErisAccount(erisAccount1);
+
+        Account account3 = new Account("VM2", new BigDecimal(100));
+        account3.setAccountType(AccountType.MERCHANT);
+        account3.setErisAccount(erisAccount1);
+
+        List<Account> accounts = Arrays.asList(account, account2, account3);
 
         when(principal.getName()).thenReturn("user");
 
         when(accountsService.getAccount(anyString())).thenReturn(account);
 
-        coinService = new CoinService(accountsService, contractService, erisAccountRepository);
+        when(accountsService.getAll()).thenReturn(accounts);
+        when(accountsService.getAll(AccountType.MERCHANT)).thenReturn(Arrays.asList(account2, account3));
+        when(accountsService.getAll(AccountType.REGULAR)).thenReturn(Collections.emptyList());
 
         when(contractService.getForAccount(any())).thenReturn(contract);
 
@@ -85,10 +107,10 @@ public class CoinServiceTest {
         when(contract.call(eq("queryBalance"), anyVararg()))
                 .thenReturn(getResp);
 
-        when(contract.call(eq("send"), org.mockito.Matchers.anyVararg()))
+        when(contract.call(eq("send"), anyVararg()))
                 .thenReturn(sendResp);
 
-        when(contract.call(eq("mint"), org.mockito.Matchers.anyVararg()))
+        when(contract.call(eq("mint"), anyVararg()))
                 .thenReturn(sendResp);
     }
 
@@ -134,4 +156,37 @@ public class CoinServiceTest {
         verify(accountsService, times(0)).update(account);
     }
 
+    @Test
+    public void testGetTreasuryAmount() throws Exception {
+        BigDecimal treasuryAmount = coinService.getTreasuryAmount();
+        BigDecimal expectedAmount = new BigDecimal(100);
+
+        assertEquals(expectedAmount, treasuryAmount);
+
+        verify(contract).call(eq("queryBalance"), anyVararg());
+    }
+
+    @Test
+    public void testGetMerchantsAmount() throws Exception {
+        BigDecimal merchantsAmount = coinService.getAmountByAccountType(AccountType.MERCHANT);
+        BigDecimal accountAmount = coinService.getAmountByAccountType(AccountType.REGULAR);
+
+        assertEquals(new BigDecimal(200), merchantsAmount);
+        assertEquals(BigDecimal.ZERO, accountAmount);
+
+        verify(accountsService).getAll(AccountType.MERCHANT);
+        verify(accountsService).getAll(AccountType.REGULAR);
+    }
+
+    @Test
+    public void moveToTreasury() throws Exception {
+        BigDecimal amount = new BigDecimal(70);
+        coinService.moveToTreasury("account", new AmountDTO(amount, "Test msg"));
+
+        verify(contract).call(eq("send"), captor.capture());
+        verify(contractService, times(2)).getForAccount(erisAccountCaptor.capture());
+
+        assertEquals(captor.getAllValues().get(1), amount.toBigInteger());
+        assertEquals(erisAccountCaptor.getValue(), account.getErisAccount());
+    }
 }

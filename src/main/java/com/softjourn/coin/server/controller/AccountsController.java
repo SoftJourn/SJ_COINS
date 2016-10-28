@@ -2,6 +2,7 @@ package com.softjourn.coin.server.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.softjourn.coin.server.entity.Account;
+import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.service.AccountsService;
 import com.softjourn.coin.server.service.CoinService;
 import com.softjourn.coin.server.util.JsonViews;
@@ -12,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/account")
+@RequestMapping("/api/v1")
 public class AccountsController {
 
     private AccountsService accountsService;
@@ -26,7 +29,7 @@ public class AccountsController {
         this.coinService = coinService;
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = "/account", method = RequestMethod.GET)
     @JsonView(JsonViews.REGULAR.class)
     public Account getAccount(Principal principal) {
         Account account = accountsService.getAccount(principal.getName());
@@ -34,10 +37,25 @@ public class AccountsController {
         return account;
     }
 
-    @RequestMapping(value = "/{merchantName}", method = RequestMethod.POST)
+    @RequestMapping(value = "/account/{merchantName}", method = RequestMethod.POST)
     @JsonView(JsonViews.ADMIN.class)
     public Account addMerchant(@PathVariable String merchantName) {
         return accountsService.addMerchant(merchantName);
     }
 
+    @RequestMapping(value = "/accounts", method = RequestMethod.GET)
+    @JsonView(JsonViews.COINS_MANAGER.class)
+    public List<Account> getAllAccounts() {
+        return accountsService.getAll().stream()
+                .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
+                .collect(Collectors.toList());
+    }
+
+    @RequestMapping(value = "/accounts/{accountType}", method = RequestMethod.GET)
+    @JsonView(JsonViews.COINS_MANAGER.class)
+    public List<Account> getAccountsByType(@PathVariable String accountType) {
+        return accountsService.getAll(AccountType.valueOf(accountType.toUpperCase())).stream()
+                .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
+                .collect(Collectors.toList());
+    }
 }

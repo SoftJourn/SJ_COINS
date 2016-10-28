@@ -89,6 +89,64 @@ include::{snippets}/amount/http-request.adoc[]
 include::{snippets}/amount/http-response.adoc[]
 
 
+[[resources-amount]]
+=== Amount by type
+
+A `GET` request will get amount of coins that available for accounts of particular type
+
+==== Response structure
+
+include::{snippets}/merchantAmount/response-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/merchantAmount/http-request.adoc[]
+
+==== Path parameters
+
+include::{snippets}/merchantAmount/path-parameters.adoc[]
+
+==== Example response
+
+include::{snippets}/merchantAmount/http-response.adoc[]
+
+
+[[resources-amount]]
+=== Treasury amount
+
+A `GET` request will get amount of coins in treasury
+
+==== Response structure
+
+include::{snippets}/treasuryAmount/response-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/treasuryAmount/http-request.adoc[]
+
+==== Path parameters
+
+include::{snippets}/treasuryAmount/path-parameters.adoc[]
+
+==== Example response
+
+include::{snippets}/treasuryAmount/http-response.adoc[]
+
+
 [[resources-spent]]
 === Spent
 
@@ -195,6 +253,58 @@ include::{snippets}/account/http-request.adoc[]
 ==== Example response
 
 include::{snippets}/account/http-response.adoc[]
+
+[[resources-accounts]]
+=== Accounts
+
+A `GET` request will get list of all accounts
+
+==== Response structure
+
+include::{snippets}/accounts/response-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/accounts/http-request.adoc[]
+
+==== Example response
+
+include::{snippets}/accounts/http-response.adoc[]
+
+[[resources-accountsByType]]
+=== Accounts by type
+
+A `GET` request will get all the accounts of particular type
+
+==== Response structure
+
+include::{snippets}/merchantAccounts/response-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/merchantAccounts/http-request.adoc[]
+
+==== Path parameters
+
+include::{snippets}/merchantAccounts/path-parameters.adoc[]
+
+==== Example response
+
+include::{snippets}/merchantAccounts/http-response.adoc[]
 
 [[resources-register]]
 === Register

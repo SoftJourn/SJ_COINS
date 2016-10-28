@@ -2,6 +2,7 @@ package com.softjourn.coin.server.controller;
 
 
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
+import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,4 +26,9 @@ public class GlobalExceptionHandler {
         log.info("Request for transaction with too big amount. " + e.getLocalizedMessage());
     }
 
+    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "No free eris account")
+    @ExceptionHandler(ErisAccountNotFoundException.class)
+    public void handleErisAccountNotFound(Exception e) {
+        log.info("Request for assign free eris account. " + e.getLocalizedMessage());
+    }
 }

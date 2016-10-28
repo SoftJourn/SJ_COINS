@@ -5,6 +5,7 @@ import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
+import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,6 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public class AccountsService {
@@ -60,10 +59,17 @@ public class AccountsService {
     }
 
     public List<Account> getAll() {
-        return StreamSupport
-                .stream(accountRepository.findAll().spliterator(), false)
-                .filter(a -> a.getAccountType().equals(AccountType.REGULAR))
-                .collect(Collectors.toList());
+        return accountRepository.findAll();
+    }
+
+    /**
+     * Get all accounts of particular type
+     *
+     * @param accountType type of account
+     * @return list of accounts
+     */
+    public List<Account> getAll(AccountType accountType) {
+        return accountRepository.getAccountsByType(accountType);
     }
 
     public Account getAccount(String ldapId) {
@@ -91,8 +97,7 @@ public class AccountsService {
             account.setImage(DEFAULT_IMAGE_NAME);
             account.setAccountType(AccountType.REGULAR);
             ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
-            if (erisAccount == null) throw new RuntimeException("Can't create account for " + ldapId + ". " +
-                    "There is no free eris accounts");
+            if (erisAccount == null) throw new ErisAccountNotFoundException(ldapId);
             accountRepository.save(account);
             account.setErisAccount(erisAccount);
             erisAccount.setAccount(account);
@@ -109,8 +114,7 @@ public class AccountsService {
         newMerchantAccount.setFullName(name);
         newMerchantAccount.setAccountType(AccountType.MERCHANT);
         ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
-        if (erisAccount == null) throw new RuntimeException("Can't create account for " + name + ". " +
-                "There is no free eris accounts");
+        if (erisAccount == null) throw new ErisAccountNotFoundException(name);
         newMerchantAccount = accountRepository.save(newMerchantAccount);
         erisAccount.setAccount(newMerchantAccount);
         erisAccountRepository.save(erisAccount);

@@ -1,6 +1,8 @@
 package com.softjourn.coin.server.controller
 
+import com.softjourn.coin.server.dto.AmountDTO
 import com.softjourn.coin.server.entity.Account
+import com.softjourn.coin.server.entity.AccountType
 import com.softjourn.coin.server.entity.Transaction
 import com.softjourn.coin.server.entity.TransactionStatus
 import com.softjourn.coin.server.service.AccountsService
@@ -42,9 +44,12 @@ class ControllerTestConfig {
 
         def account = new Account('account1', 100)
         def account2 = new Account('account2', 100)
+        def vm = new Account('VM1', 100)
+        def treasury = new Account('Treasury', 100)
 
         def transaction = createTransaction(account, account)
         def transactionMove = createTransaction(account, account2)
+        def transactionMove2 = createTransaction(vm, treasury)
 
         when(coinService.getAmount(any(String.class))).thenReturn(new BigDecimal('100'))
         when(coinService.buy(any(String.class) ,any(String.class), any(BigDecimal.class), any(String.class)))
@@ -53,6 +58,8 @@ class ControllerTestConfig {
                 .thenReturn(transaction)
         when(coinService.move(any(String.class), any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transactionMove)
+        when(coinService.moveToTreasury(anyString(), any(AmountDTO.class)))
+                .thenReturn(transactionMove2)
 
         coinService
     }
@@ -60,16 +67,25 @@ class ControllerTestConfig {
     @Bean
     AccountsService accountsService() {
         def accountsService = Mockito.mock(AccountsService.class)
-        def account = new Account("user", 1000)
-        account.fullName = "Bruce Wayne"
-        account.image = "images/default.png"
+        def account1 = new Account("user1", 1000)
+        account1.fullName = "Bruce Wayne"
+        account1.image = "images/default.png"
+
+        def account2 = new Account("user2", 1500)
+        account2.fullName = "Josh Long"
+        account2.image = "images/default.png"
 
         def seller = new Account("VM1", 0)
-        account.fullName = "VM1"
+        seller.fullName = "VM1"
+        seller.accountType = AccountType.MERCHANT
 
-        when(accountsService.getAccount(anyString())).thenReturn(account)
+        when(accountsService.getAccount(anyString())).thenReturn(account1)
 
         when(accountsService.addMerchant(anyString())).thenReturn(seller)
+
+        when(accountsService.getAll()).thenReturn([account1, account2])
+
+        when(accountsService.getAll(AccountType.MERCHANT)).thenReturn([seller])
 
         accountsService
     }

@@ -7,7 +7,6 @@ import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.SpringApplicationConfiguration
 import org.springframework.restdocs.JUnitRestDocumentation
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
@@ -18,6 +17,8 @@ import org.springframework.web.context.WebApplicationContext
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
@@ -25,7 +26,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @RunWith(SpringJUnit4ClassRunner)
@@ -77,13 +77,12 @@ class AccountsControllerTests {
     @Test
     @WithMockUser
     void 'test of POST request to /api/v1/account/{sellerName} endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/account/{sellerName}', "VM1"))
+        mockMvc.perform(post('/api/v1/account/{sellerName}', "VM1"))
                 .andExpect(status().isOk())
                 .andDo(document('addSeller',
-                preprocessResponse(prettyPrint()), pathParameters(
-                parameterWithName("sellerName")
-                        .description("The name of vending machine that you want to register")
-        ),
+                preprocessResponse(prettyPrint()),
+                pathParameters(parameterWithName("sellerName")
+                        .description("The name of vending machine that you want to register")),
                 responseFields(
                         fieldWithPath('name')
                                 .type(JsonFieldType.STRING)
@@ -92,4 +91,63 @@ class AccountsControllerTests {
         ))
     }
 
+    @Test
+    @WithMockUser
+    void 'test of GET request to /api/v1/accounts endpoint'() {
+        mockMvc.perform(get('/api/v1/accounts'))
+                .andExpect(status().isOk())
+                .andDo(document('accounts',
+                preprocessResponse(prettyPrint()),
+                responseFields(
+                        fieldWithPath('[0].amount')
+                                .type(JsonFieldType.NUMBER)
+                                .description('Amount of coins'),
+                        fieldWithPath('[0].image')
+                                .type(JsonFieldType.STRING)
+                                .description('Account picture'),
+                        fieldWithPath('[0].surname')
+                                .type(JsonFieldType.STRING)
+                                .description('Account last name'),
+                        fieldWithPath('[0].name')
+                                .type(JsonFieldType.STRING).description('Account first name'),
+                        fieldWithPath('[1].amount')
+                                .type(JsonFieldType.NUMBER)
+                                .description('Amount of coins'),
+                        fieldWithPath('[1].image')
+                                .type(JsonFieldType.STRING)
+                                .description('Account picture'),
+                        fieldWithPath('[1].surname')
+                                .type(JsonFieldType.STRING)
+                                .description('Account last name'),
+                        fieldWithPath('[1].name')
+                                .type(JsonFieldType.STRING)
+                                .description('Account first name')
+                )
+        ))
+    }
+
+    @Test
+    @WithMockUser
+    void 'test of GET request to /api/v1/accounts/{accountType} endpoint'() {
+        mockMvc.perform(get('/api/v1/accounts/{accountType}', 'merchant'))
+                .andExpect(status().isOk())
+                .andDo(document('merchantAccounts',
+                preprocessResponse(prettyPrint()),
+                pathParameters(parameterWithName("accountType").description('Account type')),
+                responseFields(
+                        fieldWithPath('[0].amount')
+                                .type(JsonFieldType.NUMBER)
+                                .description('Amount of coins'),
+                        fieldWithPath('[0].image')
+                                .type(JsonFieldType.STRING)
+                                .description('Account picture'),
+                        fieldWithPath('[0].surname')
+                                .type(JsonFieldType.STRING)
+                                .description('Account last name'),
+                        fieldWithPath('[0].name')
+                                .type(JsonFieldType.STRING)
+                                .description('Account first name')
+                )
+        ))
+    }
 }
