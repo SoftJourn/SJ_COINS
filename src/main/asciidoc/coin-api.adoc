@@ -138,10 +138,6 @@ Don't forget to add authorization headers to the request
 
 include::{snippets}/treasuryAmount/http-request.adoc[]
 
-==== Path parameters
-
-include::{snippets}/treasuryAmount/path-parameters.adoc[]
-
 ==== Example response
 
 include::{snippets}/treasuryAmount/http-response.adoc[]
@@ -328,7 +324,7 @@ include::{snippets}/addSeller/http-request.adoc[]
 
 ==== Path parameters
 
-include::{snippets}/distribute/path-parameters.adoc[]
+include::{snippets}/addSeller/path-parameters.adoc[]
 
 ==== Example response
 
@@ -350,10 +346,6 @@ Don't forget to add authorization headers to the request
 ====
 
 include::{snippets}/distribute/http-request.adoc[]
-
-==== Path parameters
-
-include::{snippets}/distribute/path-parameters.adoc[]
 
 ==== Example response
 

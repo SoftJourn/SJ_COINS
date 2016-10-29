@@ -18,6 +18,8 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.ReflectionUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -84,6 +86,8 @@ public class CoinServiceTest {
 
         List<Account> accounts = Arrays.asList(account, account2, account3);
 
+        ReflectionTestUtils.setField(coinService, "treasuryErisAccount", erisAccount1, ErisAccount.class);
+
         when(principal.getName()).thenReturn("user");
 
         when(accountsService.getAccount(anyString())).thenReturn(account);
@@ -93,6 +97,7 @@ public class CoinServiceTest {
         when(accountsService.getAll(AccountType.REGULAR)).thenReturn(Collections.emptyList());
 
         when(contractService.getForAccount(any())).thenReturn(contract);
+        when(contractService.getForAccount(null)).thenReturn(contract);
 
         Response<Object> getResp = new Response<>("",
                 new ReturnValue<>(Object.class, BigInteger.valueOf(100)),

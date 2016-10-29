@@ -148,8 +148,8 @@ class CoinsControllerTests {
 
     @Test
     @WithMockUser
-    void 'test of POST request to /api/v1/distribute/{vendingMachineName} endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/distribute', "VM1")
+    void 'test of POST request to /api/v1/distribute/ endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/distribute')
                 .content('{\n  "amount": 10,\n  "comment": "Loading goods into machine VM1"\n}')
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())

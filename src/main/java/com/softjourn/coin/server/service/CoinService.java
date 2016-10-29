@@ -136,17 +136,7 @@ public class CoinService {
     }
 
     public BigDecimal getTreasuryAmount() {
-        return getAmountForErisAccount(createTreasuryErisAccount());
-    }
-
-    private ErisAccount createTreasuryErisAccount() {
-        ErisAccount treasuryErisAccount = new ErisAccount();
-        treasuryErisAccount.setAddress(treasuryAccountAddress);
-        treasuryErisAccount.setPubKey(treasuryAccountPubKey);
-        treasuryErisAccount.setPrivKey(treasuryAccountPrivKey);
-        treasuryErisAccount.setType(ErisAccountType.FULL);
-
-        return treasuryErisAccount;
+        return getAmountForErisAccount(treasuryErisAccount);
     }
 
     public BigDecimal getAmountByAccountType(AccountType accountType) {

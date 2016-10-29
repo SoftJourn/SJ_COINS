@@ -99,29 +99,24 @@ class AccountsControllerTests {
                 .andDo(document('accounts',
                 preprocessResponse(prettyPrint()),
                 responseFields(
+                        fieldWithPath('[0].ldapId')
+                                .type(JsonFieldType.STRING)
+                                .description('LDAP ID'),
                         fieldWithPath('[0].amount')
                                 .type(JsonFieldType.NUMBER)
                                 .description('Amount of coins'),
-                        fieldWithPath('[0].image')
+                        fieldWithPath('[0].fullName')
                                 .type(JsonFieldType.STRING)
-                                .description('Account picture'),
-                        fieldWithPath('[0].surname')
+                                .description('Account full name'),
+                        fieldWithPath('[1].ldapId')
                                 .type(JsonFieldType.STRING)
-                                .description('Account last name'),
-                        fieldWithPath('[0].name')
-                                .type(JsonFieldType.STRING).description('Account first name'),
+                                .description('LDAP ID'),
                         fieldWithPath('[1].amount')
                                 .type(JsonFieldType.NUMBER)
                                 .description('Amount of coins'),
-                        fieldWithPath('[1].image')
+                        fieldWithPath('[1].fullName')
                                 .type(JsonFieldType.STRING)
-                                .description('Account picture'),
-                        fieldWithPath('[1].surname')
-                                .type(JsonFieldType.STRING)
-                                .description('Account last name'),
-                        fieldWithPath('[1].name')
-                                .type(JsonFieldType.STRING)
-                                .description('Account first name')
+                                .description('Account full name'),
                 )
         ))
     }
@@ -135,18 +130,15 @@ class AccountsControllerTests {
                 preprocessResponse(prettyPrint()),
                 pathParameters(parameterWithName("accountType").description('Account type')),
                 responseFields(
+                        fieldWithPath('[0].ldapId')
+                                .type(JsonFieldType.STRING)
+                                .description('LDAP ID'),
                         fieldWithPath('[0].amount')
                                 .type(JsonFieldType.NUMBER)
                                 .description('Amount of coins'),
-                        fieldWithPath('[0].image')
+                        fieldWithPath('[0].fullName')
                                 .type(JsonFieldType.STRING)
-                                .description('Account picture'),
-                        fieldWithPath('[0].surname')
-                                .type(JsonFieldType.STRING)
-                                .description('Account last name'),
-                        fieldWithPath('[0].name')
-                                .type(JsonFieldType.STRING)
-                                .description('Account first name')
+                                .description('Account full name')
                 )
         ))
     }
