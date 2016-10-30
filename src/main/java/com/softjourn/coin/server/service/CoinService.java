@@ -184,7 +184,7 @@ public class CoinService {
     }
 
     @SaveTransaction
-    public Transaction moveToTreasury(String accountName, AmountDTO amountDTO) {
+    public synchronized Transaction moveToTreasury(String accountName, AmountDTO amountDTO) {
         checkAmountIsPositive(amountDTO.getAmount());
 
         if (!isEnoughAmount(accountName, amountDTO.getAmount())) {
