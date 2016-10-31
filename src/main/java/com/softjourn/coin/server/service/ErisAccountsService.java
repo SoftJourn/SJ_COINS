@@ -8,6 +8,7 @@ import com.softjourn.coin.server.entity.ErisAccountType;
 import com.softjourn.coin.server.exceptions.ErisRootAccountOverFlow;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
+import com.softjourn.eris.ErisAccountData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
@@ -33,6 +34,8 @@ public class ErisAccountsService {
 
     private ResourceLoader resourceLoader;
 
+    private com.softjourn.eris.accounts.AccountsService accountsService;
+
     @Value("${eris.accounts.json.path}")
     private String accountsJsonPath;
 
@@ -50,18 +53,18 @@ public class ErisAccountsService {
     @Autowired
     public ErisAccountsService(ErisAccountRepository repository,
                                ResourceLoader resourceLoader,
-                               AccountRepository accountRepository) throws IOException {
+                               AccountRepository accountRepository,
+                               com.softjourn.eris.accounts.AccountsService accountsService) throws IOException {
         this.repository = repository;
         this.accountRepository = accountRepository;
         this.resourceLoader = resourceLoader;
+        this.accountsService = accountsService;
     }
 
     @PostConstruct
     private void init() throws IOException {
         File erisJsonFile = resourceLoader.getResource("classpath:" + accountsJsonPath).getFile();
         TreeMap<String, ErisAccount> erisAccountMap=erisAccountMapping(erisJsonFile);
-        LinkedList<ErisAccount> removeAccounts=invalidExistingAccounts(erisAccountMap);
-        repository.delete(removeAccounts);
         LinkedList<ErisAccount> newAssignedErisAccounts = shareAccounts(erisAccountMap);
         repository.save(newAssignedErisAccounts);
         repository.save(erisAccountMap.values());
@@ -181,7 +184,21 @@ public class ErisAccountsService {
         return repository
                 .getFree()
                 .findFirst()
-                .orElse(null);
+                .orElse(createNew());
+    }
+
+    private ErisAccount createNew() {
+        ErisAccountData accountData = accountsService.createAccount();
+
+        ErisAccount newAccount = new ErisAccount();
+        newAccount.setAddress(accountData.getAddress());
+        newAccount.setPubKey(accountData.getPubKey());
+        newAccount.setPrivKey(accountData.getPrivKey());
+        newAccount.setType(ErisAccountType.PARTICIPANT);
+
+        repository.save(newAccount);
+
+        return newAccount;
     }
 
     public List<ErisAccount> getAll() {

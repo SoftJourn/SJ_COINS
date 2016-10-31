@@ -88,7 +88,14 @@ public class CoinService {
                     .getForAccount(treasuryErisAccount)
                     .call(DISTRIBUTE_MONEY, accountsAddresses, amount.toBigInteger());
 
-            if (! (Boolean) response.getReturnValue().getVal()) throw new NotEnoughAmountInAccountException();
+            if (response.getError() != null) {
+                throw new ErisProcessingException("Can't distribute money. " + response.getError().getMessage());
+            }
+
+            if (! (Boolean) response.getReturnValue().getVal()) {
+                throw new NotEnoughAmountInAccountException();
+            }
+
             processResponseError(response);
         } catch (Exception e) {
             throw new ErisProcessingException("Can't distribute money.", e);

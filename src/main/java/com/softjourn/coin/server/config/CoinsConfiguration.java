@@ -1,5 +1,8 @@
 package com.softjourn.coin.server.config;
 
+import com.softjourn.eris.accounts.AccountsService;
+import com.softjourn.eris.accounts.KeyService;
+import com.softjourn.eris.rpc.HTTPRPCClient;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +26,12 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
 
     @Value("${authPublicKeyFile}")
     private String authPublicKeyFile;
+
+    @Value("${eris.chain.url}")
+    private String erisChainUrl;
+
+    @Value("${eris.treasury.account.key.private}")
+    private String treasuryAccountPrivKey;
 
     @Bean
     public TokenStore tokenStore() {
@@ -55,6 +64,12 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
         } catch (IOException e) {
             throw new RuntimeException("Can't read auth public key from file " + authPublicKeyFile);
         }
+    }
+
+    @Bean
+    public AccountsService erisAccountsCreatingService() {
+        KeyService keyService = new KeyService();
+        return new AccountsService(keyService, treasuryAccountPrivKey, new HTTPRPCClient(), erisChainUrl);
     }
 
     @Override
