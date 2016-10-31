@@ -2,10 +2,13 @@ package com.softjourn.coin.server.config;
 
 
 import com.softjourn.coin.server.service.ErisContractService;
+import com.softjourn.eris.accounts.AccountsService;
+import com.softjourn.eris.accounts.KeyService;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
 import com.softjourn.eris.contract.response.ReturnValue;
 import com.softjourn.eris.contract.response.TxParams;
+import com.softjourn.eris.rpc.HTTPRPCClient;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.*;
@@ -61,6 +64,12 @@ public class CoinServiceTransactionsTestContextConfiguration {
         em.setPackagesToScan("package.where.your.entites.like.CustSys.are.stored");
         em.setPersistenceProvider(new HibernatePersistenceProvider());
         return em;
+    }
+
+    @Bean
+    public AccountsService erisAccountsCreatingService() {
+        KeyService keyService = new KeyService();
+        return new AccountsService(keyService, "", new HTTPRPCClient(), "");
     }
 
     @Bean
