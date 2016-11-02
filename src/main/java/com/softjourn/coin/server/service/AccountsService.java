@@ -92,7 +92,6 @@ public class AccountsService {
     public Account createAccount(String ldapId) {
         Account account = getAccountIfExistInLdapBase(ldapId);
         if (account != null) {
-            account.setLdapId(ldapId);
             account.setAmount(new BigDecimal(0));
             account.setImage(DEFAULT_IMAGE_NAME);
             account.setAccountType(AccountType.REGULAR);
