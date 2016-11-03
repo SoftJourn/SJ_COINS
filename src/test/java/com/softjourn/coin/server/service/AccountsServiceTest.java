@@ -4,6 +4,7 @@ import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
+import com.softjourn.coin.server.exceptions.AccountWasDeletedException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import org.junit.Before;
@@ -20,6 +21,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,6 +35,7 @@ public class AccountsServiceTest {
 
     private static final String NOT_EXISTING_LDAP_ID = "notExist";
     private static final String ID_EXISTING_IN_DB = "existsInDB";
+    private static final String ID_EXISTING_IN_DB_BUT_DELETED = "existsInDBButDeleted";
     private static final String EXISTING_LDAP_ID = "ldapId";
     @Mock
     private RestTemplate restTemplate;
@@ -64,12 +67,20 @@ public class AccountsServiceTest {
         Account account = new Account(ID_EXISTING_IN_DB, new BigDecimal(100));
         account.setAccountType(AccountType.REGULAR);
 
-        when(accountRepository.findAll()).thenReturn(Collections.singletonList(account));
 
         when(accountRepository.getAccountsByType(AccountType.MERCHANT)).thenReturn(Collections.emptyList());
         when(accountRepository.getAccountsByType(AccountType.REGULAR)).thenReturn(Collections.singletonList(account));
 
         when(accountRepository.findOne(ID_EXISTING_IN_DB)).thenReturn(account);
+
+        Account deletedAccount = new Account(ID_EXISTING_IN_DB_BUT_DELETED, new BigDecimal(0));
+        deletedAccount.setDeleted(true);
+        when(accountRepository.findOne(ID_EXISTING_IN_DB_BUT_DELETED)).thenReturn(deletedAccount);
+
+        when(accountRepository.findAll()).thenReturn(Arrays.asList(account, deletedAccount));
+        when(accountRepository.findAllUndeleted()).thenReturn(Collections.singletonList(account));
+        when(accountRepository.findAllDeleted()).thenReturn(Collections.singletonList(account));
+
 
         when(accountRepository.save(any(Account.class))).thenAnswer(new Answer<Account>() {
             @Override
@@ -115,6 +126,11 @@ public class AccountsServiceTest {
     public void add() throws Exception {
         assertEquals(100, accountsService.add(ID_EXISTING_IN_DB).getAmount().intValue());
         assertEquals(0, accountsService.add(EXISTING_LDAP_ID).getAmount().intValue());
+    }
+
+    @Test(expected = AccountWasDeletedException.class)
+    public void add_deletedAccount() throws Exception {
+        accountsService.add(ID_EXISTING_IN_DB_BUT_DELETED);
     }
 
     @Test(expected = AccountNotFoundException.class)
