@@ -1,6 +1,5 @@
 package com.softjourn.coin.server.controller
 
-import com.softjourn.coin.server.dto.AmountDTO
 import com.softjourn.coin.server.entity.Account
 import com.softjourn.coin.server.entity.AccountType
 import com.softjourn.coin.server.entity.Transaction
@@ -58,7 +57,7 @@ class ControllerTestConfig {
                 .thenReturn(transaction)
         when(coinService.move(any(String.class), any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transactionMove)
-        when(coinService.moveToTreasury(anyString(), any(AmountDTO.class)))
+        when(coinService.moveToTreasury(anyString(), any(BigDecimal.class), anyString()))
                 .thenReturn(transactionMove2)
 
         coinService

@@ -48,7 +48,7 @@ public class CoinsController {
 
     @RequestMapping(value = "/move/{account}/treasury", method = RequestMethod.POST)
     public Transaction moveAmountToTreasury(@PathVariable String account, @RequestBody AmountDTO amountDTO) {
-        return coinService.moveToTreasury(account, amountDTO);
+        return coinService.moveToTreasury(account, amountDTO.getAmount(), amountDTO.getComment());
     }
 
     @RequestMapping(value = "/add/{account}", method = RequestMethod.POST)

@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.softjourn.coin.server.util.InstantJsonSerializer;
 import com.softjourn.coin.server.util.TransactionAccountJSONSerializer;
@@ -48,4 +49,15 @@ public class Transaction {
 
     @Column(columnDefinition = "text")
     private String error;
+
+    @JsonIgnore
+    @Column(name = "eris_transaction_id")
+    private String erisTransactionId;
+
+    public Transaction() {
+    }
+
+    public Transaction(String txId) {
+        erisTransactionId = txId;
+    }
 }

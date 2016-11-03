@@ -1,7 +1,6 @@
 package com.softjourn.coin.server.service;
 
 
-import com.softjourn.coin.server.dto.AmountDTO;
 import com.softjourn.coin.server.entity.*;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
@@ -19,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.ReflectionUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -129,7 +127,7 @@ public class CoinServiceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testFillAccountNegative() throws Exception {
-        assertEquals(new BigDecimal(200), coinService.fillAccount("user1", new BigDecimal(-100), ""));
+        coinService.fillAccount("user1", new BigDecimal(-100), "");
 
         verify(accountsService, times(0)).getAccount(anyString());
         verify(accountsService, times(0)).update(account);
@@ -186,7 +184,7 @@ public class CoinServiceTest {
     @Test
     public void moveToTreasury() throws Exception {
         BigDecimal amount = new BigDecimal(70);
-        coinService.moveToTreasury("account", new AmountDTO(amount, "Test msg"));
+        coinService.moveToTreasury("account", amount, "Test msg");
 
         verify(contract).call(eq("send"), captor.capture());
         verify(contractService, times(2)).getForAccount(erisAccountCaptor.capture());
