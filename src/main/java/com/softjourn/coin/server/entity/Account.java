@@ -25,7 +25,7 @@ public class Account {
     @JsonView({JsonViews.REGULAR.class, JsonViews.COINS_MANAGER.class})
     private BigDecimal amount;
 
-    @Column(name = "fullName")
+    @Column(name = "full_name")
     @JsonView(JsonViews.COINS_MANAGER.class)
     private String fullName;
 
@@ -39,6 +39,9 @@ public class Account {
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
+
+    @Column(name = "deleted")
+    private boolean deleted;
 
     public Account(String ldapId, BigDecimal amount) {
         this.amount = amount;
