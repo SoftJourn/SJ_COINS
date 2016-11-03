@@ -13,6 +13,15 @@ import java.util.List;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, String> {
 
-    @Query("SELECT a FROM Account a WHERE a.accountType = :accountType")
+    @Query("SELECT a FROM Account a WHERE a.accountType = :accountType AND a.deleted = false")
     List<Account> getAccountsByType(@Param("accountType") AccountType accountType);
+
+    @Query("SELECT a FROM Account a WHERE a.deleted = false")
+    List<Account> findAllUndeleted();
+
+    @Query("SELECT a FROM Account a WHERE a.deleted = true ")
+    List<Account> findAllDeleted();
+
+    @Query("SELECT a FROM Account a WHERE a.ldapId = :ldapId AND a.deleted = false")
+    Account findOneUndeleted(@Param("ldapId") String ldapId);
 }
