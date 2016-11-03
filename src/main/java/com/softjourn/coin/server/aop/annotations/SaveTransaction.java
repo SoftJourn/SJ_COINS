@@ -26,7 +26,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface SaveTransaction {
 
     String accountName() default "";
+
     String destinationName() default "";
+
     int amount() default 0;
+
     String comment()default "";
+
 }

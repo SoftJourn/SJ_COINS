@@ -2,12 +2,15 @@ package com.softjourn.coin.server.service;
 
 
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
-import com.softjourn.coin.server.dto.AmountDTO;
-import com.softjourn.coin.server.entity.*;
+import com.softjourn.coin.server.entity.Account;
+import com.softjourn.coin.server.entity.AccountType;
+import com.softjourn.coin.server.entity.ErisAccount;
+import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.exceptions.ErisProcessingException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.eris.contract.response.Response;
+import com.softjourn.eris.contract.response.TxParams;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +25,6 @@ import java.util.stream.Collectors;
 @Service
 public class CoinService {
 
-    private static final String ADD_MONEY = "mint";
     private static final String SEND_MONEY = "send";
     private static final String DISTRIBUTE_MONEY = "distribute";
     private static final String GET_MONEY = "queryBalance";
@@ -30,8 +32,6 @@ public class CoinService {
     private AccountsService accountsService;
 
     private ErisContractService contractService;
-
-    private ErisAccountRepository erisAccountRepository;
 
     private Map<String, String> monitors = new HashMap<>();
 
@@ -49,7 +49,6 @@ public class CoinService {
     public CoinService(AccountsService accountsService, ErisContractService contractService, ErisAccountRepository erisAccountRepository) {
         this.accountsService = accountsService;
         this.contractService = contractService;
-        this.erisAccountRepository = erisAccountRepository;
     }
 
     @PostConstruct
@@ -60,7 +59,7 @@ public class CoinService {
         treasuryErisAccount.setPrivKey(treasuryAccountPrivKey);
     }
 
-    @SaveTransaction
+    @SaveTransaction(comment = "Moving money to user.")
     public Transaction fillAccount(@NonNull String destinationName,
                                    @NonNull BigDecimal amount,
                                    String comment) {
@@ -69,14 +68,14 @@ public class CoinService {
 
             ErisAccount erisAccount = getErisAccount(destinationName);
 
-            moveByEris(treasuryErisAccount, erisAccount.getAddress(), amount, comment);
+            Response response = moveByEris(treasuryErisAccount, erisAccount.getAddress(), amount);
 
-            return null;
+            return mapToTransaction(response);
         }
 
     }
 
-    @SaveTransaction
+    @SaveTransaction(comment = "Distributing money.")
     public void distribute(BigDecimal amount, String comment) {
         try {
             List<String> accountsAddresses = accountsService.getAll(AccountType.REGULAR).stream()
@@ -116,9 +115,9 @@ public class CoinService {
             throw new NotEnoughAmountInAccountException();
         }
 
-        moveByEris(donor, acceptor.getAddress(), amount, comment);
+        Response response = moveByEris(donor, acceptor.getAddress(), amount);
 
-        return null;
+        return mapToTransaction(response);
     }
 
 
@@ -171,41 +170,46 @@ public class CoinService {
 
             ErisAccount sellerAccount = getErisAccount(destinationName);
 
-            moveByEris(account, sellerAccount.getAddress(), amount, comment);
+            Response response = moveByEris(account, sellerAccount.getAddress(), amount);
 
-            return null;
+            return mapToTransaction(response);
         }
     }
 
-    @SaveTransaction
-    public void moveByEris(ErisAccount account, String address, BigDecimal amount, String comment) {
+    private Response moveByEris(ErisAccount account, String address, BigDecimal amount) {
         try {
             Response response = contractService
                     .getForAccount(account)
                     .call(SEND_MONEY, address, amount.toBigInteger());
             if (! (Boolean) response.getReturnValue().getVal()) throw new NotEnoughAmountInAccountException();
             processResponseError(response);
+            return response;
         } catch (Exception e) {
             throw new ErisProcessingException("Can't move money for account " + address, e);
         }
     }
 
-    @SaveTransaction
-    public synchronized Transaction moveToTreasury(String accountName, AmountDTO amountDTO) {
-        checkAmountIsPositive(amountDTO.getAmount());
+    private Transaction mapToTransaction(Response response) {
+        return Optional.ofNullable(response)
+                .map(Response::getTxParams)
+                .map(TxParams::getTxId)
+                .map(Transaction::new)
+                .orElseGet(Transaction::new);
+    }
 
-        if (!isEnoughAmount(accountName, amountDTO.getAmount())) {
+    @SaveTransaction(comment = "Move money from merchant account to treasury.")
+    public synchronized Transaction moveToTreasury(String accountName, BigDecimal amount, String comment) {
+        checkAmountIsPositive(amount);
+
+        if (!isEnoughAmount(accountName, amount)) {
             throw new NotEnoughAmountInAccountException();
         }
 
         ErisAccount erisAccount = getErisAccount(accountName);
 
-        moveByEris(erisAccount,
-                treasuryAccountAddress,
-                amountDTO.getAmount(),
-                String.format(amountDTO.getComment(), accountName));
+        Response response = moveByEris(erisAccount, treasuryAccountAddress, amount);
 
-        return null;
+        return mapToTransaction(response);
     }
 
     private ErisAccount getErisAccount(String ldapId) {

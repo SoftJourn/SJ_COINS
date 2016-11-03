@@ -53,7 +53,7 @@ public class CoinsController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/move/{account}/treasury", method = RequestMethod.POST)
     public Transaction moveAmountToTreasury(@PathVariable String account, @RequestBody AmountDTO amountDTO) {
-        return coinService.moveToTreasury(account, amountDTO);
+        return coinService.moveToTreasury(account, amountDTO.getAmount(), amountDTO.getComment());
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")

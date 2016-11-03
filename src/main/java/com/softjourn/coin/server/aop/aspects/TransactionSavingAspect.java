@@ -36,9 +36,10 @@ public class TransactionSavingAspect {
 
     @Around("@annotation(com.softjourn.coin.server.aop.annotations.SaveTransaction)")
     public Transaction saveTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
-        Transaction transaction = prepareTransaction(joinPoint);
+        Transaction transaction = new Transaction();
         try {
-            joinPoint.proceed();
+            transaction = (Transaction) joinPoint.proceed();
+            prepareTransaction(transaction, joinPoint);
             transaction.setStatus(TransactionStatus.SUCCESS);
             setRemainAmount((MethodSignature) joinPoint.getSignature(), joinPoint.getArgs(), transaction);
             return transaction;
@@ -51,15 +52,14 @@ public class TransactionSavingAspect {
         }
     }
 
-    private Transaction prepareTransaction(ProceedingJoinPoint joinPoint) {
+    private Transaction prepareTransaction(Transaction transaction, ProceedingJoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        return fillTransaction(signature, joinPoint.getArgs());
+        return fillTransaction(transaction, signature, joinPoint.getArgs());
     }
 
-    private Transaction fillTransaction(MethodSignature signature, Object[] arguments) {
-        Transaction transaction = new Transaction();
+    private Transaction fillTransaction(Transaction transaction, MethodSignature signature, Object[] arguments) {
         transaction.setAccount(getAccount(signature, arguments, "accountName"));
-        transaction.setDestination(getAccount(signature, arguments, "destinationName"));
+        transaction.setDestination(getDestination(signature, arguments, "destinationName"));
         transaction.setAmount(getArg(signature, arguments, "amount", BigDecimal.class));
         transaction.setComment(getArg(signature, arguments, "comment", String.class));
         transaction.setCreated(Instant.now());
@@ -79,7 +79,19 @@ public class TransactionSavingAspect {
 
     private Account getAccount(MethodSignature signature, Object[] arguments, String argName) {
         SaveTransaction annotation = signature.getMethod().getAnnotation(SaveTransaction.class);
-        String accountName = annotation.accountName().isEmpty() ? getArg(signature, arguments, argName, String.class) : annotation.accountName();
+        String accountName = annotation.accountName().isEmpty()
+                ? getArg(signature, arguments, argName, String.class)
+                : annotation.accountName();
+
+        return accountName == null ? null : accountRepository.findOne(accountName);
+    }
+
+    private Account getDestination(MethodSignature signature, Object[] arguments, String argName) {
+        SaveTransaction annotation = signature.getMethod().getAnnotation(SaveTransaction.class);
+        String accountName = annotation.destinationName().isEmpty()
+                ? getArg(signature, arguments, argName, String.class)
+                : annotation.destinationName();
+
         return accountName == null ? null : accountRepository.findOne(accountName);
     }
 
