@@ -7,7 +7,7 @@ CREATE TABLE accounts
     ldap_id VARCHAR(255) NOT NULL PRIMARY KEY,
     amount DECIMAL(10),
     full_name VARCHAR(255),
-    type VARCHAR(32) DEFAULT 'REGULAR',
+    account_type VARCHAR(32) DEFAULT 'REGULAR',
     image VARCHAR(255),
     deleted INT DEFAULT 0
 );
@@ -29,8 +29,8 @@ CREATE INDEX destination_fk ON transactions (destination_id);
 CREATE TABLE eris
 (
     address VARCHAR(255) PRIMARY KEY NOT NULL,
-    privkey VARCHAR(255),
-    pubkey VARCHAR(255),
+    priv_key VARCHAR(255),
+    pub_key VARCHAR(255),
     type INT,
     account_ldap_id VARCHAR(255),
     CONSTRAINT FK55s0o6jfa48iqty8bc1nxxrf2 FOREIGN KEY (account_ldap_id) REFERENCES accounts (ldap_id)
