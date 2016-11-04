@@ -21,37 +21,30 @@ public class Transaction {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
     @JsonSerialize(using = TransactionAccountJSONSerializer.class)
     private Account account;
 
     @ManyToOne
-    @JoinColumn(name = "destination_id")
     @JsonSerialize(using = TransactionAccountJSONSerializer.class)
     private Account destination;
 
-    @Column
     private BigDecimal amount;
 
     @Column(columnDefinition = "text")
     private String comment;
 
-    @Column
     @JsonSerialize(using = InstantJsonSerializer.class)
     private Instant created;
 
-    @Column
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
-    @Column
     private BigDecimal remain;
 
     @Column(columnDefinition = "text")
     private String error;
 
     @JsonIgnore
-    @Column(name = "eris_transaction_id")
     private String erisTransactionId;
 
     public Transaction() {
