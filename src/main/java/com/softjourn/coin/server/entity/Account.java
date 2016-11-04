@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 public class Account {
 
     @Id
-    @Column(name = "ldap_id")
     @JsonView(JsonViews.COINS_MANAGER.class)
     private String ldapId;
 
@@ -25,22 +24,18 @@ public class Account {
     @JsonView({JsonViews.REGULAR.class, JsonViews.COINS_MANAGER.class})
     private BigDecimal amount;
 
-    @Column(name = "full_name")
     @JsonView(JsonViews.COINS_MANAGER.class)
     private String fullName;
 
     @OneToOne(mappedBy = "account")
     private ErisAccount erisAccount;
 
-    @Column(name = "image")
     @JsonView(JsonViews.REGULAR.class)
     private String image;
 
-    @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
-    @Column(name = "deleted")
     private boolean deleted;
 
     public Account(String ldapId, BigDecimal amount) {
