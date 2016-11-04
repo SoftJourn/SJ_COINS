@@ -29,8 +29,8 @@ CREATE INDEX destination_fk ON transactions (destination_id);
 CREATE TABLE eris
 (
     address VARCHAR(255) PRIMARY KEY NOT NULL,
-    privKey VARCHAR(255),
-    pubKey VARCHAR(255),
+    privkey VARCHAR(255),
+    pubkey VARCHAR(255),
     type INT,
     account_ldap_id VARCHAR(255),
     CONSTRAINT FK55s0o6jfa48iqty8bc1nxxrf2 FOREIGN KEY (account_ldap_id) REFERENCES accounts (ldap_id)

@@ -30,7 +30,6 @@ import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-
 @Configuration
 @ComponentScan(basePackages = "com.softjourn.coin.server.service",
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
