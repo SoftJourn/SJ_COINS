@@ -17,23 +17,19 @@ public class ErisAccount implements ErisAccountData {
 
     @Id
     @NotNull
-    @Column
     @JsonView(JsonViews.ADMIN.class)
     private String address;
 
-    @Column
     @NotNull
     private String pubKey;
 
-    @Column
     @NotNull
     private String privKey;
 
-    @Column
     @NotNull
     private ErisAccountType type;
 
-    @OneToOne//(cascade=CascadeType)
+    @OneToOne
     private Account account;
 
     @Override
