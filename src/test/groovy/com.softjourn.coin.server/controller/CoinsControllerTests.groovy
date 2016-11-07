@@ -54,7 +54,7 @@ class CoinsControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["SUPER_ADMIN"])
     void 'test of GET request to /api/v1/amount endpoint'() {
         mockMvc.perform(get('/api/v1/amount'))
                 .andExpect(status().isOk())
@@ -69,7 +69,7 @@ class CoinsControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["SUPER_ADMIN"])
     void 'test of GET request to /api/v1/amount/treasury endpoint'() {
         mockMvc.perform(get('/api/v1/amount/treasury'))
                 .andExpect(status().isOk())
@@ -84,7 +84,7 @@ class CoinsControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["SUPER_ADMIN"])
     void 'test of GET request to /api/v1/amount/{accountType} endpoint'() {
         mockMvc.perform(get('/api/v1/amount/{accountType}', 'merchant'))
                 .andExpect(status().isOk())
@@ -100,7 +100,7 @@ class CoinsControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["SUPER_ADMIN"])
     void 'test of POST request to /api/v1/buy/{vendingMachineName} endpoint'() {
         mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/buy/{vendingMachineName}', "VM1")
                 .content('{\n  "amount": 10,\n  "comment": "Buying Pepsi"\n}')
@@ -147,7 +147,7 @@ class CoinsControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["SUPER_ADMIN"])
     void 'test of POST request to /api/v1/distribute/ endpoint'() {
         mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/distribute')
                 .content('{\n  "amount": 10,\n  "comment": "Loading goods into machine VM1"\n}')
@@ -159,7 +159,7 @@ class CoinsControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["SUPER_ADMIN"])
     void 'test of POST request to /api/v1/move/{account} endpoint'() {
         mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/move/{account}', "account2")
                 .content('{\n  "amount": 10,\n  "comment": "Bonus for hard work"\n}')
@@ -205,7 +205,7 @@ class CoinsControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["SUPER_ADMIN"])
     void 'test of POST request to /api/v1/move/{account}/treasury endpoint'() {
         mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/move/{account}/treasury', "account2")
                 .content('{\n  "amount": 10,\n  "comment": "Withdraw from machine 1"\n}')
@@ -251,7 +251,7 @@ class CoinsControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = ['COIN_ADMIN'])
+    @WithMockUser(roles = ['SUPER_ADMIN'])
     void 'test of POST request to /api/v1/add/{account} endpoint'() {
         mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/add/{account}', "account1")
                 .content('{\n  "amount": 10,\n  "comment": "Bonus for hard work"\n}')

@@ -51,7 +51,7 @@ class AccountsControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["SUPER_USER"])
     void 'test of GET request to /api/v1/account endpoint'() {
         mockMvc.perform(get('/api/v1/account'))
                 .andExpect(status().isOk())
@@ -75,7 +75,7 @@ class AccountsControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["SUPER_ADMIN"])
     void 'test of POST request to /api/v1/account/{sellerName} endpoint'() {
         mockMvc.perform(post('/api/v1/account/{sellerName}', "VM1"))
                 .andExpect(status().isOk())
@@ -92,7 +92,7 @@ class AccountsControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["SUPER_ADMIN"])
     void 'test of GET request to /api/v1/accounts endpoint'() {
         mockMvc.perform(get('/api/v1/accounts'))
                 .andExpect(status().isOk())
@@ -122,7 +122,7 @@ class AccountsControllerTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["SUPER_ADMIN"])
     void 'test of GET request to /api/v1/accounts/{accountType} endpoint'() {
         mockMvc.perform(get('/api/v1/accounts/{accountType}', 'merchant'))
                 .andExpect(status().isOk())
