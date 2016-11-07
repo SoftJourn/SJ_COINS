@@ -39,14 +39,14 @@ public class AccountsController {
         return account;
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ROLE_INVENTORY')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','INVENTORY')")
     @RequestMapping(value = "/account/{merchantName}", method = RequestMethod.POST)
     @JsonView(JsonViews.ADMIN.class)
     public Account addMerchant(@PathVariable String merchantName) {
         return accountsService.addMerchant(merchantName);
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ROLE_BILLING')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/accounts", method = RequestMethod.GET)
     @JsonView(JsonViews.COINS_MANAGER.class)
     public List<Account> getAllAccounts() {
@@ -55,7 +55,7 @@ public class AccountsController {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ROLE_BILLING')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/accounts/{accountType}", method = RequestMethod.GET)
     @JsonView(JsonViews.COINS_MANAGER.class)
     public List<Account> getAccountsByType(@PathVariable String accountType) {
