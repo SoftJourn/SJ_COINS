@@ -7,6 +7,7 @@ import com.softjourn.coin.server.service.AccountsService;
 import com.softjourn.coin.server.service.CoinService;
 import com.softjourn.coin.server.util.JsonViews;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,6 +30,7 @@ public class AccountsController {
         this.coinService = coinService;
     }
 
+    @PreAuthorize("authenticated")
     @RequestMapping(value = "/account", method = RequestMethod.GET)
     @JsonView(JsonViews.REGULAR.class)
     public Account getAccount(Principal principal) {
@@ -37,12 +39,14 @@ public class AccountsController {
         return account;
     }
 
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ROLE_INVENTORY')")
     @RequestMapping(value = "/account/{merchantName}", method = RequestMethod.POST)
     @JsonView(JsonViews.ADMIN.class)
     public Account addMerchant(@PathVariable String merchantName) {
         return accountsService.addMerchant(merchantName);
     }
 
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ROLE_BILLING')")
     @RequestMapping(value = "/accounts", method = RequestMethod.GET)
     @JsonView(JsonViews.COINS_MANAGER.class)
     public List<Account> getAllAccounts() {
@@ -51,6 +55,7 @@ public class AccountsController {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ROLE_BILLING')")
     @RequestMapping(value = "/accounts/{accountType}", method = RequestMethod.GET)
     @JsonView(JsonViews.COINS_MANAGER.class)
     public List<Account> getAccountsByType(@PathVariable String accountType) {
