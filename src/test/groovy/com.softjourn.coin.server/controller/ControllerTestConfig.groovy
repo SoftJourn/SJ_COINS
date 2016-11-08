@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.controller
 
+import com.softjourn.coin.server.dto.MerchantDTO
 import com.softjourn.coin.server.entity.Account
 import com.softjourn.coin.server.entity.AccountType
 import com.softjourn.coin.server.entity.Transaction
@@ -74,17 +75,19 @@ class ControllerTestConfig {
         account2.fullName = "Josh Long"
         account2.image = "images/default.png"
 
-        def seller = new Account("VM1", 0)
+        def seller = new Account("123456-123456-123456", 0)
         seller.fullName = "VM1"
         seller.accountType = AccountType.MERCHANT
 
         when(accountsService.getAccount(anyString())).thenReturn(account1)
 
-        when(accountsService.addMerchant(anyString())).thenReturn(seller)
+        when(accountsService.addMerchant(any(MerchantDTO.class))).thenReturn(seller)
 
         when(accountsService.getAll()).thenReturn([account1, account2])
 
         when(accountsService.getAll(AccountType.MERCHANT)).thenReturn([seller])
+
+        when(accountsService.delete(anyString())).thenReturn(true)
 
         accountsService
     }

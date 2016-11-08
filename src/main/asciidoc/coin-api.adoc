@@ -322,9 +322,9 @@ Don't forget to add authorization headers to the request
 
 include::{snippets}/addSeller/http-request.adoc[]
 
-==== Path parameters
+==== Request fields
 
-include::{snippets}/addSeller/path-parameters.adoc[]
+include::{snippets}/addSeller/request-fields.adoc[]
 
 ==== Example response
 

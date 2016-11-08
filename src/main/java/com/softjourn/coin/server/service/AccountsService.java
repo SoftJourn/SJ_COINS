@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.service;
 
 
+import com.softjourn.coin.server.dto.MerchantDTO;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.ErisAccount;
@@ -9,8 +10,10 @@ import com.softjourn.coin.server.exceptions.AccountWasDeletedException;
 import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
+import com.softjourn.coin.server.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -27,12 +30,15 @@ public class AccountsService {
 
     private AccountRepository accountRepository;
 
-    @Autowired
     private ErisAccountsService erisAccountsService;
 
     private ErisAccountRepository erisAccountRepository;
 
     private RestTemplate restTemplate;
+
+    private CoinService coinService;
+
+    private TransactionRepository transactionRepository;
 
     public AccountsService(AccountRepository accountRepository, ErisAccountsService erisAccountsService, ErisAccountRepository erisAccountRepository, RestTemplate restTemplate) {
         this.accountRepository = accountRepository;
@@ -42,10 +48,18 @@ public class AccountsService {
     }
 
     @Autowired
-    public AccountsService(AccountRepository accountRepository, ErisAccountRepository erisAccountRepository, RestTemplate restTemplate) {
+    public AccountsService(AccountRepository accountRepository,
+                           ErisAccountRepository erisAccountRepository,
+                           RestTemplate restTemplate,
+                           @Lazy CoinService coinService,
+                           TransactionRepository transactionRepository,
+                           ErisAccountsService erisAccountsService) {
         this.accountRepository = accountRepository;
         this.erisAccountRepository = erisAccountRepository;
         this.restTemplate = restTemplate;
+        this.coinService = coinService;
+        this.transactionRepository = transactionRepository;
+        this.erisAccountsService = erisAccountsService;
     }
 
     @Value("${auth.server.url}")
@@ -115,15 +129,35 @@ public class AccountsService {
     }
 
     @Transactional
-    public Account addMerchant(String name) {
-        Account newMerchantAccount = new Account(name, BigDecimal.ZERO);
-        newMerchantAccount.setFullName(name);
+    public Account addMerchant(MerchantDTO merchantDTO) {
+        Account newMerchantAccount = new Account(merchantDTO.getUniqueId(), BigDecimal.ZERO);
+        newMerchantAccount.setFullName(merchantDTO.getName());
         newMerchantAccount.setAccountType(AccountType.MERCHANT);
         ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
-        if (erisAccount == null) throw new ErisAccountNotFoundException();
+
+        if (erisAccount == null) {
+            throw new ErisAccountNotFoundException();
+        }
+
         newMerchantAccount = accountRepository.save(newMerchantAccount);
         erisAccount.setAccount(newMerchantAccount);
         erisAccountRepository.save(erisAccount);
+
         return newMerchantAccount;
+    }
+
+    @Transactional
+    public boolean delete(String ldapId) {
+        BigDecimal accountAmount = coinService.getAmount(ldapId);
+
+        if (accountAmount.compareTo(BigDecimal.ZERO) > 0) {
+            String comment = String.format(
+                    "Withdrawal of all the coins to treasury before delete account %s",
+                    ldapId);
+
+            coinService.moveToTreasury(ldapId, accountAmount, comment);
+        }
+
+        return accountRepository.updateIsDeletedByLdapId(ldapId, true) == 1;
     }
 }

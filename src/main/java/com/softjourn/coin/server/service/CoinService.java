@@ -217,7 +217,7 @@ public class CoinService {
                 .ofNullable(accountsService.getAccount(ldapId))
                 .map(Account::getErisAccount)
                 .orElseThrow(() -> new ErisProcessingException("Eris account for user " + ldapId +
-                        "is not set. You can't pass coins for this account"));
+                        "is not set."));
 
     }
 

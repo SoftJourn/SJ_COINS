@@ -39,7 +39,7 @@ public class ErisAccountsService {
         return repository
                 .getFree()
                 .findFirst()
-                .orElse(createNew());
+                .orElseGet(this::createNew);
     }
 
     private ErisAccount createNew() {

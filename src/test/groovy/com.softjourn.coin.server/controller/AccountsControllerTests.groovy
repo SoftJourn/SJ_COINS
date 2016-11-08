@@ -5,7 +5,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.SpringApplicationConfiguration
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.MediaType
 import org.springframework.restdocs.JUnitRestDocumentation
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.test.context.support.WithMockUser
@@ -17,19 +18,16 @@ import org.springframework.web.context.WebApplicationContext
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*
+import static org.springframework.restdocs.payload.PayloadDocumentation.*
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @RunWith(SpringJUnit4ClassRunner)
-@SpringApplicationConfiguration(classes = ControllerTestConfig.class)
+@SpringBootTest(classes = ControllerTestConfig.class)
 @WebAppConfiguration
 class AccountsControllerTests {
 
@@ -76,13 +74,22 @@ class AccountsControllerTests {
 
     @Test
     @WithMockUser(roles = ["SUPER_ADMIN"])
-    void 'test of POST request to /api/v1/account/{sellerName} endpoint'() {
-        mockMvc.perform(post('/api/v1/account/{sellerName}', "VM1"))
+    void 'test of POST request to /api/v1/account/merchant endpoint'() {
+        mockMvc.perform(post('/api/v1/account/merchant')
+                .content('{\n  "name": "VM1",\n  "uniqueId": "123456-123456-123456"\n}')
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document('addSeller',
+                preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
-                pathParameters(parameterWithName("sellerName")
-                        .description("The name of vending machine that you want to register")),
+                requestFields(
+                        fieldWithPath('name')
+                                .type(JsonFieldType.STRING)
+                                .description('Vending machine name'),
+                        fieldWithPath('uniqueId')
+                                .type(JsonFieldType.STRING)
+                                .description('Unique Id of the machine')
+                ),
                 responseFields(
                         fieldWithPath('name')
                                 .type(JsonFieldType.STRING)
@@ -139,6 +146,22 @@ class AccountsControllerTests {
                         fieldWithPath('[0].fullName')
                                 .type(JsonFieldType.STRING)
                                 .description('Account full name')
+                )
+        ))
+    }
+
+    @Test
+    @WithMockUser(roles = ["SUPER_ADMIN"])
+    void 'test of DELETE request to /api/v1/account/{accountName} endpoint'() {
+        mockMvc.perform(delete('/api/v1/account/{ldapId}', 'VM1'))
+                .andExpect(status().isOk())
+                .andDo(document('deleteAccount',
+                preprocessResponse(prettyPrint()),
+                pathParameters(parameterWithName("ldapId").description('Account ldapId')),
+                responseFields(
+                        fieldWithPath('deleted')
+                                .type(JsonFieldType.BOOLEAN)
+                                .description('Status of delete operation')
                 )
         ))
     }
