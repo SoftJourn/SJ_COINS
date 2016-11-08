@@ -68,7 +68,7 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
     @Bean
     public AccountsService erisAccountsCreatingService() {
         KeyService keyService = new KeyService();
-        return new AccountsService(keyService, treasuryAccountPrivKey, new HTTPRPCClient(), erisChainUrl);
+        return new AccountsService(keyService, treasuryAccountPrivKey, new HTTPRPCClient(erisChainUrl), erisChainUrl);
     }
 
     @Override

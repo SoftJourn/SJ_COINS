@@ -68,7 +68,7 @@ public class CoinServiceTransactionsTestContextConfiguration {
     @Bean
     public AccountsService erisAccountsCreatingService() {
         KeyService keyService = new KeyService();
-        return new AccountsService(keyService, "", new HTTPRPCClient(), "");
+        return new AccountsService(keyService, "", new HTTPRPCClient("http://127.0.0.1"), "");
     }
 
     @Bean

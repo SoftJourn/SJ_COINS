@@ -3,7 +3,8 @@ package com.softjourn.coin.server.service;
 import com.softjourn.eris.ErisAccountData;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.ContractManager;
-import com.softjourn.eris.rpc.HTTPRPCClient;
+import com.softjourn.eris.contract.event.EventHandler;
+import com.softjourn.eris.rpc.WebSocketRPCClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
@@ -40,9 +41,9 @@ public class ErisContractService {
             File initFile = resourceLoader.getResource("classpath:" + erisContractFile).getFile();
             builder = new ContractManager(initFile)
                     .contractBuilder()
-                    .withChainUrl(erisChainUrl)
                     .withContractAddress(erisContractAddress)
-                    .withRPCClient(new HTTPRPCClient());
+                    .withEventHandler(new EventHandler(erisChainUrl))
+                    .withRPCClient(new WebSocketRPCClient(erisChainUrl));
 
         } catch (IOException e) {
             throw new RuntimeException("Can't start application. Can't read contract file " + erisContractFile, e);
