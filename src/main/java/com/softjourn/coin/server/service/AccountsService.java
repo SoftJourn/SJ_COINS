@@ -94,22 +94,18 @@ public class AccountsService {
 
     @Transactional
     Account createAccount(String ldapId) {
-        ErisAccount erisAccount = getNewErisAccount();
-        Account account = buildAccount(ldapId, erisAccount);
-        return accountRepository.save(account);
+        return Optional.ofNullable(getAccountIfExistInLdapBase(ldapId))
+                .map(a -> buildAccount(a, getNewErisAccount()))
+                .map(a -> accountRepository.save(a))
+                .orElseThrow(() -> new AccountNotFoundException(ldapId));
     }
 
-    private Account buildAccount(String ldapId, ErisAccount erisAccount) {
-        Account account = getAccountIfExistInLdapBase(ldapId);
-        if (account != null) {
-            account.setAmount(new BigDecimal(0));
-            account.setImage(DEFAULT_IMAGE_NAME);
-            account.setAccountType(AccountType.REGULAR);
-            account.setErisAccount(erisAccount);
-            return account;
-        } else {
-            throw new AccountNotFoundException(ldapId);
-        }
+    private Account buildAccount(Account account, ErisAccount erisAccount) {
+        account.setAmount(new BigDecimal(0));
+        account.setImage(DEFAULT_IMAGE_NAME);
+        account.setAccountType(AccountType.REGULAR);
+        account.setErisAccount(erisAccount);
+        return account;
     }
 
     private ErisAccount getNewErisAccount() {
