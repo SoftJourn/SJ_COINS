@@ -39,6 +39,8 @@ public class AccountsService {
     private CoinService coinService;
 
     private TransactionRepository transactionRepository;
+    @Value("${auth.server.url}")
+    private String authServerUrl;
 
     public AccountsService(AccountRepository accountRepository, ErisAccountsService erisAccountsService, ErisAccountRepository erisAccountRepository, RestTemplate restTemplate) {
         this.accountRepository = accountRepository;
@@ -61,9 +63,6 @@ public class AccountsService {
         this.transactionRepository = transactionRepository;
         this.erisAccountsService = erisAccountsService;
     }
-
-    @Value("${auth.server.url}")
-    private String authServerUrl;
 
     Account getAccountIfExistInLdapBase(String ldapId) {
         try {
@@ -106,19 +105,20 @@ public class AccountsService {
         return accountRepository.save(account);
     }
 
-    @Transactional
     Account createAccount(String ldapId) {
         return Optional.ofNullable(getAccountIfExistInLdapBase(ldapId))
                 .map(a -> buildAccount(a, getNewErisAccount()))
-                .map(a -> accountRepository.save(a))
                 .orElseThrow(() -> new AccountNotFoundException(ldapId));
     }
 
+    @Transactional
     private Account buildAccount(Account account, ErisAccount erisAccount) {
         account.setAmount(new BigDecimal(0));
         account.setImage(DEFAULT_IMAGE_NAME);
         account.setAccountType(AccountType.REGULAR);
         account.setErisAccount(erisAccount);
+        erisAccount.setAccount(account);
+        erisAccountRepository.save(erisAccount);
         return account;
     }
 
