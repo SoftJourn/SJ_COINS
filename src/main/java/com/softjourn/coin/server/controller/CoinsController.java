@@ -35,11 +35,11 @@ public class CoinsController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "/buy/{sellerName}", method = RequestMethod.POST)
+    @RequestMapping(value = "/buy/{merchantLdapId}", method = RequestMethod.POST)
     public Transaction spentAmount(Principal principal,
                                    @RequestBody AmountDTO amountDto,
-                                   @PathVariable String sellerName) {
-        return coinService.buy(sellerName, principal.getName(), amountDto.getAmount(), amountDto.getComment());
+                                   @PathVariable String merchantLdapId) {
+        return coinService.buy(merchantLdapId, principal.getName(), amountDto.getAmount(), amountDto.getComment());
     }
 
     @PreAuthorize("authenticated")
