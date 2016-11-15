@@ -39,7 +39,7 @@ public class AccountsService {
     private CoinService coinService;
 
     private TransactionRepository transactionRepository;
-    @Value("${auth.server.url}")
+
     private String authServerUrl;
 
     public AccountsService(AccountRepository accountRepository, ErisAccountsService erisAccountsService, ErisAccountRepository erisAccountRepository, RestTemplate restTemplate) {
@@ -55,13 +55,15 @@ public class AccountsService {
                            RestTemplate restTemplate,
                            @Lazy CoinService coinService,
                            TransactionRepository transactionRepository,
-                           ErisAccountsService erisAccountsService) {
+                           ErisAccountsService erisAccountsService,
+                           @Value("${auth.server.url}") String authServerUrl) {
         this.accountRepository = accountRepository;
         this.erisAccountRepository = erisAccountRepository;
         this.restTemplate = restTemplate;
         this.coinService = coinService;
         this.transactionRepository = transactionRepository;
         this.erisAccountsService = erisAccountsService;
+        this.authServerUrl = authServerUrl;
     }
 
     Account getAccountIfExistInLdapBase(String ldapId) {
@@ -105,20 +107,20 @@ public class AccountsService {
         return accountRepository.save(account);
     }
 
+    @Transactional
     Account createAccount(String ldapId) {
         return Optional.ofNullable(getAccountIfExistInLdapBase(ldapId))
                 .map(a -> buildAccount(a, getNewErisAccount()))
+                .map(a -> accountRepository.save(a))
                 .orElseThrow(() -> new AccountNotFoundException(ldapId));
     }
 
-    @Transactional
     private Account buildAccount(Account account, ErisAccount erisAccount) {
         account.setAmount(new BigDecimal(0));
         account.setImage(DEFAULT_IMAGE_NAME);
         account.setAccountType(AccountType.REGULAR);
         account.setErisAccount(erisAccount);
         erisAccount.setAccount(account);
-        erisAccountRepository.save(erisAccount);
         return account;
     }
 
