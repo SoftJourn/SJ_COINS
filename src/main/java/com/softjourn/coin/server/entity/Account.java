@@ -26,7 +26,7 @@ public class Account {
     @JsonView(JsonViews.COINS_MANAGER.class)
     private String fullName;
 
-    @OneToOne(mappedBy = "account")
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private ErisAccount erisAccount;
 
     @JsonView(JsonViews.REGULAR.class)
