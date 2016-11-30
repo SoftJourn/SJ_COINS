@@ -6,9 +6,12 @@ import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.service.CoinService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.HashMap;
@@ -45,9 +48,20 @@ public class CoinsController {
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/move/{account}", method = RequestMethod.POST)
     public Transaction moveAmount(Principal principal,
-                              @RequestBody AmountDTO amountDTO,
-                              @PathVariable String account) {
+                                  @RequestBody AmountDTO amountDTO,
+                                  @PathVariable String account) {
         return coinService.move(principal.getName(), account, amountDTO.getAmount(), amountDTO.getComment());
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/withdraw/", method = RequestMethod.POST)
+    public byte[] withdrawAmount(Principal principal,
+                                 @RequestBody AmountDTO amountDTO,
+                                 @RequestHeader(value= HttpHeaders.ACCEPT) String accept,
+                                 HttpServletResponse response) {
+        boolean produceImage = accept.equals(MediaType.IMAGE_PNG_VALUE);
+        response.setHeader(HttpHeaders.CONTENT_TYPE, produceImage ? MediaType.IMAGE_PNG_VALUE : MediaType.TEXT_PLAIN_VALUE);
+        return coinService.withdraw(principal.getName(), amountDTO.getAmount(), amountDTO.getComment(), produceImage);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")

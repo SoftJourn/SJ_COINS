@@ -8,7 +8,6 @@ import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
-import com.softjourn.eris.contract.response.ReturnValue;
 import com.softjourn.eris.contract.response.TxParams;
 import org.junit.After;
 import org.junit.Before;
@@ -22,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -83,29 +83,29 @@ public class CoinServiceTestConcurrent {
 
         coinService = new CoinService(accountsService, contractService, erisAccountRepository);
 
-        when(contractService.getForAccount(any())).thenReturn(contract);
+        when(contractService.getTokenContractForAccount(any())).thenReturn(contract);
 
-        Response<Object> getResp = new Response<>("",
-                new ReturnValue<>(Object.class, BigInteger.valueOf(100000L)),
+        Response getResp = new Response("",
+                Collections.singletonList(BigInteger.valueOf(100000L)),
                 null,
                 null);
 
-        Response<Object> sendResp = new Response<>("",
+        Response sendResp = new Response("",
                 null,
                 null,
                 new TxParams("address", "txId"));
 
-        when(contract.call(eq("queryBalance"), anyVararg()))
+        when(contract.call(eq("balanceOf"), anyVararg()))
                 .thenReturn(getResp);
 
-        when(contract.call(eq("send"), eq("address"), org.mockito.Matchers.anyVararg()))
+        when(contract.call(eq("transfer"), eq("address"), org.mockito.Matchers.anyVararg()))
                 .then((InvocationOnMock invocation) -> {
                         amount.addAndGet(-200);
                         return sendResp;
                     }
                 );
 
-        when(contract.call(eq("send"), eq("address1"), org.mockito.Matchers.anyVararg()))
+        when(contract.call(eq("transfer"), eq("address1"), org.mockito.Matchers.anyVararg()))
                 .then(inv -> {
                     amount.addAndGet(100);
                     return sendResp;

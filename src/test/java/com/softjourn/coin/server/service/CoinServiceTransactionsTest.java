@@ -7,7 +7,6 @@ import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
-import com.softjourn.eris.contract.response.ReturnValue;
 import com.softjourn.eris.contract.response.TxParams;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +24,7 @@ import javax.persistence.PersistenceException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Principal;
+import java.util.Collections;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Matchers.any;
@@ -78,22 +78,22 @@ public class CoinServiceTransactionsTest {
 
         coinService = new CoinService(accountsService, contractService, erisAccountRepository);
 
-        when(contractService.getForAccount(any())).thenReturn(contract);
+        when(contractService.getTokenContractForAccount(any())).thenReturn(contract);
 
-        Response<Object> getResp = new Response<>("",
-                new ReturnValue<>(Object.class, BigInteger.valueOf(100)),
+        Response getResp = new Response("",
+                Collections.singletonList(BigInteger.valueOf(100)),
                 null,
                 null);
 
-        Response<Object> sendResp = new Response<>("",
-                new ReturnValue<>(Object.class, true),
+        Response sendResp = new Response("",
+                Collections.singletonList(true),
                 null,
                 new TxParams("address", "txId"));
 
-        when(contract.call(eq("queryBalance"), anyVararg()))
+        when(contract.call(eq("balanceOf"), anyVararg()))
                 .thenReturn(getResp);
 
-        when(contract.call(eq("send"), org.mockito.Matchers.anyVararg()))
+        when(contract.call(eq("transfer"), org.mockito.Matchers.anyVararg()))
                 .thenReturn(sendResp);
 
         when(contract.call(eq("mint"), org.mockito.Matchers.anyVararg()))
@@ -106,8 +106,8 @@ public class CoinServiceTransactionsTest {
 
         coinService.buy("VM1", "account1", spentAmount, "Buying Pepsi.");
 
-        verify(contract, times(1)).call(eq("queryBalance"), anyVararg());
-        verify(contract, times(1)).call(eq("send"), anyVararg());
+        verify(contract, times(1)).call(eq("balanceOf"), anyVararg());
+        verify(contract, times(1)).call(eq("transfer"), anyVararg());
     }
 
     @Test
@@ -116,8 +116,8 @@ public class CoinServiceTransactionsTest {
             coinService.move(principal.getName(), "account2", new BigDecimal(50), "");
         } catch (PersistenceException ignored) {}
 
-        verify(contract, times(1)).call(eq("queryBalance"), anyVararg());
-        verify(contract, times(1)).call(eq("send"), anyVararg());
+        verify(contract, times(1)).call(eq("balanceOf"), anyVararg());
+        verify(contract, times(1)).call(eq("transfer"), anyVararg());
     }
 
     @Test(expected = AccountNotFoundException.class)

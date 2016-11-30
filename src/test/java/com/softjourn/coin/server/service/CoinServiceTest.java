@@ -7,7 +7,6 @@ import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
-import com.softjourn.eris.contract.response.ReturnValue;
 import com.softjourn.eris.contract.response.TxParams;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,23 +93,23 @@ public class CoinServiceTest {
         when(accountsService.getAll(AccountType.MERCHANT)).thenReturn(Arrays.asList(account2, account3));
         when(accountsService.getAll(AccountType.REGULAR)).thenReturn(Collections.emptyList());
 
-        when(contractService.getForAccount(any())).thenReturn(contract);
-        when(contractService.getForAccount(null)).thenReturn(contract);
+        when(contractService.getTokenContractForAccount(any())).thenReturn(contract);
+        when(contractService.getTokenContractForAccount(null)).thenReturn(contract);
 
-        Response<Object> getResp = new Response<>("",
-                new ReturnValue<>(Object.class, BigInteger.valueOf(100)),
+        Response getResp = new Response("",
+                Collections.singletonList(BigInteger.valueOf(100)),
                 null,
                 null);
 
-        Response<Object> sendResp = new Response<>("",
-                new ReturnValue<>(Object.class, true),
+        Response sendResp = new Response("",
+                Collections.singletonList(true),
                 null,
                 new TxParams("address", "txId"));
 
-        when(contract.call(eq("queryBalance"), anyVararg()))
+        when(contract.call(eq("balanceOf"), anyVararg()))
                 .thenReturn(getResp);
 
-        when(contract.call(eq("send"), anyVararg()))
+        when(contract.call(eq("transfer"), anyVararg()))
                 .thenReturn(sendResp);
 
         when(contract.call(eq("mint"), anyVararg()))
@@ -122,7 +121,7 @@ public class CoinServiceTest {
         coinService.fillAccount("user1", new BigDecimal(100), "");
 
         verify(accountsService, times(1)).getAccount("user1");
-        verify(contract, times(1)).call(eq("send"), anyVararg());
+        verify(contract, times(1)).call(eq("transfer"), anyVararg());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -138,7 +137,7 @@ public class CoinServiceTest {
         coinService.buy(principal.getName(),"VM1", new BigDecimal(50), "");
 
         verify(accountsService, times(3)).getAccount(anyString());
-        verify(contract, times(1)).call(eq("send"), anyVararg());
+        verify(contract, times(1)).call(eq("transfer"), anyVararg());
     }
 
     @Test(expected = NotEnoughAmountInAccountException.class)
@@ -166,7 +165,7 @@ public class CoinServiceTest {
 
         assertEquals(expectedAmount, treasuryAmount);
 
-        verify(contract).call(eq("queryBalance"), anyVararg());
+        verify(contract).call(eq("balanceOf"), anyVararg());
     }
 
     @Test
@@ -186,8 +185,8 @@ public class CoinServiceTest {
         BigDecimal amount = new BigDecimal(70);
         coinService.moveToTreasury("account", amount, "Test msg");
 
-        verify(contract).call(eq("send"), captor.capture());
-        verify(contractService, times(2)).getForAccount(erisAccountCaptor.capture());
+        verify(contract).call(eq("transfer"), captor.capture());
+        verify(contractService, times(2)).getTokenContractForAccount(erisAccountCaptor.capture());
 
         assertEquals(captor.getAllValues().get(1), amount.toBigInteger());
         assertEquals(erisAccountCaptor.getValue(), account.getErisAccount());

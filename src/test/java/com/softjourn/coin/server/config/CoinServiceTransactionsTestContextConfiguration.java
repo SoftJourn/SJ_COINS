@@ -6,7 +6,6 @@ import com.softjourn.eris.accounts.AccountsService;
 import com.softjourn.eris.accounts.KeyService;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
-import com.softjourn.eris.contract.response.ReturnValue;
 import com.softjourn.eris.contract.response.TxParams;
 import com.softjourn.eris.rpc.HTTPRPCClient;
 import org.hibernate.jpa.HibernatePersistenceProvider;
@@ -24,11 +23,11 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Collections;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Configuration
 @ComponentScan(basePackages = "com.softjourn.coin.server.service",
@@ -68,7 +67,7 @@ public class CoinServiceTransactionsTestContextConfiguration {
     @Bean
     public AccountsService erisAccountsCreatingService() {
         KeyService keyService = new KeyService();
-        return new AccountsService(keyService, "", new HTTPRPCClient("http://127.0.0.1"), "");
+        return new AccountsService(keyService, "", new HTTPRPCClient("http://127.0.0.1"));
     }
 
     @Bean
@@ -80,15 +79,14 @@ public class CoinServiceTransactionsTestContextConfiguration {
     public ErisContractService contractService() throws IOException {
         ErisContractService contractService = mock(ErisContractService.class);
         Contract contract = mock(Contract.class);
-        when(contractService.getForAccount(any())).thenReturn(contract);
-        doNothing().when(contractService).initContract();
+        when(contractService.getTokenContractForAccount(any())).thenReturn(contract);
 
-        Response<Object> getResp = new Response<>("",
-                new ReturnValue<>(Object.class, BigInteger.valueOf(500L)),
+        Response getResp = new Response("",
+                Collections.singletonList(BigInteger.valueOf(500L)),
                 null,
                 null);
 
-        Response<Object> sendResp = new Response<>("",
+        Response sendResp = new Response("",
                 null,
                 null,
                 new TxParams("address", "txId"));

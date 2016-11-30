@@ -10,7 +10,6 @@ import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
-import com.softjourn.eris.contract.response.ReturnValue;
 import com.softjourn.eris.contract.response.TxParams;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Principal;
+import java.util.Collections;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.AdditionalMatchers.not;
@@ -78,22 +78,22 @@ public class CoinServiceMoveTest {
         when(accountsService.getAccount("account2")).thenReturn(account2);
         when(accountsService.getAccount(not(or(eq("account1"), eq("account2"))))).thenThrow(new AccountNotFoundException(""));
 
-        when(contractService.getForAccount(any())).thenReturn(contract);
+        when(contractService.getTokenContractForAccount(any())).thenReturn(contract);
 
-        Response<Object> getResp = new Response<>("",
-                new ReturnValue<>(Object.class, BigInteger.valueOf(100L)),
+        Response getResp = new Response("",
+                Collections.singletonList(BigInteger.valueOf(100L)),
                 null,
                 null);
 
-        Response<Object> sendResp = new Response<>("",
-                new ReturnValue<>(Object.class, true),
+        Response sendResp = new Response("",
+                Collections.singletonList(true),
                 null,
                 new TxParams("address", "txId"));
 
-        when(contract.call(eq("queryBalance"), org.mockito.Matchers.anyVararg()))
+        when(contract.call(eq("balanceOf"), org.mockito.Matchers.anyVararg()))
                 .thenReturn(getResp);
 
-        when(contract.call(eq("send"), org.mockito.Matchers.anyVararg()))
+        when(contract.call(eq("transfer"), org.mockito.Matchers.anyVararg()))
                 .thenReturn(sendResp);
     }
 
@@ -101,8 +101,8 @@ public class CoinServiceMoveTest {
     public void testMove() throws Exception {
         coinService.move(principal.getName(), "account2", new BigDecimal(50), "");
 
-        verify(contract, times(1)).call(eq("queryBalance"), anyVararg());
-        verify(contract, times(1)).call(eq("send"), anyVararg());
+        verify(contract, times(1)).call(eq("balanceOf"), anyVararg());
+        verify(contract, times(1)).call(eq("transfer"), anyVararg());
     }
 
     @Test(expected = NotEnoughAmountInAccountException.class)
