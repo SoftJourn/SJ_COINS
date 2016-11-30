@@ -121,7 +121,7 @@ public class CoinServiceTest {
     public void testFillAccount() throws Exception {
         coinService.fillAccount("user1", new BigDecimal(100), "");
 
-        verify(accountsService, times(1)).getAccount("user1");
+        verify(accountsService, atMost(2)).getAccount("user1");
         verify(contract, times(1)).call(eq("send"), anyVararg());
     }
 
@@ -137,7 +137,7 @@ public class CoinServiceTest {
     public void testSpent() throws Exception {
         coinService.buy(principal.getName(),"VM1", new BigDecimal(50), "");
 
-        verify(accountsService, times(3)).getAccount(anyString());
+        verify(accountsService, atMost(5)).getAccount(anyString());
         verify(contract, times(1)).call(eq("send"), anyVararg());
     }
 

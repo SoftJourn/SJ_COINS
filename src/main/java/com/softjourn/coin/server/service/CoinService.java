@@ -6,6 +6,8 @@ import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.Transaction;
+import com.softjourn.coin.server.exceptions.AccountNotFoundException;
+import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
 import com.softjourn.coin.server.exceptions.ErisProcessingException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
@@ -66,7 +68,9 @@ public class CoinService {
         synchronized (getMonitor(destinationName)) {
             checkAmountIsPositive(amount);
 
-            ErisAccount erisAccount = getErisAccount(destinationName);
+            Account account = removeIsNewStatus(destinationName);
+
+            ErisAccount erisAccount = getErisAccount(account);
 
             Response response = moveByEris(treasuryErisAccount, erisAccount.getAddress(), amount);
 
@@ -78,7 +82,11 @@ public class CoinService {
     @SaveTransaction(comment = "Distributing money.")
     public void distribute(BigDecimal amount, String comment) {
         try {
-            List<String> accountsAddresses = accountsService.getAll(AccountType.REGULAR).stream()
+            List<Account> accounts = accountsService.getAll(AccountType.REGULAR);
+
+            removeIsNewStatus(accounts);
+
+            List<String> accountsAddresses = accounts.stream()
                     .map(Account::getErisAccount)
                     .map(ErisAccount::getAddress)
                     .collect(Collectors.toList());
@@ -108,8 +116,13 @@ public class CoinService {
                                          String comment) {
         checkAmountIsPositive(amount);
 
-        ErisAccount donor = getErisAccount(accountName);
-        ErisAccount acceptor = getErisAccount(destinationName);
+        Account donorAccount = removeIsNewStatus(accountName);
+
+        ErisAccount donor = getErisAccount(donorAccount);
+
+        Account acceptorAccount = removeIsNewStatus(destinationName);
+
+        ErisAccount acceptor = getErisAccount(acceptorAccount);
 
         if (!isEnoughAmount(accountName, amount)) {
             throw new NotEnoughAmountInAccountException();
@@ -160,7 +173,9 @@ public class CoinService {
         synchronized (getMonitor(accountName)) {
             checkAmountIsPositive(amount);
 
-            ErisAccount account = getErisAccount(accountName);
+            Account account = removeIsNewStatus(accountName);
+
+            ErisAccount erisAccount = getErisAccount(account);
 
             BigDecimal currentAmount = getAmount(accountName);
 
@@ -168,9 +183,11 @@ public class CoinService {
                 throw new NotEnoughAmountInAccountException();
             }
 
-            ErisAccount sellerAccount = getErisAccount(destinationName);
+            Account merchantAccount = removeIsNewStatus(destinationName);
 
-            Response response = moveByEris(account, sellerAccount.getAddress(), amount);
+            ErisAccount sellerAccount = getErisAccount(merchantAccount);
+
+            Response response = moveByEris(erisAccount, sellerAccount.getAddress(), amount);
 
             return mapToTransaction(response);
         }
@@ -205,7 +222,9 @@ public class CoinService {
             throw new NotEnoughAmountInAccountException();
         }
 
-        ErisAccount erisAccount = getErisAccount(accountName);
+        Account account = removeIsNewStatus(accountName);
+
+        ErisAccount erisAccount = getErisAccount(account);
 
         Response response = moveByEris(erisAccount, treasuryAccountAddress, amount);
 
@@ -216,9 +235,33 @@ public class CoinService {
         return Optional
                 .ofNullable(accountsService.getAccount(ldapId))
                 .map(Account::getErisAccount)
-                .orElseThrow(() -> new ErisProcessingException("Eris account for user " + ldapId +
-                        "is not set."));
+                .orElseThrow(ErisAccountNotFoundException::new);
 
+    }
+
+    private ErisAccount getErisAccount(Account account) {
+        return Optional
+                .ofNullable(account)
+                .map(Account::getErisAccount)
+                .orElseThrow(ErisAccountNotFoundException::new);
+    }
+
+    private Account removeIsNewStatus(String ldapId) {
+        return Optional
+                .ofNullable(accountsService.getAccount(ldapId))
+                .filter(Account::isNew)
+                .map(account -> accountsService.changeIsNewStatus(false, account))
+                .map(accountsService::update)
+                .orElseGet(() -> Optional
+                        .ofNullable(accountsService.getAccount(ldapId))
+                        .orElseThrow(() -> new AccountNotFoundException(ldapId)));
+    }
+
+    private List<Account> removeIsNewStatus(List<Account> inAccounts) {
+        return Optional
+                .ofNullable(inAccounts)
+                .map(accounts -> accountsService.changeIsNewStatus(false, accounts))
+                .orElseThrow(() -> new AccountNotFoundException(""));
     }
 
     private void processResponseError(Response response) {

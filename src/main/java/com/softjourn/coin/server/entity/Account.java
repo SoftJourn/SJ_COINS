@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.softjourn.coin.server.util.JsonViews;
 import lombok.Data;
@@ -34,6 +35,10 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
+
+    @JsonView({JsonViews.COINS_MANAGER.class})
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private boolean isNew;
 
     private boolean deleted;
 

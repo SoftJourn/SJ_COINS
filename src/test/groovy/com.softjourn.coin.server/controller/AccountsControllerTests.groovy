@@ -115,6 +115,9 @@ class AccountsControllerTests {
                         fieldWithPath('[0].fullName')
                                 .type(JsonFieldType.STRING)
                                 .description('Account full name'),
+                        fieldWithPath('[0].isNew')
+                                .type(JsonFieldType.BOOLEAN)
+                                .description('Is new ?'),
                         fieldWithPath('[1].ldapId')
                                 .type(JsonFieldType.STRING)
                                 .description('LDAP ID'),
@@ -124,6 +127,9 @@ class AccountsControllerTests {
                         fieldWithPath('[1].fullName')
                                 .type(JsonFieldType.STRING)
                                 .description('Account full name'),
+                        fieldWithPath('[0].isNew')
+                                .type(JsonFieldType.BOOLEAN)
+                                .description('Is new ?')
                 )
         ))
     }
@@ -145,7 +151,10 @@ class AccountsControllerTests {
                                 .description('Amount of coins'),
                         fieldWithPath('[0].fullName')
                                 .type(JsonFieldType.STRING)
-                                .description('Account full name')
+                                .description('Account full name'),
+                        fieldWithPath('[0].isNew')
+                                .type(JsonFieldType.BOOLEAN)
+                                .description('Is new ?')
                 )
         ))
     }
