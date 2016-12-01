@@ -2,6 +2,7 @@ package com.softjourn.coin.server.controller;
 
 
 import com.softjourn.coin.server.dto.AmountDTO;
+import com.softjourn.coin.server.dto.CashDTO;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.service.CoinService;
@@ -54,7 +55,7 @@ public class CoinsController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "/withdraw/", method = RequestMethod.POST)
+    @RequestMapping(value = "/withdraw", method = RequestMethod.POST)
     public byte[] withdrawAmount(Principal principal,
                                  @RequestBody AmountDTO amountDTO,
                                  @RequestHeader(value= HttpHeaders.ACCEPT) String accept,
@@ -62,6 +63,12 @@ public class CoinsController {
         boolean produceImage = accept.equals(MediaType.IMAGE_PNG_VALUE);
         response.setHeader(HttpHeaders.CONTENT_TYPE, produceImage ? MediaType.IMAGE_PNG_VALUE : MediaType.APPLICATION_JSON_UTF8_VALUE);
         return coinService.withdraw(principal.getName(), amountDTO.getAmount(), amountDTO.getComment(), produceImage);
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/deposit", method = RequestMethod.POST)
+    public Transaction deposit(Principal principal, @RequestBody CashDTO cashDTO) {
+        return coinService.deposit(cashDTO, principal.getName(), "Deposite cash.");
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")

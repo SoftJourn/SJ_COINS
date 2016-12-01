@@ -34,6 +34,7 @@ public class CoinService {
     private static final String DISTRIBUTE_MONEY = "distribute";
     private static final String GET_MONEY = "balanceOf";
     private static final String WITHDRAW_MONEY = "withdraw";
+    private static final String DEPOSIT = "deposite";
     private static final String APPROVE_TRANSFER = "approve";
 
     private AccountsService accountsService;
@@ -191,6 +192,7 @@ public class CoinService {
             return mapToTransaction(response);
         }
     }
+
     @SuppressWarnings("unused")
     public byte[] withdraw(@NonNull String accountName, @NonNull BigDecimal amount, String comment, boolean image) {
         try {
@@ -222,6 +224,25 @@ public class CoinService {
             throw new ErisProcessingException("Can't withdraw money.", e);
         }
 
+    }
+
+    @SaveTransaction
+    public Transaction deposit(CashDTO cashDTO, String accountName, String comment) {
+        try {
+            ErisAccount account = getErisAccount(accountName);
+
+            byte[] hash = Hex.decodeHex(cashDTO.getChequeHash().toCharArray());
+
+            Response response = contractService
+                    .getOfflineContractForAccount(account)
+                    .call(DEPOSIT, hash, cashDTO.getTokenContractAddress());
+
+            processResponseError(response);
+
+            return mapToTransaction(response);
+        } catch (Exception e) {
+            throw new ErisProcessingException("Can't withdraw money.", e);
+        }
     }
 
     private String withdrawResultMapping(byte[] cheque, String tokenAddress, String offlineAddress, BigInteger amount) {
