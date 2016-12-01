@@ -23,10 +23,10 @@ echo "REFRESH_TOKEN: "${tokens[1]}
 
 declare data='{"comment": "Withdraw some money", "amount": 100}'
 
-curl --silent -i -k -X  POST \
+curl --silent --silent -k -X  POST \
   http://localhost:8080/api/v1/withdraw/ \
   -d "${data}" \
   -H "Authorization: Bearer "${tokens[0]} \
-  -H "Accept: text/plain" \
-  -H "Content-Type: application/json" | tee image.png
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" > data.json
 

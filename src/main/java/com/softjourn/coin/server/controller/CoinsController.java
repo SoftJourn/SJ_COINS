@@ -60,7 +60,7 @@ public class CoinsController {
                                  @RequestHeader(value= HttpHeaders.ACCEPT) String accept,
                                  HttpServletResponse response) {
         boolean produceImage = accept.equals(MediaType.IMAGE_PNG_VALUE);
-        response.setHeader(HttpHeaders.CONTENT_TYPE, produceImage ? MediaType.IMAGE_PNG_VALUE : MediaType.TEXT_PLAIN_VALUE);
+        response.setHeader(HttpHeaders.CONTENT_TYPE, produceImage ? MediaType.IMAGE_PNG_VALUE : MediaType.APPLICATION_JSON_UTF8_VALUE);
         return coinService.withdraw(principal.getName(), amountDTO.getAmount(), amountDTO.getComment(), produceImage);
     }
 

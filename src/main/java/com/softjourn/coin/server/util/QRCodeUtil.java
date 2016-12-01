@@ -6,7 +6,6 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import org.apache.commons.codec.binary.Hex;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -27,18 +26,15 @@ public class QRCodeUtil {
      * @param data data bytes
      * @return png image bytes
      */
-    public static byte[] genQRCode(byte[] data) {
+    public static byte[] genQRCode(String data) {
         try {
-
-            String hexText = Hex.encodeHexString(data);
-
             Map<EncodeHintType, Object> hintMap = new EnumMap<>(EncodeHintType.class);
             hintMap.put(EncodeHintType.CHARACTER_SET, "UTF-8");
 
             hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
 
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
-            BitMatrix byteMatrix = qrCodeWriter.encode(hexText, BarcodeFormat.QR_CODE, IMAGE_SIZE, IMAGE_SIZE, hintMap);
+            BitMatrix byteMatrix = qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, IMAGE_SIZE, IMAGE_SIZE, hintMap);
             int width = byteMatrix.getWidth();
             BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
             image.createGraphics();

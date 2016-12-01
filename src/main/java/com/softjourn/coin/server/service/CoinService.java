@@ -1,7 +1,10 @@
 package com.softjourn.coin.server.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
+import com.softjourn.coin.server.dto.CashDTO;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.ErisAccount;
@@ -211,13 +214,24 @@ public class CoinService {
                     .flatMap(r -> Optional.ofNullable(r.getReturnValues()))
                     .flatMap(l -> Optional.ofNullable(l.get(0)))
                     .map(v -> (byte[]) v)
-                    .map(v -> image ? QRCodeUtil.genQRCode(v) : new String(Hex.encodeHex(v)).getBytes())
+                    .map(v -> withdrawResultMapping(v, tokenContractAddress, offlineVaultAddress, amount.toBigInteger()))
+                    .map(v -> image ? QRCodeUtil.genQRCode(v) : v.getBytes())
                     .orElseThrow(() -> new ErisProcessingException("Wrong server response."));
 
         } catch (Exception e) {
             throw new ErisProcessingException("Can't withdraw money.", e);
         }
 
+    }
+
+    private String withdrawResultMapping(byte[] cheque, String tokenAddress, String offlineAddress, BigInteger amount) {
+        try {
+            String hexCheque = Hex.encodeHexString(cheque);
+            CashDTO cashDTO = new CashDTO(tokenAddress, offlineAddress, hexCheque, amount);
+            return new ObjectMapper().writeValueAsString(cashDTO);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Can't convert CashDTO object to JSON.");
+        }
     }
 
     private void checkEnoughAmount(String accountName, BigDecimal amount) {
