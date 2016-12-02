@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.softjourn.coin.server.util.JsonViews;
 import lombok.Data;
@@ -54,6 +55,11 @@ public class Account {
         if (fullName == null) return "";
         String[] splitted = fullName.split("\\s");
         return splitted.length > 1 ? splitted[1] : "";
+    }
+
+    @JsonProperty(value = "ldapName", access = JsonProperty.Access.WRITE_ONLY)
+    public void setLdapName(String ldapName) {
+        ldapId = ldapName;
     }
 
     @Override
