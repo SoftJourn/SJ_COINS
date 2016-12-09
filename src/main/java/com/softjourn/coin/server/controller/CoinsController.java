@@ -3,30 +3,45 @@ package com.softjourn.coin.server.controller;
 
 import com.softjourn.coin.server.dto.AmountDTO;
 import com.softjourn.coin.server.dto.CashDTO;
+import com.softjourn.coin.server.dto.CheckDTO;
+import com.softjourn.coin.server.dto.ResultDTO;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.service.CoinService;
+import com.softjourn.coin.server.service.FillAccountsService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1")
 public class CoinsController {
 
     private final CoinService coinService;
+    private final FillAccountsService fillAccountsService;
 
     @Autowired
-    public CoinsController(CoinService coinService) {
+    public CoinsController(CoinService coinService, FillAccountsService fillAccountsService) {
         this.coinService = coinService;
+        this.fillAccountsService = fillAccountsService;
     }
 
     @PreAuthorize("authenticated")
@@ -85,6 +100,18 @@ public class CoinsController {
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
+    @RequestMapping(value = "/add/", method = RequestMethod.POST)
+    public ResultDTO addAmounts(@RequestParam MultipartFile file) throws IOException {
+        return this.fillAccountsService.fillAccounts(file);
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
+    @RequestMapping(value = "/check/{checkHash}", method = RequestMethod.GET)
+    public CheckDTO checkProgress(@PathVariable String checkHash) {
+        return this.fillAccountsService.checkProcessing(checkHash);
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/distribute", method = RequestMethod.POST)
     public void distribute(@RequestBody AmountDTO amount) {
         coinService.distribute(amount.getAmount(), "Distribute money for all accounts.");
@@ -95,7 +122,6 @@ public class CoinsController {
     public Map<String, BigDecimal> getTreasuryAmount() {
         HashMap<String, BigDecimal> responseBody = new HashMap<>();
         responseBody.put("amount", coinService.getTreasuryAmount());
-
         return responseBody;
     }
 
