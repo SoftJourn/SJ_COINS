@@ -70,6 +70,14 @@ public class GlobalExceptionHandler {
                 .body(buildErrorDetails(e, 40002, e.getMessage()));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorDetail> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.warn(e.getLocalizedMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(buildErrorDetails(e, 40003, e.getMessage()));
+    }
+
     private ErrorDetail buildErrorDetails(Exception e, Integer code, String message) {
         ErrorDetail errorDetail = new ErrorDetail();
         errorDetail.setTitle("Error");

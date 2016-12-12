@@ -8,6 +8,7 @@ import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.exceptions.CouldNotReadFileException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInTreasuryException;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,6 +20,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -52,13 +55,16 @@ public class FillAccountsService {
             MappingIterator<AccountDTO> iterator = getDataFromCSV(multipartFile.getBytes(), AccountDTO.class);
             // get data from read file
             List<AccountDTO> accountsToFill = iterator.readAll();
-            // Are enough coins in trasury
+            // Check if all values are positive
+            this.checkAmountIsPositive(accountsToFill);
+            // Are enough coins in treasury
             if (!isEnoughInTreasury(BigDecimal.valueOf(accountsToFill.stream()
                     .mapToDouble(value -> value.getCoins().doubleValue()).sum()))) {
                 throw new NotEnoughAmountInTreasuryException("Not enough coins in treasury!");
             } else {
                 // if enough - filling accounts one by one
                 for (AccountDTO dto : accountsToFill) {
+                    checkAmountIsPositive(dto.getCoins());
                     futureTransactions.add(executorService.submit(planJob(dto)));
                 }
                 String hash = UUID.randomUUID().toString();
@@ -78,8 +84,8 @@ public class FillAccountsService {
         dto.setIsDone(done);
         dto.setTotal(total);
         if (total == done) {
-            dto.setTransactions(map.get(checkHash).stream().map(this::getTransaction
-            ).collect(Collectors.toList()));
+            dto.setTransactions(map.get(checkHash).stream().map(this::getTransaction).collect(Collectors.toList()));
+            this.cleanTransactionResultMap(checkHash);
             return dto;
         } else {
             return dto;
@@ -96,16 +102,37 @@ public class FillAccountsService {
         return decimal.compareTo(treasuryAmount) < 0;
     }
 
+    private void checkAmountIsPositive(List<AccountDTO> accountDTOs) {
+        accountDTOs.forEach(accountDTO -> this.checkAmountIsPositive(accountDTO.getCoins()));
+    }
+
+    private void checkAmountIsPositive(@NonNull BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Amount can't be negative");
+        }
+    }
+
     private Transaction getTransaction(Future<Transaction> futureTransaction) {
         try {
             return futureTransaction.get();
         } catch (InterruptedException | ExecutionException e) {
             log.error(e.getLocalizedMessage());
+            e.printStackTrace();
             Transaction transaction = new Transaction();
             transaction.setStatus(TransactionStatus.FAILED);
             transaction.setComment(e.getMessage());
             return transaction;
         }
+    }
+
+    private synchronized void cleanTransactionResultMap(String checkHash) {
+        Timer timer = new Timer();
+        TimerTask action = new TimerTask() {
+            public void run() {
+                map.remove(checkHash);
+            }
+        };
+        timer.schedule(action, 5000);
     }
 
 }
