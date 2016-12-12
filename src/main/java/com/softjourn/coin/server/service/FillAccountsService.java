@@ -10,6 +10,7 @@ import com.softjourn.coin.server.exceptions.CouldNotReadFileException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInTreasuryException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,22 +35,29 @@ import static com.softjourn.coin.server.util.Util.validateMultipartFileMimeType;
 public class FillAccountsService {
 
     @Autowired
+    @Qualifier("transactionResultMap")
     private Map<String, List<Future<Transaction>>> map;
 
     @Autowired
     private CoinService coinService;
 
     public ResultDTO fillAccounts(MultipartFile multipartFile) {
+        // is file valid
         validateMultipartFileMimeType(multipartFile, "text/csv");
+        // List of future actions
         List<Future<Transaction>> futureTransactions = new ArrayList<>();
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
         try {
+            // reading file content
             MappingIterator<AccountDTO> iterator = getDataFromCSV(multipartFile.getBytes(), AccountDTO.class);
+            // get data from read file
             List<AccountDTO> accountsToFill = iterator.readAll();
+            // Are enough coins in trasury
             if (!isEnoughInTreasury(BigDecimal.valueOf(accountsToFill.stream()
                     .mapToDouble(value -> value.getCoins().doubleValue()).sum()))) {
                 throw new NotEnoughAmountInTreasuryException("Not enough coins in treasury!");
             } else {
+                // if enough - filling accounts one by one
                 for (AccountDTO dto : accountsToFill) {
                     futureTransactions.add(executorService.submit(planJob(dto)));
                 }
@@ -63,24 +71,15 @@ public class FillAccountsService {
         }
     }
 
-    public synchronized CheckDTO checkProcessing(String checkHash) {
+    public CheckDTO checkProcessing(String checkHash) {
         long done = map.get(checkHash).stream().filter(Future::isDone).count();
         long total = (long) map.get(checkHash).size();
         CheckDTO dto = new CheckDTO();
         dto.setIsDone(done);
         dto.setTotal(total);
         if (total == done) {
-            dto.setTransactions(map.get(checkHash).stream().map(f -> {
-                try {
-                    return f.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                    Transaction transaction = new Transaction();
-                    transaction.setStatus(TransactionStatus.FAILED);
-                    transaction.setComment(e.getMessage());
-                    return transaction;
-                }
-            }).collect(Collectors.toList()));
+            dto.setTransactions(map.get(checkHash).stream().map(this::getTransaction
+            ).collect(Collectors.toList()));
             return dto;
         } else {
             return dto;
@@ -95,6 +94,18 @@ public class FillAccountsService {
     private Boolean isEnoughInTreasury(BigDecimal decimal) {
         BigDecimal treasuryAmount = this.coinService.getTreasuryAmount();
         return decimal.compareTo(treasuryAmount) < 0;
+    }
+
+    private Transaction getTransaction(Future<Transaction> futureTransaction) {
+        try {
+            return futureTransaction.get();
+        } catch (InterruptedException | ExecutionException e) {
+            log.error(e.getLocalizedMessage());
+            Transaction transaction = new Transaction();
+            transaction.setStatus(TransactionStatus.FAILED);
+            transaction.setComment(e.getMessage());
+            return transaction;
+        }
     }
 
 }

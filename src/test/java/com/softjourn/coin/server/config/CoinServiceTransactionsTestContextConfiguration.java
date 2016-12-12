@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.config;
 
 
+import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.service.ErisContractService;
 import com.softjourn.eris.accounts.AccountsService;
 import com.softjourn.eris.accounts.KeyService;
@@ -24,6 +25,10 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
@@ -69,6 +74,12 @@ public class CoinServiceTransactionsTestContextConfiguration {
         KeyService keyService = new KeyService();
         return new AccountsService(keyService, "", new HTTPRPCClient("http://127.0.0.1"));
     }
+
+    @Bean(name = "transactionResultMap")
+    public Map<String, List<Future<Transaction>>> map() {
+        return new HashMap<>();
+    }
+
 
     @Bean
     public JpaTransactionManager transactionManager() {

@@ -76,7 +76,7 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
         return new AccountsService(keyService, treasuryAccountPrivKey, new HTTPRPCClient(erisChainUrl));
     }
 
-    @Bean
+    @Bean(name = "transactionResultMap")
     public Map<String, List<Future<Transaction>>> map() {
         return new HashMap<>();
     }
