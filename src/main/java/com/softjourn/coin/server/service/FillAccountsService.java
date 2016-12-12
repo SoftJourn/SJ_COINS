@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.softjourn.coin.server.dto.AccountDTO;
 import com.softjourn.coin.server.dto.CheckDTO;
 import com.softjourn.coin.server.dto.ResultDTO;
+import com.softjourn.coin.server.entity.Account;
+import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.exceptions.CouldNotReadFileException;
@@ -16,8 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -30,6 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import static com.softjourn.coin.server.util.Util.dataToCSV;
 import static com.softjourn.coin.server.util.Util.getDataFromCSV;
 import static com.softjourn.coin.server.util.Util.validateMultipartFileMimeType;
 
@@ -43,6 +48,9 @@ public class FillAccountsService {
 
     @Autowired
     private CoinService coinService;
+
+    @Autowired
+    private AccountsService accountsService;
 
     public ResultDTO fillAccounts(MultipartFile multipartFile) {
         // is file valid
@@ -90,6 +98,18 @@ public class FillAccountsService {
         } else {
             return dto;
         }
+    }
+
+    public void getAccountDTOTemplate(Writer writer) throws IOException {
+        List<Account> accounts = this.accountsService.getAll(AccountType.REGULAR);
+        List<AccountDTO> collect = accounts.stream().map((Account a) -> {
+            AccountDTO dto = new AccountDTO();
+            dto.setAccount(a.getLdapId());
+            dto.setFullName(a.getFullName());
+            dto.setCoins(new BigDecimal(0));
+            return dto;
+        }).sorted(Comparator.comparing(AccountDTO::getAccount)).collect(Collectors.toList());
+        dataToCSV(writer, collect, AccountDTO.class);
     }
 
     private Callable<Transaction> planJob(AccountDTO accountDTO) {

@@ -12,7 +12,9 @@ import com.softjourn.coin.server.service.FillAccountsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -73,7 +75,7 @@ public class CoinsController {
     @RequestMapping(value = "/withdraw", method = RequestMethod.POST)
     public byte[] withdrawAmount(Principal principal,
                                  @RequestBody AmountDTO amountDTO,
-                                 @RequestHeader(value= HttpHeaders.ACCEPT) String accept,
+                                 @RequestHeader(value = HttpHeaders.ACCEPT) String accept,
                                  HttpServletResponse response) {
         boolean produceImage = accept.equals(MediaType.IMAGE_PNG_VALUE);
         response.setHeader(HttpHeaders.CONTENT_TYPE, produceImage ? MediaType.IMAGE_PNG_VALUE : MediaType.APPLICATION_JSON_UTF8_VALUE);
@@ -109,6 +111,19 @@ public class CoinsController {
     @RequestMapping(value = "/check/{checkHash}", method = RequestMethod.GET)
     public CheckDTO checkProgress(@PathVariable String checkHash) {
         return this.fillAccountsService.checkProcessing(checkHash);
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
+    @RequestMapping(value = "/template", method = RequestMethod.GET)
+    public ResponseEntity<Void> getTemplate(HttpServletResponse response) throws IOException {
+        String contentDisposition = "attachment; filename=\"template.csv\"";
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
+        response.setContentType("application/csv");
+        response.setCharacterEncoding("UTF-8");
+        this.fillAccountsService.getAccountDTOTemplate(response.getWriter());
+        return new ResponseEntity<Void>(headers, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")

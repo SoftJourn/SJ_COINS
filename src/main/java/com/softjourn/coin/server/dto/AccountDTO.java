@@ -9,6 +9,8 @@ public class AccountDTO {
 
     private String account;
 
+    private String fullName;
+
     private BigDecimal coins;
 
 }
