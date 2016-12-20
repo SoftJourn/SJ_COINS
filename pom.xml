@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.softjourn</groupId>
             <artifactId>eris-java-client</artifactId>
-            <version>0.8</version>
+            <version>0.9</version>
         </dependency>
 
         <dependency>
@@ -243,7 +243,7 @@
         </dependency>
 
     </dependencies>
-	
+
 	<build>
 		<plugins>
 
@@ -329,6 +329,6 @@
             </plugin>
         </plugins>
 	</build>
-	
+
 
 </project>
