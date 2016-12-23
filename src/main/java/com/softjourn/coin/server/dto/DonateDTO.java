@@ -2,7 +2,6 @@ package com.softjourn.coin.server.dto;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Data
