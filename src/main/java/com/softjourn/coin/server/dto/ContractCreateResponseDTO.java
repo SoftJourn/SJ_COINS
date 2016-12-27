@@ -7,9 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateContractResponseDTO {
+public class ContractCreateResponseDTO {
 
     private Long contractId;
+    private String name;
     private String address;
 
 }

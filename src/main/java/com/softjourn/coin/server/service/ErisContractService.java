@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.service;
 
+import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.eris.ErisAccountData;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.ContractDeploymentException;
@@ -89,7 +90,10 @@ public class ErisContractService {
         return offlineVaultContractBuilder.withCallerAccount(accountData).build();
     }
 
-    public Contract getContract(String abi, String contractAddress) throws IOException {
+    public Contract getContract(String abi, String contractAddress, ErisAccountData erisAccount) throws IOException {
+        if (erisAccount == null){
+            erisAccount = this.erisAccount;
+        }
         return new ContractManager().contractBuilder(abi)
                 .withCallerAccount(erisAccount)
                 .withContractAddress(contractAddress)

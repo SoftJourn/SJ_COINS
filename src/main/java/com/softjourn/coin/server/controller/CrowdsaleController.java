@@ -1,9 +1,7 @@
 package com.softjourn.coin.server.controller;
 
-import com.softjourn.coin.server.dto.CrowdsaleDTO;
 import com.softjourn.coin.server.dto.CrowdsaleTransactionResultDTO;
 import com.softjourn.coin.server.dto.DonateDTO;
-import com.softjourn.coin.server.dto.TokensDTO;
 import com.softjourn.coin.server.service.CrowdsaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/crowdsale/")
@@ -26,8 +24,8 @@ public class CrowdsaleController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/donate", method = RequestMethod.POST)
-    public CrowdsaleTransactionResultDTO donate(@RequestBody DonateDTO dto) throws IOException {
-        return crowdsaleService.donate(dto);
+    public CrowdsaleTransactionResultDTO donate(@RequestBody DonateDTO dto, Principal principal) throws IOException {
+        return crowdsaleService.donate(dto, principal);
     }
 
     @PreAuthorize("authenticated")
@@ -38,18 +36,8 @@ public class CrowdsaleController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/{address}", method = RequestMethod.GET)
-    public CrowdsaleDTO getInfo(@PathVariable String address) {
-        CrowdsaleDTO dto = new CrowdsaleDTO();
-        dto.setIfSuccessfulSendTo("333333333333333333333333");
-        dto.setCreator("111111111111111111111");
-        dto.setFundingGoalInTokens(BigDecimal.valueOf(1000));
-        dto.setAmountRaised(BigDecimal.valueOf(1000));
-        dto.setDurationInMinutes(BigDecimal.valueOf(1000));
-        dto.setOnGoalReached(true);
-        dto.setAddressOfTokensAccumulated(new ArrayList<TokensDTO>() {{
-            add(new TokensDTO("4444444444444444444", BigDecimal.valueOf(1000)));
-        }});
-        return dto;
+    public Map<String, Object> getInfo(@PathVariable String address) throws IOException {
+        return crowdsaleService.getInfo(address);
     }
 
 }

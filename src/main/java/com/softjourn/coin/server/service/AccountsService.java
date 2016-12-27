@@ -23,6 +23,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static com.softjourn.coin.server.entity.AccountType.REGULAR;
+
 @Service
 public class AccountsService {
 
@@ -118,7 +120,7 @@ public class AccountsService {
     private Account buildAccount(Account account, ErisAccount erisAccount) {
         account.setAmount(new BigDecimal(0));
         account.setImage(DEFAULT_IMAGE_NAME);
-        account.setAccountType(AccountType.REGULAR);
+        account.setAccountType(REGULAR);
         account.setErisAccount(erisAccount);
         erisAccount.setAccount(account);
         return account;
