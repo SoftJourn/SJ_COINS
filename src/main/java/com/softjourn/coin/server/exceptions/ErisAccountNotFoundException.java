@@ -4,7 +4,7 @@ package com.softjourn.coin.server.exceptions;
 public class ErisAccountNotFoundException extends RuntimeException {
 
     public ErisAccountNotFoundException() {
-        super("Can't create new eris account.");
+        super("Eris account not found");
     }
 
     public ErisAccountNotFoundException(String message) {

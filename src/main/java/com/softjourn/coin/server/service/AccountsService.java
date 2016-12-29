@@ -8,12 +8,15 @@ import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.AccountWasDeletedException;
 import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
+import com.softjourn.coin.server.exceptions.ErisProcessingException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -21,7 +24,10 @@ import org.springframework.web.client.RestTemplate;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.softjourn.coin.server.entity.AccountType.REGULAR;
 
@@ -87,7 +93,11 @@ public class AccountsService {
      * @return list of accounts
      */
     public List<Account> getAll(AccountType accountType) {
-        return accountRepository.getAccountsByType(accountType);
+        Sort sort = new Sort(
+                new Sort.Order(Sort.Direction.DESC, "isNew"),
+                new Sort.Order(Sort.Direction.ASC, "fullName"));
+
+        return accountRepository.getAccountsByType(accountType, sort);
     }
 
     public Account getAccount(String ldapId) {
@@ -105,8 +115,40 @@ public class AccountsService {
         } else return account;
     }
 
-    Account update(Account account) {
+    public Account update(Account account) {
         return accountRepository.save(account);
+    }
+
+    public Account changeIsNewStatus(Boolean isNew, @NonNull Account account) {
+        account.setNew(isNew);
+
+        return accountRepository.save(account);
+    }
+
+    @Transactional
+    public List<Account> changeIsNewStatus(Boolean isNew, @NonNull Iterable<Account> accounts) {
+        List<String> accountsIds = StreamSupport
+                .stream(accounts.spliterator(), false)
+                .filter(account -> account.isNew() != isNew)
+                .map(Account::getLdapId)
+                .collect(Collectors.toList());
+
+        if (Objects.nonNull(accountsIds) && !accountsIds.isEmpty()) {
+            accountRepository.changeIsNewStatus(isNew, accountsIds);
+        }
+
+        return StreamSupport
+                .stream(accounts.spliterator(), false)
+                .peek(account -> checkAndChangeIsNewStatus(isNew, account))
+                .collect(Collectors.toList());
+    }
+
+    private Account checkAndChangeIsNewStatus(Boolean isNew, Account account) {
+        if (account.isNew() != isNew) {
+            account.setNew(isNew);
+        }
+
+        return account;
     }
 
     @Transactional
@@ -120,6 +162,8 @@ public class AccountsService {
     private Account buildAccount(Account account, ErisAccount erisAccount) {
         account.setAmount(new BigDecimal(0));
         account.setImage(DEFAULT_IMAGE_NAME);
+        account.setAccountType(AccountType.REGULAR);
+        account.setNew(true);
         account.setAccountType(REGULAR);
         account.setErisAccount(erisAccount);
         erisAccount.setAccount(account);
@@ -128,7 +172,7 @@ public class AccountsService {
 
     private ErisAccount getNewErisAccount() {
         ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
-        if (erisAccount == null) throw new ErisAccountNotFoundException();
+        if (erisAccount == null) throw new ErisProcessingException("Can't create new ErisAccount");
         return erisAccount;
     }
 
@@ -137,6 +181,7 @@ public class AccountsService {
         Account newMerchantAccount = new Account(merchantDTO.getUniqueId(), BigDecimal.ZERO);
         newMerchantAccount.setFullName(merchantDTO.getName());
         newMerchantAccount.setAccountType(AccountType.MERCHANT);
+        newMerchantAccount.setNew(true);
         ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
 
         if (erisAccount == null) {
