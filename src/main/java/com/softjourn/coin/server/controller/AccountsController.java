@@ -49,8 +49,10 @@ public class AccountsController {
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/accounts/all", method = RequestMethod.GET)
     public List<AccountDTO> getAccounts() {
-        return accountsService.getAll().stream().map(account ->
-                new AccountDTO(account.getLdapId(), account.getErisAccount().getAddress()))
+        return accountsService.getAll().stream()
+                .filter(account -> account.getAccountType() == AccountType.REGULAR)
+                .map(account ->
+                        new AccountDTO(account.getLdapId(), account.getErisAccount().getAddress()))
                 .collect(Collectors.toList());
     }
 
