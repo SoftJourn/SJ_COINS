@@ -3,8 +3,12 @@ package com.softjourn.coin.server.controller;
 
 import com.softjourn.coin.server.dto.ErrorDetail;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
+import com.softjourn.coin.server.exceptions.ContractNotFoundException;
 import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
+import com.softjourn.coin.server.exceptions.ErisContractInstanceNotFound;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
+import com.softjourn.coin.server.exceptions.TypeNotFoundException;
+import com.softjourn.eris.contract.ContractDeploymentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +45,38 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(buildErrorDetails(e, 40401, String.format("Endpoint %s not found", e.getRequestURL())));
+    }
+
+    @ExceptionHandler(ContractDeploymentException.class)
+    public ResponseEntity<ErrorDetail> handleContractDeploymentException(ContractDeploymentException e) {
+        log.warn(e.getLocalizedMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(buildErrorDetails(e, 40904, e.getLocalizedMessage()));
+    }
+
+    @ExceptionHandler(ErisContractInstanceNotFound.class)
+    public ResponseEntity<ErrorDetail> handleErisContractInstanceNotFound(ErisContractInstanceNotFound e) {
+        log.warn(e.getLocalizedMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(buildErrorDetails(e, 40405, e.getLocalizedMessage()));
+    }
+
+    @ExceptionHandler(ContractNotFoundException.class)
+    public ResponseEntity<ErrorDetail> handleContractNotFoundException(ContractNotFoundException e) {
+        log.warn(e.getLocalizedMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(buildErrorDetails(e, 40406, e.getLocalizedMessage()));
+    }
+
+    @ExceptionHandler(TypeNotFoundException.class)
+    public ResponseEntity<ErrorDetail> handleTypeNotFoundException(TypeNotFoundException e) {
+        log.warn(e.getLocalizedMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(buildErrorDetails(e, 40407, e.getLocalizedMessage()));
     }
 
     private ErrorDetail buildErrorDetails(Exception e, Integer code, String message) {

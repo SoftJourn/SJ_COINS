@@ -1,17 +1,27 @@
 package com.softjourn.coin.server.service;
 
-import com.softjourn.coin.server.dto.NewContractDTO;
 import com.softjourn.coin.server.dto.ContractCreateResponseDTO;
+import com.softjourn.coin.server.dto.NewContractDTO;
 import com.softjourn.coin.server.dto.NewContractInstanceDTO;
 import com.softjourn.coin.server.entity.Contract;
 import com.softjourn.coin.server.entity.Instance;
+import com.softjourn.coin.server.exceptions.ContractNotFoundException;
 import com.softjourn.coin.server.repository.ContractRepository;
 import com.softjourn.coin.server.repository.InstanceRepository;
+import com.softjourn.coin.server.repository.TypeRepository;
+import com.softjourn.eris.contract.ContractUnit;
+import com.softjourn.eris.contract.Variable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.softjourn.eris.contract.Util.parseAbi;
 
 @Service
 public class ContractServiceImpl implements ContractService {
@@ -23,6 +33,9 @@ public class ContractServiceImpl implements ContractService {
     private InstanceRepository instanceRepository;
 
     @Autowired
+    private TypeRepository typeRepository;
+
+    @Autowired
     private ErisContractService contractService;
 
 
@@ -31,9 +44,11 @@ public class ContractServiceImpl implements ContractService {
         // deploy contract on eris
         com.softjourn.eris.contract.Contract erisContract = contractService.deploy(dto.getCode(),
                 dto.getAbi(), dto.getParameters());
+        com.softjourn.coin.server.entity.Type type = typeRepository.findOne(dto.getType());
         // if deploy was successful save Contract data into db
         Contract contract = new Contract();
         contract.setName(dto.getName());
+        contract.setType(type);
         contract.setAbi(dto.getAbi());
         contract.setCode(dto.getCode());
         Contract newContract = contractRepository.save(contract);
@@ -43,7 +58,8 @@ public class ContractServiceImpl implements ContractService {
         instance.setContract(newContract);
         Instance newInstance = instanceRepository.save(instance);
 
-        return new ContractCreateResponseDTO(newContract.getId(), newContract.getName(), newInstance.getAddress());
+        return new ContractCreateResponseDTO(newContract.getId(), newContract.getName(),
+                newContract.getType().getType(), newInstance.getAddress());
     }
 
     @Override
@@ -52,33 +68,60 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public Contract getContract(Long id) {
-        return contractRepository.findOne(id);
+    public List<Contract> getContractsByType(String type) {
+        return contractRepository.findContractByTypeType(type);
     }
 
     @Override
     public List<ContractCreateResponseDTO> getInstances(Long id) {
         List<Instance> instances = instanceRepository.findByContractId(id);
-        return instances.stream().map(instance ->
-                new ContractCreateResponseDTO(instance.getContract().getId(), instance.getContract().getName(),
-                        instance.getAddress()))
-                .collect(Collectors.toList());
+        if (instances != null) {
+            return instances.stream().map(instance ->
+                    new ContractCreateResponseDTO(instance.getContract().getId(), instance.getContract().getName(),
+                            instance.getContract().getType().getType(), instance.getAddress()))
+                    .collect(Collectors.toList());
+        } else {
+            throw new ContractNotFoundException(String.format("Contract with id %d was not found", id));
+        }
     }
 
     @Override
     public ContractCreateResponseDTO newInstance(NewContractInstanceDTO dto) {
         // look for existing contract
         Contract contract = contractRepository.findOne(dto.getContractId());
-        // deploy contract on eris
-        com.softjourn.eris.contract.Contract erisContract = contractService.deploy(contract.getCode(),
-                contract.getAbi(), dto.getParameters());
-        // save data about new contact instance
-        Instance instance = new Instance();
-        instance.setAddress(erisContract.getAddress());
-        instance.setContract(contract);
-        Instance newInstance = instanceRepository.save(instance);
+        if (contract != null) {
+            // deploy contract on eris
+            com.softjourn.eris.contract.Contract erisContract = contractService.deploy(contract.getCode(),
+                    contract.getAbi(), dto.getParameters());
+            // save data about new contact instance
+            Instance instance = new Instance();
+            instance.setAddress(erisContract.getAddress());
+            instance.setContract(contract);
+            Instance newInstance = instanceRepository.save(instance);
 
-        return new ContractCreateResponseDTO(contract.getId(), contract.getName(), newInstance.getAddress());
+            return new ContractCreateResponseDTO(contract.getId(), contract.getName(),
+                    contract.getType().getType(), newInstance.getAddress());
+        } else {
+            throw new ContractNotFoundException(String.format("Contract with id %d was not found", dto.getContractId()));
+        }
+    }
+
+    @Override
+    public List<Map<String, String>> getContractConstructorInfo(Long id) throws IOException {
+        Contract contract = contractRepository.findOne(id);
+        List<Map<String, String>> list = new ArrayList<>();
+        if (contract != null) {
+            HashMap<String, ContractUnit> map = parseAbi(contract.getAbi());
+            for (Variable variable : map.get(null).getInputs()) {
+                Map<String, String> inputs = new HashMap<>();
+                inputs.put("name", variable.getName());
+                inputs.put("type", variable.getType().toString());
+                list.add(inputs);
+            }
+            return list;
+        } else {
+            throw new ContractNotFoundException(String.format("Contract with id %d was not found", id));
+        }
     }
 
 }

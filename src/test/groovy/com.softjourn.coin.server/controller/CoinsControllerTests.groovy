@@ -7,6 +7,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.SpringApplicationConfiguration
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.restdocs.JUnitRestDocumentation
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
@@ -32,7 +33,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @RunWith(SpringJUnit4ClassRunner)
-@SpringApplicationConfiguration(classes = ControllerTestConfig.class)
+@SpringBootTest(classes = ControllerTestConfig.class)
 @WebAppConfiguration
 class CoinsControllerTests {
 

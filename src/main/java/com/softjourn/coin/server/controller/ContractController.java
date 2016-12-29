@@ -4,6 +4,8 @@ import com.softjourn.coin.server.dto.NewContractDTO;
 import com.softjourn.coin.server.dto.ContractCreateResponseDTO;
 import com.softjourn.coin.server.dto.NewContractInstanceDTO;
 import com.softjourn.coin.server.entity.Contract;
+import com.softjourn.coin.server.entity.Type;
+import com.softjourn.coin.server.repository.TypeRepository;
 import com.softjourn.coin.server.service.ContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/contracts")
@@ -21,6 +25,9 @@ public class ContractController {
 
     @Autowired
     private ContractService contractService;
+
+    @Autowired
+    private TypeRepository typeRepository;
 
     @PreAuthorize("authenticated")
     @RequestMapping(method = RequestMethod.POST)
@@ -35,9 +42,21 @@ public class ContractController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Contract getContract(@PathVariable Long id) {
-        return this.contractService.getContract(id);
+    @RequestMapping(value = "/types", method = RequestMethod.GET)
+    public List<Type> getContractTypes() {
+        return this.typeRepository.findAll();
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/types/{type}", method = RequestMethod.GET)
+    public List<Contract> getContractByType(@PathVariable String type) {
+        return this.contractService.getContractsByType(type);
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/info/{id}", method = RequestMethod.GET)
+    public List<Map<String, String>> getContractInfo(@PathVariable Long id) throws IOException {
+        return this.contractService.getContractConstructorInfo(id);
     }
 
     @PreAuthorize("authenticated")

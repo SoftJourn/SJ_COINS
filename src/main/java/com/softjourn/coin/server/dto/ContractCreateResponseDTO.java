@@ -11,6 +11,7 @@ public class ContractCreateResponseDTO {
 
     private Long contractId;
     private String name;
+    private String type;
     private String address;
 
 }

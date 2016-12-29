@@ -1,12 +1,18 @@
 package com.softjourn.coin.server.controller
 
+import com.softjourn.coin.server.dto.ContractCreateResponseDTO
 import com.softjourn.coin.server.dto.MerchantDTO
+import com.softjourn.coin.server.dto.NewContractDTO
+import com.softjourn.coin.server.dto.NewContractInstanceDTO
 import com.softjourn.coin.server.entity.Account
 import com.softjourn.coin.server.entity.AccountType
+import com.softjourn.coin.server.entity.Contract
 import com.softjourn.coin.server.entity.Transaction
 import com.softjourn.coin.server.entity.TransactionStatus
+import com.softjourn.coin.server.entity.Type
 import com.softjourn.coin.server.service.AccountsService
 import com.softjourn.coin.server.service.CoinService
+import com.softjourn.coin.server.service.ContractService
 import org.apache.commons.io.IOUtils
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Value
@@ -29,6 +35,7 @@ import org.springframework.test.context.web.WebAppConfiguration
 import java.time.Instant
 
 import static org.mockito.Matchers.any
+import static org.mockito.Matchers.anyLong
 import static org.mockito.Matchers.anyString
 import static org.mockito.Mockito.when
 
@@ -52,7 +59,7 @@ class ControllerTestConfig {
         def transactionMove2 = createTransaction(vm, treasury)
 
         when(coinService.getAmount(any(String.class))).thenReturn(new BigDecimal('100'))
-        when(coinService.buy(any(String.class) ,any(String.class), any(BigDecimal.class), any(String.class)))
+        when(coinService.buy(any(String.class), any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transaction)
         when(coinService.fillAccount(any(String.class), any(BigDecimal.class), any(String.class)))
                 .thenReturn(transaction)
@@ -90,6 +97,18 @@ class ControllerTestConfig {
         when(accountsService.delete(anyString())).thenReturn(true)
 
         accountsService
+    }
+
+    @Bean
+    ContractService contractService() {
+        def contractService = Mockito.mock(ContractService.class)
+        def contract = new Contract(1L, "some name", "some code", "some abi", new Type("type"))
+        when(contractService.newContract(any() as NewContractDTO)).thenReturn(new ContractCreateResponseDTO(1, "contract", "type", "some address"))
+        when(contractService.getContracts()).thenReturn([contract])
+        when(contractService.newInstance(any() as NewContractInstanceDTO)).thenReturn(new ContractCreateResponseDTO(1, "contract", "type", "some address"))
+        when(contractService.getInstances(anyLong())).thenReturn([new ContractCreateResponseDTO(1, "contract", "type", "some address")])
+
+        contractService
     }
 
     private Transaction createTransaction(Account account, Account destinationAccount) {

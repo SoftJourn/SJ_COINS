@@ -15,3 +15,19 @@ CREATE TABLE instances (
 
 ALTER TABLE instances
   ADD CONSTRAINT FKhr2kxnlv3eb3x30dm2l9fpvkg FOREIGN KEY (contract_id) REFERENCES contracts (id);
+
+ALTER TABLE contracts
+  ADD COLUMN type VARCHAR(255);
+
+CREATE TABLE contract_type (
+  type VARCHAR(255) NOT NULL,
+  PRIMARY KEY (type)
+);
+
+ALTER TABLE contracts
+  ADD CONSTRAINT FKhr2kxnlv3eb3x30dm2l9fpvkh FOREIGN KEY (type) REFERENCES contract_type (type);
+
+INSERT INTO contract_type(type) VALUES
+  ('project'),
+  ('currency');
+

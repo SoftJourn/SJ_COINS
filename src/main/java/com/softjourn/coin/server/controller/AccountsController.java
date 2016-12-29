@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.softjourn.coin.server.dto.AccountDTO;
 import com.softjourn.coin.server.dto.MerchantDTO;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
@@ -37,6 +38,14 @@ public class AccountsController {
         Account account = accountsService.getAccount(principal.getName());
         account.setAmount(coinService.getAmount(account.getLdapId()));
         return account;
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/accounts/all", method = RequestMethod.GET)
+    public List<AccountDTO> getAccounts() {
+        return accountsService.getAll().stream().map(account ->
+                new AccountDTO(account.getFullName(), account.getErisAccount().getAddress()))
+                .collect(Collectors.toList());
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','INVENTORY')")
