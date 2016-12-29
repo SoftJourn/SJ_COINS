@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AccountDTO {
 
-    private String fullName;
+    private String ldap;
     private String address;
 
 }

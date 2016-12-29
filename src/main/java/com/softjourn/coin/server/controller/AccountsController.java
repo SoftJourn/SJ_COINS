@@ -50,7 +50,7 @@ public class AccountsController {
     @RequestMapping(value = "/accounts/all", method = RequestMethod.GET)
     public List<AccountDTO> getAccounts() {
         return accountsService.getAll().stream().map(account ->
-                new AccountDTO(account.getFullName(), account.getErisAccount().getAddress()))
+                new AccountDTO(account.getLdapId(), account.getErisAccount().getAddress()))
                 .collect(Collectors.toList());
     }
 
