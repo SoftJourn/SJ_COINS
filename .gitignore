@@ -16,3 +16,5 @@ target/
 /src/main/resources/hibernate.cfg.xml
 /src/main/resources/C77CDE43F65450FB64EA53C71CF4E16610996856
 /src/main/resources/persistance.xml
+
+application-prod.properties

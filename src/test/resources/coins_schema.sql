@@ -9,6 +9,7 @@ CREATE TABLE accounts
     full_name VARCHAR(255),
     account_type VARCHAR(32) DEFAULT 'REGULAR',
     image VARCHAR(255),
+    is_new TINYINT DEFAULT 1,
     deleted INT DEFAULT 0
 );
 

@@ -3,6 +3,7 @@ package com.softjourn.coin.server.repository;
 
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +16,7 @@ import java.util.List;
 public interface AccountRepository extends JpaRepository<Account, String> {
 
     @Query("SELECT a FROM Account a WHERE a.accountType = :accountType AND a.deleted = false")
-    List<Account> getAccountsByType(@Param("accountType") AccountType accountType);
+    List<Account> getAccountsByType(@Param("accountType") AccountType accountType, Sort sort);
 
     @Query("SELECT a FROM Account a WHERE a.deleted = false")
     List<Account> findAllUndeleted();
@@ -32,4 +33,8 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     @Modifying
     @Query("UPDATE Account a SET a.deleted = :isDeleted WHERE a.ldapId = :ldapId")
     int updateIsDeletedByLdapId(@Param("ldapId") String ldapId, @Param("isDeleted") boolean isDeleted);
+
+    @Modifying
+    @Query("UPDATE Account a SET a.isNew = :isNew WHERE a.ldapId IN (:ids)")
+    int changeIsNewStatus(@Param("isNew") Boolean isNew, @Param("ids") List<String> ids);
 }

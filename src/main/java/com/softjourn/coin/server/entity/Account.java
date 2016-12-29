@@ -36,6 +36,10 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
+    @JsonView({JsonViews.COINS_MANAGER.class})
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private boolean isNew;
+
     private boolean deleted;
 
     public Account(String ldapId, BigDecimal amount) {

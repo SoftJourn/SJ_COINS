@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -66,16 +67,22 @@ public class AccountsServiceTest {
 
         Account account = new Account(ID_EXISTING_IN_DB, new BigDecimal(100));
         account.setAccountType(AccountType.REGULAR);
+        account.setFullName("Adam Lalana");
+        account.setNew(false);
 
+        Sort sort = new Sort(
+                new Sort.Order(Sort.Direction.DESC, "isNew"),
+                new Sort.Order(Sort.Direction.ASC, "fullName"));
 
-        when(accountRepository.getAccountsByType(AccountType.MERCHANT)).thenReturn(Collections.emptyList());
-        when(accountRepository.getAccountsByType(AccountType.REGULAR)).thenReturn(Collections.singletonList(account));
+        when(accountRepository.getAccountsByType(AccountType.MERCHANT, sort)).thenReturn(Collections.emptyList());
+        when(accountRepository.getAccountsByType(AccountType.REGULAR, sort)).thenReturn(Collections.singletonList(account));
 
         when(accountRepository.findOne(ID_EXISTING_IN_DB)).thenReturn(account);
 
         Account deletedAccount = new Account(ID_EXISTING_IN_DB_BUT_DELETED, new BigDecimal(0));
         deletedAccount.setDeleted(true);
         when(accountRepository.findOne(ID_EXISTING_IN_DB_BUT_DELETED)).thenReturn(deletedAccount);
+        when(accountRepository.findOneUndeleted(ID_EXISTING_IN_DB)).thenReturn(deletedAccount);
 
         when(accountRepository.findAll()).thenReturn(Arrays.asList(account, deletedAccount));
         when(accountRepository.findAllUndeleted()).thenReturn(Collections.singletonList(account));
@@ -146,5 +153,39 @@ public class AccountsServiceTest {
         assertEquals(0, merchants.size());
         assertEquals(1, regularAccounts.size());
         assertEquals(new BigDecimal(100), regularAccounts.get(0).getAmount());
+    }
+
+    @Test
+    public void changeIsNewStatusForSingleAccount() throws Exception {
+        Account account = accountsService.getAccount(ID_EXISTING_IN_DB);
+
+        assertEquals(false, account.isNew());
+
+        Account changedAccount = accountsService.changeIsNewStatus(true, account);
+
+        assertEquals(true, changedAccount.isNew());
+    }
+
+    @Test
+    public void changeIsNewStatusForListAccounts() throws Exception {
+        List<Account> accounts = accountsService.getAll();
+        List<Account> accounts2 = Collections.emptyList();
+
+        assertEquals(false, accounts.get(0).isNew());
+
+        List<Account> changedAccounts = accountsService.changeIsNewStatus(true, accounts);
+
+        assertEquals(true, accounts.get(0).isNew());
+
+        List<Account> changedAccounts2 = accountsService.changeIsNewStatus(true, accounts2);
+
+        assertTrue(changedAccounts2.isEmpty());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void changeIsNewStatusForListAccountsWhenNullIsPassed() throws Exception {
+        List<Account> accounts = null;
+
+        accountsService.changeIsNewStatus(false, accounts);
     }
 }
