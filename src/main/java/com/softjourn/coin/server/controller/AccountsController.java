@@ -41,6 +41,12 @@ public class AccountsController {
     }
 
     @PreAuthorize("authenticated")
+    @RequestMapping(value = "/eris/account", method = RequestMethod.GET)
+    public AccountDTO getErisAccount(Principal principal) {
+        return new AccountDTO(principal.getName(), accountsService.getAccount(principal.getName()).getErisAccount().getAddress());
+    }
+
+    @PreAuthorize("authenticated")
     @RequestMapping(value = "/accounts/all", method = RequestMethod.GET)
     public List<AccountDTO> getAccounts() {
         return accountsService.getAll().stream().map(account ->
