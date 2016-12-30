@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +24,18 @@ public class Instance {
     private String address;
 
     @ManyToOne
+    @JsonBackReference
     private Contract contract;
 
+    public Instance(String address) {
+        this.address = address;
+    }
+
+    @Override
+    public String toString() {
+        return "Instance{" +
+                "id=" + id +
+                ", address='" + address + '\'' +
+                '}';
+    }
 }

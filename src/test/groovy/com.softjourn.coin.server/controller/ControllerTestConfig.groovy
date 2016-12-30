@@ -7,6 +7,7 @@ import com.softjourn.coin.server.dto.NewContractInstanceDTO
 import com.softjourn.coin.server.entity.Account
 import com.softjourn.coin.server.entity.AccountType
 import com.softjourn.coin.server.entity.Contract
+import com.softjourn.coin.server.entity.Instance
 import com.softjourn.coin.server.entity.Transaction
 import com.softjourn.coin.server.entity.TransactionStatus
 import com.softjourn.coin.server.entity.Type
@@ -102,7 +103,11 @@ class ControllerTestConfig {
     @Bean
     ContractService contractService() {
         def contractService = Mockito.mock(ContractService.class)
-        def contract = new Contract(1L, "some name", "some code", "some abi", new Type("type"))
+        def contract = new Contract(1L, "some name", "some code", "some abi", new Type("type"), new ArrayList<Instance>() {
+            {
+                add(new Instance("SomeAddress"))
+            }
+        })
         when(contractService.newContract(any() as NewContractDTO)).thenReturn(new ContractCreateResponseDTO(1, "contract", "type", "some address"))
         when(contractService.getContracts()).thenReturn([contract])
         when(contractService.newInstance(any() as NewContractInstanceDTO)).thenReturn(new ContractCreateResponseDTO(1, "contract", "type", "some address"))

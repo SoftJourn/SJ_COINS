@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +14,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.List;
 
 @Entity
 @Table(name = "contracts")
@@ -42,4 +45,19 @@ public class Contract {
     @JoinColumn(name = "type")
     private Type type;
 
+    @OneToMany(mappedBy = "contract")
+    @JsonManagedReference
+    private List<Instance> instances;
+
+    @Override
+    public String toString() {
+        return "Contract{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", code='" + code + '\'' +
+                ", abi='" + abi + '\'' +
+                ", type=" + type +
+                ", instances=" + instances +
+                '}';
+    }
 }

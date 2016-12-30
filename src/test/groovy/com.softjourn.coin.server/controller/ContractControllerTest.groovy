@@ -141,7 +141,16 @@ class ContractControllerTest {
                                 .description("Contract's name."),
                         fieldWithPath('[0].type.type')
                                 .type(JsonFieldType.STRING)
-                                .description("Contract's type.")
+                                .description("Contract's type."),
+                        fieldWithPath('[0].instances')
+                                .type(JsonFieldType.ARRAY)
+                                .description("Contract's instances."),
+                        fieldWithPath('[0].instances.[0].id')
+                                .type(JsonFieldType.NUMBER)
+                                .description("Instance's id."),
+                        fieldWithPath('[0].instances.[0].address')
+                                .type(JsonFieldType.STRING)
+                                .description("Instance's address.")
                 )
         ))
     }
