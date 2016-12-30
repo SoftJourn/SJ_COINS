@@ -97,7 +97,7 @@ public class CoinService {
 
     @SuppressWarnings("unused")
     @SaveTransaction(comment = "Distributing money.")
-    public void distribute(BigDecimal amount, String comment) {
+    public Transaction distribute(BigDecimal amount, String comment) {
         try {
             List<Account> accounts = accountsService.getAll(AccountType.REGULAR);
 
@@ -120,6 +120,8 @@ public class CoinService {
                     .map(v -> (Boolean) v)
                     .flatMap(v -> v ? Optional.of(1) : Optional.empty())
                     .orElseThrow(NotEnoughAmountInAccountException::new);
+
+            return mapToTransaction(response);
 
         } catch (Exception e) {
             throw new ErisProcessingException("Can't distribute money.", e);
