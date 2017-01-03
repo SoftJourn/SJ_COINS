@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.config;
 
+import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.eris.accounts.AccountsService;
 import com.softjourn.eris.accounts.KeyService;
 import com.softjourn.eris.rpc.HTTPRPCClient;
@@ -19,6 +20,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 @Configuration
 public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
@@ -71,6 +76,11 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
         return new AccountsService(keyService, treasuryAccountPrivKey, new HTTPRPCClient(erisChainUrl));
     }
 
+    @Bean(name = "transactionResultMap")
+    public Map<String, List<Future<Transaction>>> map() {
+        return new HashMap<>();
+    }
+
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http
@@ -79,8 +89,7 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 .and()
-                .csrf().disable()
-        ;
+                .csrf().disable();
     }
 
 }

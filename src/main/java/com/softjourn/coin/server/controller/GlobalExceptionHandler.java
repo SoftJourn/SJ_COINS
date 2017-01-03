@@ -3,10 +3,13 @@ package com.softjourn.coin.server.controller;
 
 import com.softjourn.coin.server.dto.ErrorDetail;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
+import com.softjourn.coin.server.exceptions.CouldNotReadFileException;
 import com.softjourn.coin.server.exceptions.ContractNotFoundException;
 import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
 import com.softjourn.coin.server.exceptions.ErisContractInstanceNotFound;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
+import com.softjourn.coin.server.exceptions.NotEnoughAmountInTreasuryException;
+import com.softjourn.coin.server.exceptions.WrongMimeTypeException;
 import com.softjourn.coin.server.exceptions.TypeNotFoundException;
 import com.softjourn.eris.contract.ContractDeploymentException;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +80,38 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(buildErrorDetails(e, 40407, e.getLocalizedMessage()));
+    }
+
+    @ExceptionHandler(NotEnoughAmountInTreasuryException.class)
+    public ResponseEntity<ErrorDetail> handleNotEnoughAmountInTreasuryException(NotEnoughAmountInTreasuryException e) {
+        log.warn(e.getLocalizedMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(buildErrorDetails(e, 40904, e.getMessage()));
+    }
+
+    @ExceptionHandler(CouldNotReadFileException.class)
+    public ResponseEntity<ErrorDetail> handleCouldNotReadFileException(CouldNotReadFileException e) {
+        log.warn(e.getLocalizedMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(buildErrorDetails(e, 40001, e.getMessage()));
+    }
+
+    @ExceptionHandler(WrongMimeTypeException.class)
+    public ResponseEntity<ErrorDetail> handleWrongMimeTypeException(WrongMimeTypeException e) {
+        log.warn(e.getLocalizedMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(buildErrorDetails(e, 40002, e.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorDetail> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.warn(e.getLocalizedMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(buildErrorDetails(e, 40003, e.getMessage()));
     }
 
     private ErrorDetail buildErrorDetails(Exception e, Integer code, String message) {
