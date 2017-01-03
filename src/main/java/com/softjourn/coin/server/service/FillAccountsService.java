@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.service;
 
 import com.fasterxml.jackson.databind.MappingIterator;
+import com.softjourn.coin.server.aop.annotations.SaveTransaction;
 import com.softjourn.coin.server.dto.AccountDTO;
 import com.softjourn.coin.server.dto.CheckDTO;
 import com.softjourn.coin.server.dto.ResultDTO;
@@ -112,6 +113,7 @@ public class FillAccountsService {
         dataToCSV(writer, collect, AccountDTO.class);
     }
 
+    @SaveTransaction(comment = "Move money from treasury to account.")
     private Callable<Transaction> planJob(AccountDTO accountDTO) {
         return () -> this.coinService.fillAccount(accountDTO.getAccount(), accountDTO.getCoins(),
                 String.format("Filling account %s by %.0f coins", accountDTO.getAccount(), accountDTO.getCoins()));
@@ -137,10 +139,9 @@ public class FillAccountsService {
             return futureTransaction.get();
         } catch (InterruptedException | ExecutionException e) {
             log.error(e.getLocalizedMessage());
-            e.printStackTrace();
             Transaction transaction = new Transaction();
+            transaction.setError(e.getLocalizedMessage());
             transaction.setStatus(TransactionStatus.FAILED);
-            transaction.setComment(e.getMessage());
             return transaction;
         }
     }

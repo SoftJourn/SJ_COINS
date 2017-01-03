@@ -21,7 +21,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Aspect
-@Order(value=100)
+@Order(value = 100)
 @Service
 public class TransactionSavingAspect {
 
@@ -46,6 +46,7 @@ public class TransactionSavingAspect {
         } catch (Throwable e) {
             transaction.setStatus(TransactionStatus.FAILED);
             transaction.setError(e.getLocalizedMessage());
+            prepareTransaction(transaction, joinPoint);
             throw e;
         } finally {
             transactionRepository.save(transaction);
@@ -71,7 +72,7 @@ public class TransactionSavingAspect {
         String accName = Optional.ofNullable(transaction.getAccount())
                 .map(Account::getLdapId)
                 .orElseGet(() -> getArg(signature, arguments, "accountName", String.class));
-        if(accName!=null) {
+        if (accName != null) {
             remain = coinService.getAmount(accName);
             transaction.setRemain(remain);
         }
