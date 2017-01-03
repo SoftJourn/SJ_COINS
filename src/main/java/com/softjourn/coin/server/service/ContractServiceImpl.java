@@ -26,17 +26,22 @@ import static com.softjourn.eris.contract.Util.parseAbi;
 @Service
 public class ContractServiceImpl implements ContractService {
 
-    @Autowired
-    private ContractRepository contractRepository;
+    private final ContractRepository contractRepository;
+
+    private final InstanceRepository instanceRepository;
+
+    private final TypeRepository typeRepository;
+
+    private final ErisContractService contractService;
 
     @Autowired
-    private InstanceRepository instanceRepository;
-
-    @Autowired
-    private TypeRepository typeRepository;
-
-    @Autowired
-    private ErisContractService contractService;
+    public ContractServiceImpl(ContractRepository contractRepository, InstanceRepository instanceRepository,
+                               TypeRepository typeRepository, ErisContractService contractService) {
+        this.contractRepository = contractRepository;
+        this.instanceRepository = instanceRepository;
+        this.typeRepository = typeRepository;
+        this.contractService = contractService;
+    }
 
 
     @Override
@@ -70,6 +75,11 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public List<Contract> getContractsByType(String type) {
         return contractRepository.findContractByTypeType(type);
+    }
+
+    @Override
+    public Contract getContractsByAddress(String address) {
+        return instanceRepository.findByAddress(address).getContract();
     }
 
     @Override

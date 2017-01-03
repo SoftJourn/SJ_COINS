@@ -23,11 +23,15 @@ import java.util.Map;
 @RequestMapping("/api/v1/contracts")
 public class ContractController {
 
-    @Autowired
-    private ContractService contractService;
+    private final ContractService contractService;
+
+    private final TypeRepository typeRepository;
 
     @Autowired
-    private TypeRepository typeRepository;
+    public ContractController(ContractService contractService, TypeRepository typeRepository) {
+        this.contractService = contractService;
+        this.typeRepository = typeRepository;
+    }
 
     @PreAuthorize("authenticated")
     @RequestMapping(method = RequestMethod.POST)
@@ -39,6 +43,12 @@ public class ContractController {
     @RequestMapping(method = RequestMethod.GET)
     public List<Contract> getContracts() {
         return this.contractService.getContracts();
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/{address}", method = RequestMethod.GET)
+    public Contract getContractByAddress(@PathVariable String address) {
+        return this.contractService.getContractsByAddress(address);
     }
 
     @PreAuthorize("authenticated")

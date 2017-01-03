@@ -17,6 +17,8 @@ public interface ContractService {
 
     List<Contract> getContractsByType(String type);
 
+    Contract getContractsByAddress(String address);
+
     List<ContractCreateResponseDTO> getInstances(Long id);
 
     ContractCreateResponseDTO newInstance(NewContractInstanceDTO dto);
