@@ -2,7 +2,7 @@ package com.softjourn.coin.server.service;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
-import com.softjourn.coin.server.dto.AccountDTO;
+import com.softjourn.coin.server.dto.AccountFillDTO;
 import com.softjourn.coin.server.dto.CheckDTO;
 import com.softjourn.coin.server.dto.ResultDTO;
 import com.softjourn.coin.server.entity.Account;
@@ -61,9 +61,9 @@ public class FillAccountsService {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         try {
             // reading file content
-            MappingIterator<AccountDTO> iterator = getDataFromCSV(multipartFile.getBytes(), AccountDTO.class);
+            MappingIterator<AccountFillDTO> iterator = getDataFromCSV(multipartFile.getBytes(), AccountFillDTO.class);
             // get data from read file
-            List<AccountDTO> accountsToFill = iterator.readAll();
+            List<AccountFillDTO> accountsToFill = iterator.readAll();
             // Check if all values are positive
             this.checkAmountIsPositive(accountsToFill);
             // Are enough coins in treasury
@@ -72,7 +72,7 @@ public class FillAccountsService {
                 throw new NotEnoughAmountInTreasuryException("Not enough coins in treasury!");
             } else {
                 // if enough - filling accounts one by one
-                for (AccountDTO dto : accountsToFill) {
+                for (AccountFillDTO dto : accountsToFill) {
                     checkAmountIsPositive(dto.getCoins());
                     futureTransactions.add(executorService.submit(planJob(dto)));
                 }
@@ -103,18 +103,18 @@ public class FillAccountsService {
 
     public void getAccountDTOTemplate(Writer writer) throws IOException {
         List<Account> accounts = this.accountsService.getAll(AccountType.REGULAR);
-        List<AccountDTO> collect = accounts.stream().map((Account a) -> {
-            AccountDTO dto = new AccountDTO();
+        List<AccountFillDTO> collect = accounts.stream().map((Account a) -> {
+            AccountFillDTO dto = new AccountFillDTO();
             dto.setAccount(a.getLdapId());
             dto.setFullName(a.getFullName());
             dto.setCoins(new BigDecimal(0));
             return dto;
-        }).sorted(Comparator.comparing(AccountDTO::getAccount)).collect(Collectors.toList());
-        dataToCSV(writer, collect, AccountDTO.class);
+        }).sorted(Comparator.comparing(AccountFillDTO::getAccount)).collect(Collectors.toList());
+        dataToCSV(writer, collect, AccountFillDTO.class);
     }
 
     @SaveTransaction(comment = "Move money from treasury to account.")
-    private Callable<Transaction> planJob(AccountDTO accountDTO) {
+    private Callable<Transaction> planJob(AccountFillDTO accountDTO) {
         return () -> this.coinService.fillAccount(accountDTO.getAccount(), accountDTO.getCoins(),
                 String.format("Filling account %s by %.0f coins", accountDTO.getAccount(), accountDTO.getCoins()));
     }
@@ -124,7 +124,7 @@ public class FillAccountsService {
         return decimal.compareTo(treasuryAmount) < 0;
     }
 
-    private void checkAmountIsPositive(List<AccountDTO> accountDTOs) {
+    private void checkAmountIsPositive(List<AccountFillDTO> accountDTOs) {
         accountDTOs.forEach(accountDTO -> this.checkAmountIsPositive(accountDTO.getCoins()));
     }
 

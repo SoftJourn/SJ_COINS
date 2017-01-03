@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
         log.warn(e.getLocalizedMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(buildErrorDetails(e, 40904, e.getMessage()));
+                .body(buildErrorDetails(e, 40905, e.getMessage()));
     }
 
     @ExceptionHandler(CouldNotReadFileException.class)
