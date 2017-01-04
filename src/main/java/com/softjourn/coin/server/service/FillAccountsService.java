@@ -55,7 +55,7 @@ public class FillAccountsService {
 
     public ResultDTO fillAccounts(MultipartFile multipartFile) {
         // is file valid
-        validateMultipartFileMimeType(multipartFile, "text/csv");
+        validateMultipartFileMimeType(multipartFile, "text/csv|application/vnd.ms-excel");
         // List of future actions
         List<Future<Transaction>> futureTransactions = new ArrayList<>();
         ExecutorService executorService = Executors.newSingleThreadExecutor();
