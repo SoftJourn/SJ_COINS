@@ -76,7 +76,7 @@ public class AccountsService {
 
     Account getAccountIfExistInLdapBase(String ldapId) {
         try {
-            return restTemplate.getForEntity(authServerUrl + "/users/" + ldapId, Account.class).getBody();
+            return restTemplate.getForEntity(authServerUrl + "/api/v1/users/" + ldapId, Account.class).getBody();
         } catch (RestClientException rce) {
             return null;
         }
