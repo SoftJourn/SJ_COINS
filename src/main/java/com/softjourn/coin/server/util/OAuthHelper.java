@@ -1,11 +1,12 @@
 package com.softjourn.coin.server.util;
 
-import com.softjourn.coin.server.dto.TokenDTO;
+import com.softjourn.coin.server.dto.AccessTokenDTO;
 import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -26,6 +27,10 @@ public class OAuthHelper {
     private RestTemplate restTemplate;
 
     private String base64;
+
+    private AccessTokenDTO tokenDTO;
+
+    private Long timestamp;
 
     @Autowired
     public OAuthHelper(@Value("${auth.client.client-id}") String clientId
@@ -53,16 +58,36 @@ public class OAuthHelper {
         return headers;
     }
 
-    public TokenDTO getToken() {
+    private AccessTokenDTO receiveTokenFromAuth() {
         String url = authServerUrl + "/oauth/token";
-
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("grant_type", "client_credentials");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, this.getHeaders());
-        ResponseEntity<TokenDTO> response = restTemplate.postForEntity(url, request, TokenDTO.class);
-
-        return response.getBody();
+        ResponseEntity<AccessTokenDTO> response = restTemplate.postForEntity(url, request, AccessTokenDTO.class);
+        this.timestamp = System.currentTimeMillis();
+        this.tokenDTO = response.getBody();
+        return tokenDTO;
     }
 
+    public String getToken() {
+        if (this.tokenDTO == null) {
+            this.receiveTokenFromAuth();
+        }
+        Long expire_time = this.timestamp + this.tokenDTO.getExpiresIn();
+        Long current = System.currentTimeMillis();
+        if (current - expire_time > 0) {
+            this.receiveTokenFromAuth();
+        }
+        return this.tokenDTO.getAccessToken();
+    }
+
+
+    public <T> ResponseEntity<T> requestWithToken(String url, HttpMethod httpMethod, HttpEntity<?> entity, Class<T> returnType) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(HttpHeaders.AUTHORIZATION, "bearer " + getToken());
+        httpHeaders.putAll(entity.getHeaders());
+        HttpEntity<Object> newEntity = new HttpEntity<>(entity.getBody(), httpHeaders);
+        return restTemplate.exchange(url, httpMethod, newEntity, returnType);
+    }
 }
