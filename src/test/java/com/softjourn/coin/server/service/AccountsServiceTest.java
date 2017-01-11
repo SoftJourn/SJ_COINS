@@ -7,6 +7,7 @@ import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.AccountWasDeletedException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
+import com.softjourn.coin.server.util.OAuthHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,19 +40,18 @@ public class AccountsServiceTest {
     private static final String ID_EXISTING_IN_DB_BUT_DELETED = "existsInDBButDeleted";
     private static final String EXISTING_LDAP_ID = "ldapId";
     @Mock
-    private RestTemplate restTemplate;
-
-    @Mock
-    private AccountRepository accountRepository;
-
-    @Mock
     ErisAccountsService erisAccountsService;
-
     @Mock
     ErisAccountRepository erisAccountRepository;
-
+    @Mock
+    private RestTemplate restTemplate;
+    @Mock
+    private AccountRepository accountRepository;
     @InjectMocks
     private AccountsService accountsService;
+
+    @Mock
+    private OAuthHelper oAuthHelper;
 
     @Before
     public void setUp() throws Exception {
@@ -62,6 +62,12 @@ public class AccountsServiceTest {
                 .thenReturn(new ResponseEntity<>(new Account(), HttpStatus.OK));
 
         when(restTemplate.getForEntity("http://test.com/users/" + NOT_EXISTING_LDAP_ID, Account.class))
+                .thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
+        when(oAuthHelper.getForEntityWithToken(anyString(), any()))
+                .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        when(oAuthHelper.getForEntityWithToken("http://test.com/users/" + NOT_EXISTING_LDAP_ID, Account.class))
                 .thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
 

@@ -12,6 +12,7 @@ import com.softjourn.coin.server.exceptions.ErisProcessingException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
+import com.softjourn.coin.server.util.OAuthHelper;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +50,7 @@ public class AccountsService {
     private TransactionRepository transactionRepository;
 
     private String authServerUrl;
+    private OAuthHelper oAuthHelper;
 
     public AccountsService(AccountRepository accountRepository, ErisAccountsService erisAccountsService, ErisAccountRepository erisAccountRepository, RestTemplate restTemplate) {
         this.accountRepository = accountRepository;
@@ -64,7 +66,8 @@ public class AccountsService {
                            @Lazy CoinService coinService,
                            TransactionRepository transactionRepository,
                            ErisAccountsService erisAccountsService,
-                           @Value("${auth.server.url}") String authServerUrl) {
+                           @Value("${auth.server.url}") String authServerUrl,
+                           OAuthHelper oAuthHelper) {
         this.accountRepository = accountRepository;
         this.erisAccountRepository = erisAccountRepository;
         this.restTemplate = restTemplate;
@@ -72,11 +75,13 @@ public class AccountsService {
         this.transactionRepository = transactionRepository;
         this.erisAccountsService = erisAccountsService;
         this.authServerUrl = authServerUrl;
+        this.oAuthHelper = oAuthHelper;
     }
 
     Account getAccountIfExistInLdapBase(String ldapId) {
         try {
-            return restTemplate.getForEntity(authServerUrl + "/api/v1/users/" + ldapId, Account.class).getBody();
+            return oAuthHelper
+                    .getForEntityWithToken(authServerUrl + "/api/v1/users/" + ldapId, Account.class).getBody();
         } catch (RestClientException rce) {
             return null;
         }

@@ -83,11 +83,17 @@ public class OAuthHelper {
     }
 
 
-    public <T> ResponseEntity<T> requestWithToken(String url, HttpMethod httpMethod, HttpEntity<?> entity, Class<T> returnType) {
+    public <T> ResponseEntity<T> requestWithToken(String url, HttpMethod httpMethod, HttpEntity<?> entity
+            , Class<T> responseType, Object... urlVariables) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(HttpHeaders.AUTHORIZATION, "bearer " + getToken());
         httpHeaders.putAll(entity.getHeaders());
         HttpEntity<Object> newEntity = new HttpEntity<>(entity.getBody(), httpHeaders);
-        return restTemplate.exchange(url, httpMethod, newEntity, returnType);
+        return restTemplate.exchange(url, httpMethod, newEntity, responseType, urlVariables);
+    }
+
+    public <T> ResponseEntity<T> getForEntityWithToken(String url, Class<T> responseType, Object... urlVariables) {
+        HttpEntity<String> newEntity = new HttpEntity<>("");
+        return this.requestWithToken(url, HttpMethod.GET, newEntity, responseType, urlVariables);
     }
 }
