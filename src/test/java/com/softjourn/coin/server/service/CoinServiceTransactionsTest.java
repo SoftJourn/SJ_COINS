@@ -1,7 +1,6 @@
 package com.softjourn.coin.server.service;
 
 
-import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
@@ -12,11 +11,8 @@ import com.softjourn.eris.contract.response.TxParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -29,9 +25,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Future;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Matchers.any;
@@ -41,28 +34,20 @@ import static org.mockito.Mockito.anyVararg;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = com.softjourn.coin.server.config.CoinServiceTransactionsTestContextConfiguration.class, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = com.softjourn.coin.server.config.CoinServiceTransactionsTestContextConfiguration.class
+        , loader = AnnotationConfigContextLoader.class)
 @Rollback
 @Transactional
 public class CoinServiceTransactionsTest {
 
-    Principal principal;
-
-    @Autowired
-    AccountRepository accountRepository;
-
     @Autowired
     TransactionRepository transactionRepository;
+    private Principal principal;
+    @Autowired
+    private AccountRepository accountRepository;
+    private Contract contract;
 
-    ErisContractService contractService;
-
-    ErisAccountRepository erisAccountRepository;
-
-    Contract contract;
-
-    AccountsService accountsService;
-
-    CoinService coinService;
+    private CoinService coinService;
 
     @Before
     public void setUp() throws Exception {
@@ -71,9 +56,9 @@ public class CoinServiceTransactionsTest {
 
         when(principal.getName()).thenReturn("account1");
 
-        accountsService = mock(AccountsService.class);
+        AccountsService accountsService = mock(AccountsService.class);
 
-        erisAccountRepository = mock(ErisAccountRepository.class);
+        ErisAccountRepository erisAccountRepository = mock(ErisAccountRepository.class);
 
         ReflectionTestUtils.setField(accountsService, "accountRepository", accountRepository);
 
@@ -81,7 +66,7 @@ public class CoinServiceTransactionsTest {
         when(accountsService.createAccount("account23")).thenThrow(AccountNotFoundException.class);
 
         contract = mock(Contract.class);
-        contractService = mock(ErisContractService.class);
+        ErisContractService contractService = mock(ErisContractService.class);
 
         coinService = new CoinService(accountsService, contractService, erisAccountRepository);
 

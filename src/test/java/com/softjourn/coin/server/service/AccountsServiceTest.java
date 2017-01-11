@@ -65,9 +65,9 @@ public class AccountsServiceTest {
                 .thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
         when(oAuthHelper.getForEntityWithToken(anyString(), any()))
-                .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+                .thenReturn(new ResponseEntity<>(new Account(), HttpStatus.OK));
 
-        when(oAuthHelper.getForEntityWithToken("http://test.com/users/" + NOT_EXISTING_LDAP_ID, Account.class))
+        when(oAuthHelper.getForEntityWithToken("http://test.com/api/v1/users/" + NOT_EXISTING_LDAP_ID, Account.class))
                 .thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
 
