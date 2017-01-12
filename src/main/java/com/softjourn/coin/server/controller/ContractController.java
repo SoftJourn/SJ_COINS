@@ -25,12 +25,10 @@ public class ContractController {
 
     private final ContractService contractService;
 
-    private final TypeRepository typeRepository;
 
     @Autowired
-    public ContractController(ContractService contractService, TypeRepository typeRepository) {
+    public ContractController(ContractService contractService) {
         this.contractService = contractService;
-        this.typeRepository = typeRepository;
     }
 
     @PreAuthorize("authenticated")
@@ -54,7 +52,7 @@ public class ContractController {
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/types", method = RequestMethod.GET)
     public List<Type> getContractTypes() {
-        return this.typeRepository.findAll();
+        return this.contractService.getTypes();
     }
 
     @PreAuthorize("authenticated")

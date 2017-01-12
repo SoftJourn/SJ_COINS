@@ -5,6 +5,7 @@ import com.softjourn.coin.server.dto.NewContractDTO;
 import com.softjourn.coin.server.dto.NewContractInstanceDTO;
 import com.softjourn.coin.server.entity.Contract;
 import com.softjourn.coin.server.entity.Instance;
+import com.softjourn.coin.server.entity.Type;
 import com.softjourn.coin.server.exceptions.ContractNotFoundException;
 import com.softjourn.coin.server.repository.ContractRepository;
 import com.softjourn.coin.server.repository.InstanceRepository;
@@ -70,6 +71,11 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public List<Contract> getContracts() {
         return contractRepository.findAll();
+    }
+
+    @Override
+    public List<Type> getTypes() {
+        return this.typeRepository.findAll();
     }
 
     @Override
