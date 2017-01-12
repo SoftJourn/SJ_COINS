@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Configuration
-@ComponentScan(basePackages = "com.softjourn.coin.server.service",
+@ComponentScan(basePackages = {"com.softjourn.coin.server.service", "com.softjourn.coin.server.util"},
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
                 classes = {ErisContractService.class})
 )
