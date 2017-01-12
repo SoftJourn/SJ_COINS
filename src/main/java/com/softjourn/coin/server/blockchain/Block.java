@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Block {
 
     private Data data;
-    private Object header;
+    private Header header;
     @JsonProperty("last_commit")
     private Object lastCommit;
 
@@ -23,11 +23,11 @@ public class Block {
         this.data = data;
     }
 
-    public Object getHeader() {
+    public Header getHeader() {
         return header;
     }
 
-    public void setHeader(Object header) {
+    public void setHeader(Header header) {
         this.header = header;
     }
 

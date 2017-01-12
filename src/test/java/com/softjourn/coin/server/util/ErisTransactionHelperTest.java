@@ -10,6 +10,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static org.junit.Assert.*;
 
@@ -33,17 +35,27 @@ public class ErisTransactionHelperTest {
 
         assertNotNull(blockJSON);
         assertFalse(blockJSON.isEmpty());
-        System.out.println(blockJSON);
+//        System.out.println(blockJSON);
+
         Block block = objectMapper.readValue(blockJSON, Block.class);
         assertNotNull(block.getHeader());
         assertNotNull(block.getLastCommit());
         assertNotNull(block.getData());
+
+        //Check transactions
         assertNotNull(block.getData().getTransactions());
         assertTrue(block.getData().getTransactions().size() > 0);
         String transactionString = block.getData().getTransactions().get(0);
         Transaction transaction = new Transaction(transactionString);
+//        System.out.println(transaction);
 
-        System.out.println(transaction);
+        //Check header
+        System.out.println(block.getHeader());
+        String stringTime = block.getHeader().getTime();
+        //ISO_OFFSET_DATE_TIME or ISO_ZONED_DATE_TIME or ISO_DATE_TIME
+        LocalDateTime localDateTime = LocalDateTime.parse(stringTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+        System.out.println(localDateTime);
 
 //        ContractUnit unit = contractUnits.get(contractUnitName);
     }
