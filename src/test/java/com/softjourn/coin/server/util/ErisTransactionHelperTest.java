@@ -3,6 +3,7 @@ package com.softjourn.coin.server.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.blockchain.Block;
+import com.softjourn.coin.server.blockchain.Transaction;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -10,8 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * ErisTransactionHelperTest
@@ -24,18 +24,27 @@ public class ErisTransactionHelperTest {
 
     RestTemplate restTemplate = new RestTemplate();
 
-    ErisTransactionHelper transactionHelper = new ErisTransactionHelper();
+    private ErisTransactionHelper transactionHelper = new ErisTransactionHelper();
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void getBlock() throws Exception {
         String blockJSON = transactionHelper.getBlock(new BigInteger("10"));
+
         assertNotNull(blockJSON);
         assertFalse(blockJSON.isEmpty());
-        ObjectMapper objectMapper = new ObjectMapper();
+        System.out.println(blockJSON);
         Block block = objectMapper.readValue(blockJSON, Block.class);
         assertNotNull(block.getHeader());
         assertNotNull(block.getLastCommit());
         assertNotNull(block.getData());
         assertNotNull(block.getData().getTransactions());
+        assertTrue(block.getData().getTransactions().size() > 0);
+        String transactionString = block.getData().getTransactions().get(0);
+        Transaction transaction = new Transaction(transactionString);
+
+        System.out.println(transaction);
+
+//        ContractUnit unit = contractUnits.get(contractUnitName);
     }
 }
