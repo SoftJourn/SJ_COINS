@@ -3,6 +3,7 @@ package com.softjourn.coin.server.blockchain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -19,7 +20,7 @@ public class Header {
     @JsonProperty(value = "num_txs")
     private Integer numTxs;
 
-    private String height;
+    private BigInteger height;
     private String time;
     private LocalDateTime dateTime;
 
@@ -27,7 +28,7 @@ public class Header {
         return chainId;
     }
 
-    public String getHeight() {
+    public BigInteger getHeight() {
         return height;
     }
 
