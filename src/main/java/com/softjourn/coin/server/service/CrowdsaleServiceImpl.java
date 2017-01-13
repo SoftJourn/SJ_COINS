@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.service;
 
+import com.softjourn.coin.server.dto.CrowdsaleInfoDTO;
 import com.softjourn.coin.server.dto.CrowdsaleTransactionResultDTO;
 import com.softjourn.coin.server.dto.DonateDTO;
 import com.softjourn.coin.server.entity.ErisAccount;
@@ -43,6 +44,7 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
 
     @Override
     public CrowdsaleTransactionResultDTO donate(DonateDTO dto, Principal principal) throws IOException {
+        // look for instance address and eris account
         Instance instance = instanceRepository.findByAddress(dto.getContractAddress());
         ErisAccount erisAccount = erisAccountsService.getByName(principal.getName());
         if (instance == null) {
@@ -51,7 +53,9 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
         } else if (erisAccount == null) {
             throw new ErisAccountNotFoundException(String.format("Can not find eris account: %s", principal.getName()));
         } else {
+            // get contract
             Contract contract = contractService.getContract(instance.getContract().getAbi(), instance.getAddress(), erisAccount);
+            // donate
             Response response = contract.call(DONATE, dto.getSpenderAddress(), dto.getAmount());
             if (response.getError() != null) {
                 log.error(response.getError().toString());
@@ -64,12 +68,15 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
 
     @Override
     public CrowdsaleTransactionResultDTO withDraw(String address) throws IOException {
+        // look for instance address
         Instance instance = instanceRepository.findByAddress(address);
         if (instance == null) {
             throw new ErisContractInstanceNotFound(
                     String.format("Contract with such %s address was not found", address));
         } else {
+            // get contract
             Contract contract = contractService.getContract(instance.getContract().getAbi(), instance.getAddress(), null);
+            // withdraw
             Response response = contract.call(WITHDRAW);
             if (response.getError() != null) {
                 log.error(response.getError().toString());
@@ -81,37 +88,46 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
     }
 
     @Override
-    public Map<String, Object> getInfo(String address) throws IOException {
+    public CrowdsaleInfoDTO getInfo(String address) throws IOException {
+        CrowdsaleInfoDTO infoDTO = new CrowdsaleInfoDTO();
+        // look for instance address
         Instance instance = instanceRepository.findByAddress(address);
         if (instance == null) {
             throw new ErisContractInstanceNotFound(
                     String.format("Contract with such %s address was not found", address));
         } else {
+            // get contracts field info
             Contract contract = contractService.getContract(instance.getContract().getAbi(), instance.getAddress(), null);
-            Map<String, Object> map = new HashMap<>();
             for (Crowdsale crowdsale : Crowdsale.values()) {
+                Map<String, Object> map = new HashMap<>();
                 Response response = contract.call(crowdsale.getField());
                 processResponseError(response);
-                map.put(crowdsale.getField(), response.getReturnValues().get(0));
+                map.put("name", crowdsale.getField());
+                map.put("value", response.getReturnValues().get(0));
+                infoDTO.getInfo().add(map);
             }
-            map.put("tokenAmounts", getTokensInfo(contract));
-            return map;
+            infoDTO.setTokens(getTokensInfo(contract));
+            return infoDTO;
         }
     }
 
 
+    // information about each currency that contract using
     private List<Map<String, Object>> getTokensInfo(Contract contract) throws IOException {
         List<Map<String, Object>> maps = new ArrayList<>();
+        // get tokens count
         Response tokensCountResponse = contract.call(GET_TOKENS_COUNT);
         processResponseError(tokensCountResponse);
         BigInteger tokensCount = (BigInteger) tokensCountResponse.getReturnValues().get(0);
         for (int i = 0; i < tokensCount.intValue(); i++) {
+            // get token address
             Response token = contract.call(TOKENS_ACCUMULATED, BigInteger.valueOf(i));
             processResponseError(token);
+            // get token amount
             Response amount = contract.call(TOKEN_AMOUNTS, token.getReturnValues().get(0));
             processResponseError(amount);
             Map<String, Object> map = new HashMap<>();
-            map.put("contractAddress", token.getReturnValues().get(0));
+            map.put("address", token.getReturnValues().get(0));
             map.put("amount", amount.getReturnValues().get(0));
             maps.add(map);
         }

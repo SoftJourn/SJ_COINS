@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.controller;
 
+import com.softjourn.coin.server.dto.CrowdsaleInfoDTO;
 import com.softjourn.coin.server.dto.CrowdsaleTransactionResultDTO;
 import com.softjourn.coin.server.dto.DonateDTO;
 import com.softjourn.coin.server.service.CrowdsaleService;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/crowdsale/")
@@ -36,7 +36,7 @@ public class CrowdsaleController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/{address}", method = RequestMethod.GET)
-    public Map<String, Object> getInfo(@PathVariable String address) throws IOException {
+    public CrowdsaleInfoDTO getInfo(@PathVariable String address) throws IOException {
         return crowdsaleService.getInfo(address);
     }
 
