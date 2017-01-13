@@ -1,8 +1,10 @@
 package com.softjourn.coin.server.blockchain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Data in Eris block
@@ -11,13 +13,24 @@ import java.util.List;
 public class Data {
 
     @JsonProperty(value = "txs")
-    private List<String> transactions;
+    private List<String> transactionsBites;
 
-    public List<String> getTransactions() {
-        return transactions;
+    private List<Transaction> transactions;
+
+    public List<String> getTransactionsBites() {
+        return transactionsBites;
     }
 
-    public void setTransactions(List<String> transactions) {
-        this.transactions = transactions;
+    @SuppressWarnings("unused")
+    @JsonSetter(value = "txs")
+    private void setTransactionsBites(List<String> transactionsBites) {
+        if (this.transactions == null) {
+            this.transactionsBites = transactionsBites;
+            this.transactions = transactionsBites.stream().map(Transaction::new).collect(Collectors.toList());
+        }
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
     }
 }

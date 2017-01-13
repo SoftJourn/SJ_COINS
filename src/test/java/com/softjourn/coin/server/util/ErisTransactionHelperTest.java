@@ -43,9 +43,9 @@ public class ErisTransactionHelperTest {
         assertNotNull(block.getData());
 
         //Check transactions
-        assertNotNull(block.getData().getTransactions());
-        assertTrue(block.getData().getTransactions().size() > 0);
-        String transactionString = block.getData().getTransactions().get(0);
+        assertNotNull(block.getData().getTransactionsBites());
+        assertTrue(block.getData().getTransactionsBites().size() > 0);
+        String transactionString = block.getData().getTransactionsBites().get(0);
         Transaction transaction = new Transaction(transactionString);
 //        System.out.println(transaction);
 

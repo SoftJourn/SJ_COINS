@@ -3,6 +3,9 @@ package com.softjourn.coin.server.blockchain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Header of block in blockchain
  * Created by vromanchuk on 12.01.17.
@@ -18,6 +21,7 @@ public class Header {
 
     private String height;
     private String time;
+    private LocalDateTime dateTime;
 
     public String getChainId() {
         return chainId;
@@ -29,6 +33,14 @@ public class Header {
 
     public String getTime() {
         return time;
+    }
+
+    @SuppressWarnings("unused")
+    private void setTime(String time) {
+        if (this.time == null) {
+            this.time = time;
+            this.dateTime = LocalDateTime.parse(time, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        }
     }
 
     public Integer getNumTxs() {
@@ -43,5 +55,9 @@ public class Header {
                 ", height='" + height + '\'' +
                 ", time='" + time + '\'' +
                 '}';
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 }
