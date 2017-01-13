@@ -29,6 +29,10 @@ public class Transaction {
         this.callingData = transactionString.substring(344);
     }
 
+    public static Object parseCallingData(String callingData) {
+        return null;
+    }
+
     public String getTransactionString() {
         return transactionString;
     }

@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.util;
 
 
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.softjourn.coin.server.blockchain.Block;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,9 +22,8 @@ public class ErisTransactionHelperTest {
 
     String chainUrl = "http://172.17.0.1:1337";
 
-    RestTemplate restTemplate = new RestTemplate();
-
-    private ErisTransactionHelper transactionHelper = new ErisTransactionHelper();
+    private RestTemplate restTemplate = new RestTemplate();
+    private ErisTransactionHelper transactionHelper = new ErisTransactionHelper(restTemplate, chainUrl);
     private BigInteger blockNumber = new BigInteger("10");
 
     @Test
@@ -32,9 +32,7 @@ public class ErisTransactionHelperTest {
 
         assertNotNull(blockJSON);
         assertFalse(blockJSON.isEmpty());
-//        System.out.println(blockJSON);
-
-
+        System.out.println(blockJSON);
 //        //Check transactions
 //        assertNotNull(block.getData().getTransactionsBites());
 //        assertTrue(block.getData().getTransactionsBites().size() > 0);
@@ -77,11 +75,42 @@ public class ErisTransactionHelperTest {
         assertThat(transactionHelper.getLatestBlock(), instanceOf(Block.class));
         Block block = transactionHelper.getLatestBlock();
         assertNotNull(block);
+        assertNotNull(block.getHeader());
+        assertNotNull(block.getHeader().getHeight());
+
+    }
+
+    @Test
+    public void getLatestBlock_After1sDifferentHeight() throws Exception {
+        BigInteger heightFirst = transactionHelper.getLatestBlock().getHeader().getHeight();
+        Thread.sleep(1000L);
+        BigInteger heightLast = transactionHelper.getLatestBlock().getHeader().getHeight();
+        assertNotEquals(heightFirst, heightLast);
     }
 
     @Test
     public void getLatestBlockNumber_BigInteger() throws Exception {
         assertThat(transactionHelper.getLatestBlockNumber(), instanceOf(BigInteger.class));
         assertNotNull(transactionHelper.getLatestBlockNumber());
+    }
+
+    @Test
+    public void getBlock_RandBlockNLessThanLatest_Block() throws Exception {
+        BigInteger latest = transactionHelper.getLatestBlockNumber();
+        double doubleRandom = latest.doubleValue() * Math.random();
+        Integer integerRandom = (int) doubleRandom;
+        BigInteger rand = new BigInteger(integerRandom.toString());
+        assertNotNull(transactionHelper.getBlock(rand));
+        assertNotNull(transactionHelper.getBlock(rand).getHeader());
+        assertNotNull(transactionHelper.getBlock(rand).getHeader().getHeight());
+        assertEquals(rand, transactionHelper.getBlock(rand).getHeader().getHeight());
+
+    }
+
+    @Test(expected = JsonEOFException.class)
+    public void getBlock_BlockGreaterThanLatest_Exception() throws Exception {
+        BigInteger latest = transactionHelper.getLatestBlockNumber();
+        BigInteger greater = latest.add(BigInteger.TEN);
+        transactionHelper.getBlock(greater);
     }
 }
