@@ -350,3 +350,322 @@ include::{snippets}/distribute/http-request.adoc[]
 ==== Example response
 
 include::{snippets}/distribute/http-response.adoc[]
+
+== Contract Rest Api
+
+=== Create contract
+
+A `POST` request will try to deploy new contract
+ and in case of successful deployment, contract description will be written
+ into database and will returned address of new deployed contract
+
+[[resources-create-contract-request]]
+==== Request fields
+
+include::{snippets}/create-contract-request/request-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/create-contract-request/http-request.adoc[]
+
+[[resources-create-contract-response]]
+==== Response fields
+
+include::{snippets}/create-contract-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/create-contract-response/http-response.adoc[]
+
+=== Create contract instance
+
+A `POST` request will try to deploy new instance of contract,
+ using contract description which was saved before
+
+[[resources-create-contract-instance-request]]
+==== Request fields
+
+include::{snippets}/create-contract-instance-request/request-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/create-contract-instance-request/http-request.adoc[]
+
+[[resources-create-contract-instance-response]]
+==== Response fields
+
+include::{snippets}/create-contract-instance-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/create-contract-instance-response/http-response.adoc[]
+
+
+=== Get contract by address
+
+A `GET` request will return contract information
+
+[[resources-get-contract-by-address-request]]
+==== Request fields
+
+include::{snippets}/get-contract-by-address-request/path-parameters.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/get-contract-by-address-request/http-request.adoc[]
+
+[[resources-get-contract-by-address-response]]
+==== Response fields
+
+include::{snippets}/get-contract-by-address-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/get-contract-by-address-response/http-response.adoc[]
+
+
+=== Get contract types
+
+A `GET` request will return list of contract types
+
+[[resources-get-contract-types-response]]
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/get-contract-types-response/http-request.adoc[]
+
+[[resources-get-contract-types-response]]
+==== Response fields
+
+include::{snippets}/get-contract-types-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/get-contract-types-response/http-response.adoc[]
+
+
+=== Get contract by type
+
+A `GET` request will return contract information by type
+
+[[resources-get-contract-by-type-request]]
+==== Request fields
+
+include::{snippets}/get-contract-by-type-request/path-parameters.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/get-contract-by-address-request/http-request.adoc[]
+
+[[resources-get-contract-by-type-response]]
+==== Response fields
+
+include::{snippets}/get-contract-by-type-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/get-contract-by-type-response/http-response.adoc[]
+
+
+=== Get contract constructor by id
+
+A `GET` request will return contract information by id
+
+[[resources-get-contract-info-request]]
+==== Request fields
+
+include::{snippets}/get-contract-info-request/path-parameters.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/get-contract-info-request/http-request.adoc[]
+
+[[resources-get-contract-info-response]]
+==== Response fields
+
+include::{snippets}/get-contract-info-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/get-contract-info-response/http-response.adoc[]
+
+=== Get contract list
+
+A `GET` request will return list of contracts
+
+[[resources-get-contracts-response]]
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/get-contracts-response/http-request.adoc[]
+
+[[resources-get-contracts-response]]
+==== Response fields
+
+include::{snippets}/get-contracts-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/get-contracts-response/http-response.adoc[]
+
+
+=== Get contract instances by contract id
+
+A `GET` request will return list of instances by contract id
+
+[[resources-get-instances-by-contract-id-request]]
+==== Request fields
+
+include::{snippets}/get-instances-by-contract-id-request/path-parameters.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/get-instances-by-contract-id-request/http-request.adoc[]
+
+[[resources-get-instances-by-contract-id-response]]
+==== Response fields
+
+include::{snippets}/get-instances-by-contract-id-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/get-instances-by-contract-id-response/http-response.adoc[]
+
+== Crowdsale Rest Api
+
+=== Donate
+
+A `POST` request will transfer coins to crowdsale contract
+
+[[resources-crowdsale-donate-request]]
+==== Request fields
+
+include::{snippets}/crowdsale-donate-request/request-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/create-contract-request/http-request.adoc[]
+
+[[resources-crowdsale-donate-responsee]]
+==== Response fields
+
+include::{snippets}/crowdsale-donate-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/crowdsale-donate-response/http-response.adoc[]
+
+=== Withdraw
+
+A `POST` request will withdraw accumulated coins
+
+[[resources-crowdsale-withdraw-request]]
+==== Request fields
+
+include::{snippets}/crowdsale-withdraw-request/path-parameters.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/crowdsale-withdraw-request/http-request.adoc[]
+
+[[resources-crowdsale-withdraw-response]]
+==== Response fields
+
+include::{snippets}/crowdsale-withdraw-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/crowdsale-withdraw-response/http-response.adoc[]
+
+=== Crowdsale info
+
+A `GET` request will get status about crowdsale project
+
+[[resources-crowdsale-info-response]]
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/crowdsale-info-response/http-request.adoc[]
+
+[[resources-crowdsale-info-response]]
+==== Response fields
+
+include::{snippets}/crowdsale-info-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/crowdsale-info-response/http-response.adoc[]

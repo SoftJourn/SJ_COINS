@@ -1,11 +1,11 @@
 package com.softjourn.coin.server.service;
 
+import com.softjourn.coin.server.dto.CrowdsaleInfoDTO;
 import com.softjourn.coin.server.dto.CrowdsaleTransactionResultDTO;
 import com.softjourn.coin.server.dto.DonateDTO;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Map;
 
 public interface CrowdsaleService {
 
@@ -13,6 +13,6 @@ public interface CrowdsaleService {
 
     CrowdsaleTransactionResultDTO withDraw(String address) throws IOException;
 
-    Map<String, Object> getInfo(String address) throws IOException;
+    CrowdsaleInfoDTO getInfo(String address) throws IOException;
 
 }

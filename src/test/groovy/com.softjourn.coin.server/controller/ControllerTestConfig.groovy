@@ -1,6 +1,9 @@
 package com.softjourn.coin.server.controller
 
 import com.softjourn.coin.server.dto.ContractCreateResponseDTO
+import com.softjourn.coin.server.dto.CrowdsaleInfoDTO
+import com.softjourn.coin.server.dto.CrowdsaleTransactionResultDTO
+import com.softjourn.coin.server.dto.DonateDTO
 import com.softjourn.coin.server.dto.MerchantDTO
 import com.softjourn.coin.server.dto.NewContractDTO
 import com.softjourn.coin.server.dto.NewContractInstanceDTO
@@ -14,6 +17,7 @@ import com.softjourn.coin.server.entity.Type
 import com.softjourn.coin.server.service.AccountsService
 import com.softjourn.coin.server.service.CoinService
 import com.softjourn.coin.server.service.ContractService
+import com.softjourn.coin.server.service.CrowdsaleService
 import org.apache.commons.io.IOUtils
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Value
@@ -33,6 +37,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore
 import org.springframework.test.context.web.WebAppConfiguration
 
+import java.security.Principal
 import java.time.Instant
 
 import static org.mockito.Matchers.any
@@ -112,8 +117,52 @@ class ControllerTestConfig {
         when(contractService.getContracts()).thenReturn([contract])
         when(contractService.newInstance(any() as NewContractInstanceDTO)).thenReturn(new ContractCreateResponseDTO(1, "contract", "type", "some address"))
         when(contractService.getInstances(anyLong())).thenReturn([new ContractCreateResponseDTO(1, "contract", "type", "some address")])
+        when(contractService.getContractsByAddress(anyString())).thenReturn(contract)
+        when(contractService.getTypes()).thenReturn([new Type("some type")])
+        when(contractService.getContractsByType(anyString())).thenReturn([contract])
+        when(contractService.getContractConstructorInfo(anyLong())).thenReturn(new ArrayList<Map<String, String>>() {
+            {
+                add(new HashMap<String, String>() {
+                    {
+                        put("name", "some name")
+                        put("type", "some type")
+                    }
+                })
+            }
+        })
 
         contractService
+    }
+
+    @Bean
+    CrowdsaleService crowdsaleService() {
+        def crowdsaleService = Mockito.mock(CrowdsaleService.class)
+        when(crowdsaleService.donate(any() as DonateDTO, any() as Principal)).thenReturn(new CrowdsaleTransactionResultDTO(true))
+        when(crowdsaleService.withDraw(anyString())).thenReturn(new CrowdsaleTransactionResultDTO(true))
+        when(crowdsaleService.getInfo(anyString())).thenReturn(new CrowdsaleInfoDTO(
+                new ArrayList<Map<String, Object>>() {
+                    {
+                        add(new HashMap<String, Object>() {
+                            {
+                                put("name", "field name")
+                                put("value", "field value")
+                            }
+                        })
+                    }
+                },
+                new ArrayList<Map<String, Object>>() {
+                    {
+                        add(new HashMap<String, Object>() {
+                            {
+                                put("address", "token address")
+                                put("amount", 2)
+                            }
+                        })
+                    }
+                }
+        ))
+
+        crowdsaleService
     }
 
     private Transaction createTransaction(Account account, Account destinationAccount) {
