@@ -5,6 +5,8 @@ import com.softjourn.eris.transaction.type.ErisTransaction;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Embeddable;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * ErisTransactionDAO created to map hibernate entity to ErisTransaction
@@ -12,83 +14,82 @@ import javax.persistence.Embeddable;
  */
 @Embeddable
 @Access(AccessType.PROPERTY)
-public class ErisTransactionDAO extends ErisTransaction {
+public class ErisTransactionDAO {
 
-    public ErisTransactionDAO(String transactionString) throws StringIndexOutOfBoundsException {
-        super(transactionString);
+    private ErisTransaction transaction;
+
+    public ErisTransactionDAO(ErisTransaction transaction) {
+        this.transaction = transaction;
     }
 
     public ErisTransactionDAO() {
-        super();
     }
 
-    @Override
+    public List<Object> parseCallingData(String abi) throws IOException {
+        return transaction.parseCallingData(abi);
+    }
+
     public String getIdentifier() {
-        return super.getIdentifier();
+        return transaction.getIdentifier();
     }
 
-    @Override
     public void setIdentifier(String identifier) {
-        super.setIdentifier(identifier);
+        transaction.setIdentifier(identifier);
     }
 
-    @Override
     public String getAmount() {
-        return super.getAmount();
+        return transaction.getAmount();
     }
 
-    @Override
     public void setAmount(String amount) {
-        super.setAmount(amount);
+        transaction.setAmount(amount);
     }
 
-    @Override
     public String getCallerAddress() {
-        return super.getCallerAddress();
+        return transaction.getCallerAddress();
     }
 
-    @Override
     public void setCallerAddress(String callerAddress) {
-        super.setCallerAddress(callerAddress);
+        transaction.setCallerAddress(callerAddress);
     }
 
-    @Override
     public String getCallerPubKey() {
-        return super.getCallerPubKey();
+        return transaction.getCallerPubKey();
     }
 
-    @Override
     public void setCallerPubKey(String callerPubKey) {
-        super.setCallerPubKey(callerPubKey);
+        transaction.setCallerPubKey(callerPubKey);
     }
 
-    @Override
     public String getContractAddress() {
-        return super.getContractAddress();
+        return transaction.getContractAddress();
     }
 
-    @Override
     public void setContractAddress(String contractAddress) {
-        super.setContractAddress(contractAddress);
+        transaction.setContractAddress(contractAddress);
     }
 
-    @Override
+    public String getAdditionalInfo() {
+        return transaction.getAdditionalInfo();
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        transaction.setAdditionalInfo(additionalInfo);
+    }
+
     public String getCallingData() {
-        return super.getCallingData();
+        return transaction.getCallingData();
     }
 
-    @Override
     public void setCallingData(String callingData) {
-        super.setCallingData(callingData);
+        transaction.setCallingData(callingData);
     }
 
-    @Override
     public String getHashCallingDataFunctionName() {
-        return super.getHashCallingDataFunctionName();
+        return transaction.getHashCallingDataFunctionName();
     }
 
-    @Override
     public void setHashCallingDataFunctionName(String hashCallingDataFunctionName) {
-        super.setHashCallingDataFunctionName(hashCallingDataFunctionName);
+        transaction.setHashCallingDataFunctionName(hashCallingDataFunctionName);
     }
 }
