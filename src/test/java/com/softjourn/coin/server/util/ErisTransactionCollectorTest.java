@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.util;
 
+import com.softjourn.coin.server.dao.ErisTransactionDAO;
 import com.softjourn.eris.transaction.TransactionHelper;
 import com.softjourn.eris.transaction.type.BlockMeta;
 import com.softjourn.eris.transaction.type.Blocks;
@@ -27,6 +28,7 @@ public class ErisTransactionCollectorTest {
 
     @Before
     public void setUp() throws Exception {
+
         //get transaction helper
         Field transactionHelperField = testCollector.getClass().getDeclaredField("transactionHelper");
         transactionHelperField.setAccessible(true);
@@ -49,18 +51,18 @@ public class ErisTransactionCollectorTest {
         blockMetas.add(null);
         blocks = new Blocks();
         blocks.setBlockMetas(blockMetas);
-        when(transactionHelperMock.getBlocks(BigInteger.ZERO, BigInteger.TEN)).thenReturn(blocks);
+        when(transactionHelperMock.getBlocks(BigInteger.ONE, BigInteger.TEN.add(BigInteger.ONE))).thenReturn(blocks);
 
         blockMetas = new ArrayList<>(blockMetas);
         BlockMeta blockMetaWithTx = new BlockMeta();
         Header header = new Header();
         header.setNumTxs(1);
-        header.setHeight(BigInteger.valueOf(11));
+        header.setHeight(BigInteger.valueOf(12));
         blockMetaWithTx.setHeader(header);
         blockMetas.add(blockMetaWithTx);
         blocks = new Blocks();
         blocks.setBlockMetas(blockMetas);
-        when(transactionHelperMock.getBlocks(BigInteger.ZERO, BigInteger.valueOf(11))).thenReturn(blocks);
+        when(transactionHelperMock.getBlocks(BigInteger.ONE, BigInteger.valueOf(12))).thenReturn(blocks);
 
     }
 
@@ -82,21 +84,27 @@ public class ErisTransactionCollectorTest {
     }
 
     @Test
-    public void getBlockNumbersWithTransaction_0_10_EmptyList() throws Exception {
-        List<BigInteger> list = testCollector.getBlockNumbersWithTransaction(BigInteger.ZERO, BigInteger.TEN);
+    public void getBlockNumbersWithTransaction_1_11_EmptyList() throws Exception {
+        List<BigInteger> list = testCollector
+                .getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.TEN.add(BigInteger.ONE));
         assertTrue(list.isEmpty());
     }
 
     @Test
-    public void getBlockNumbersWithTransaction_0_11_BlockHeight11() throws Exception {
-        List<BigInteger> list = testCollector.getBlockNumbersWithTransaction(BigInteger.ZERO, BigInteger.valueOf(11));
+    public void getBlockNumbersWithTransaction_1_12_BlockHeight11() throws Exception {
+        List<BigInteger> list = testCollector.getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.valueOf(12));
         assertFalse(list.isEmpty());
-        assertTrue(list.contains(BigInteger.valueOf(11)));
+        assertTrue(list.contains(BigInteger.valueOf(12)));
     }
 
     @Test
     public void getDifference() throws Exception {
         assertNotNull(testCollector.getDifference());
         assertEquals(lastBlock, testCollector.getDifference());
+    }
+
+    @Test
+    public void getTransactionsFromBlock_BlockNumber_ListOfTransactions() throws Exception {
+        List<ErisTransactionDAO> transactions = testCollector.getTransactionsFromBlock(BigInteger.valueOf(27));
     }
 }
