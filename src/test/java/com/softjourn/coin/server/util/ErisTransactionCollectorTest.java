@@ -10,9 +10,9 @@ import static org.junit.Assert.*;
 
 public class ErisTransactionCollectorTest {
 
-    BigInteger lastBlock = BigInteger.TEN;
+    private BigInteger lastBlock = BigInteger.TEN;
     private String host = "http://172.17.0.1:1337";
-    private ErisTransactionCollector testCollector = new ErisTransactionCollector(host);
+    private ErisTransactionCollector testCollector = new ErisTransactionCollector(host, 30L);
 
 //    @Before
 //    public void setUp() throws Exception {
@@ -26,13 +26,20 @@ public class ErisTransactionCollectorTest {
 
     @Test
     public void run() throws Exception {
-        testCollector.run();
+//
+//        Thread.sleep(2000L);
     }
 
     @Test
     public void getMissedTransactions() throws Exception {
         assertNotNull(testCollector.getMissedTransactions(BigInteger.ZERO, BigInteger.TEN));
         assertThat(testCollector.getMissedTransactions(BigInteger.ZERO, BigInteger.TEN), instanceOf(List.class));
+    }
+
+    @Test
+    public void getBlockNumbersWithTransaction() throws Exception {
+        //TODO getBlockNumbersWithTransaction returns Null pointer on collect function
+        testCollector.getBlockNumbersWithTransaction(BigInteger.ZERO, BigInteger.TEN);
     }
 
     @Test

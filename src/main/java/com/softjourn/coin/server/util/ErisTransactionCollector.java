@@ -21,34 +21,52 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class ErisTransactionCollector implements Runnable {
 
-    private String host;
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private TransactionHelper transactionHelper;
     private BigInteger latestBlockHeight = BigInteger.ZERO;
 
 
     @Autowired
-    public ErisTransactionCollector(@Value("${eris.chain.url}") String host) {
-        this.host = host;
+    public ErisTransactionCollector(@Value("${eris.chain.url}") String host
+            , @Value("${eris.transaction.collector.interval}") Long interval) {
         this.transactionHelper = new TransactionHelper(host);
-        scheduledExecutorService.scheduleAtFixedRate(this, 30, 30, TimeUnit.SECONDS);
+        scheduledExecutorService.schedule(this, interval, TimeUnit.SECONDS);
+        scheduledExecutorService.submit(this);
     }
 
     @Override
     public void run() {
-//        this.getMissedTransactions();
+        System.out.println("Hello");
     }
 
-    public List<Object> getMissedTransactions(BigInteger from, BigInteger to) {
-        transactionHelper.getBlocks();
+    public List<Object> getMissedTransactions(BigInteger from, BigInteger to) throws ErisClientException {
+        try {
+//            if(to.add(transactionHelper.MAX_BLOCKS_PER_REQUEST).compareTo(to)>0)
+            transactionHelper.getBlocks(from, to);
+        } catch (IOException e) {
+            throw new ErisClientException(e.getMessage());
+        }
         return new ArrayList<>();
     }
 
     public BigInteger getDifference() throws ErisClientException {
         try {
             return this.transactionHelper.getLatestBlockNumber().subtract(latestBlockHeight);
-        } catch (IOException ex) {
-            throw new ErisClientException(ex.getMessage());
+        } catch (IOException e) {
+            throw new ErisClientException(e.getMessage());
         }
+    }
+
+    public List<BigInteger> getBlockNumbersWithTransaction(BigInteger from, BigInteger to) throws ErisClientException {
+        try {
+            if (to.add(TransactionHelper.MAX_BLOCKS_PER_REQUEST).compareTo(to) > 0) {
+//                System.out.println(
+                transactionHelper.getBlocks(from, to)//.getBlockMetas());
+                        .getBlockNumbersWithTransaction();
+            }
+        } catch (IOException e) {
+            throw new ErisClientException(e.getMessage());
+        }
+        return new ArrayList<>();
     }
 }
