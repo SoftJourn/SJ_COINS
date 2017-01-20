@@ -60,13 +60,12 @@ public class ErisTransactionCollector implements Runnable {
     public List<BigInteger> getBlockNumbersWithTransaction(BigInteger from, BigInteger to) throws ErisClientException {
         try {
             if (to.add(TransactionHelper.MAX_BLOCKS_PER_REQUEST).compareTo(to) > 0) {
-//                System.out.println(
-                transactionHelper.getBlocks(from, to)//.getBlockMetas());
+                return transactionHelper.getBlocks(from, to)
                         .getBlockNumbersWithTransaction();
             }
-        } catch (IOException e) {
-            throw new ErisClientException(e.getMessage());
+            return new ArrayList<>();
+        } catch (IOException | NullPointerException e) {
+            throw new ErisClientException(e);
         }
-        return new ArrayList<>();
     }
 }

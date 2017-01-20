@@ -11,4 +11,8 @@ public class ErisClientException extends Exception {
     public ErisClientException(String s) {
         super(s);
     }
+
+    public ErisClientException(Throwable throwable) {
+        super(throwable);
+    }
 }
