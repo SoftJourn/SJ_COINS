@@ -1,7 +1,8 @@
 package com.softjourn.coin.server.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.softjourn.coin.server.dao.ErisTransactionDAO;
+import com.softjourn.coin.server.entity.TransactionStoring;
+import com.softjourn.coin.server.repository.ErisTransactionRepository;
 import com.softjourn.eris.transaction.TransactionHelper;
 import com.softjourn.eris.transaction.type.Block;
 import com.softjourn.eris.transaction.type.BlockMeta;
@@ -9,6 +10,7 @@ import com.softjourn.eris.transaction.type.Blocks;
 import com.softjourn.eris.transaction.type.Header;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -21,15 +23,20 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 public class ErisTransactionCollectorTest {
 
-    private BigInteger lastBlock = BigInteger.TEN;
+    private BigInteger lastBlock = BigInteger.valueOf(75);
     private String host = "http://172.17.0.1:1337";
-    private ErisTransactionCollector testCollector = new ErisTransactionCollector(host, 30L);
+    private ErisTransactionRepository transactionRepository = mock(ErisTransactionRepository.class);
+    private ErisTransactionCollector testCollector = new ErisTransactionCollector(host, 30L, transactionRepository);
     private ObjectMapper mapper = new ObjectMapper();
+    private TransactionHelper transactionHelperMock = mock(TransactionHelper.class);
 
     @Before
     public void setUp() throws Exception {
@@ -37,7 +44,7 @@ public class ErisTransactionCollectorTest {
         //get transaction helper
         Field transactionHelperField = testCollector.getClass().getDeclaredField("transactionHelper");
         transactionHelperField.setAccessible(true);
-        TransactionHelper transactionHelperMock = mock(TransactionHelper.class);
+
         transactionHelperField.set(testCollector, transactionHelperMock);
         when(transactionHelperMock.getLatestBlockNumber()).thenReturn(lastBlock);
 
@@ -83,12 +90,19 @@ public class ErisTransactionCollectorTest {
         block = mapper.readValue(json, Block.class);
         when(transactionHelperMock.getBlock(BigInteger.valueOf(33))).thenReturn(block);
 
+        file = new File("src/test/resources/json/block15.json");
+        json = new Scanner(file).useDelimiter("\\Z").next();
+        block = mapper.readValue(json, Block.class);
+        when(transactionHelperMock.getBlock(BigInteger.valueOf(15))).thenReturn(block);
+
+        file = new File("src/test/resources/json/blockRange1-75.json");
+        json = new Scanner(file).useDelimiter("\\Z").next();
+        blocks = mapper.readValue(json, Blocks.class);
+        when(transactionHelperMock.getBlocks(BigInteger.ONE, BigInteger.valueOf(75))).thenReturn(blocks);
+
+        when(transactionRepository.save(any(TransactionStoring.class))).thenReturn(new TransactionStoring());
     }
 
-
-    @Test
-    public void run() throws Exception {
-    }
 
     @Test
     public void getMissedTransactions() throws Exception {
@@ -119,12 +133,12 @@ public class ErisTransactionCollectorTest {
     @Test
     public void getDifference() throws Exception {
         assertNotNull(testCollector.getDifference());
-        assertEquals(lastBlock, testCollector.getDifference());
+        assertEquals(lastBlock.subtract(BigInteger.ONE), testCollector.getDifference());
     }
 
     @Test
     public void getTransactionsFromBlock_BlockNumber_ListOfTransactions() throws Exception {
-        List<ErisTransactionDAO> transactions;
+        List<TransactionStoring> transactions;
         transactions = testCollector.getTransactionsFromBlock(BigInteger.valueOf(27));
         assertEquals(1, transactions.size());
         transactions = testCollector.getTransactionsFromBlock(BigInteger.valueOf(33));
@@ -136,9 +150,17 @@ public class ErisTransactionCollectorTest {
         List<BigInteger> blockNumbers = new ArrayList<>();
         blockNumbers.add(BigInteger.valueOf(27));
         blockNumbers.add(BigInteger.valueOf(33));
-        List<ErisTransactionDAO> transactions;
+        List<TransactionStoring> transactions;
         transactions = testCollector.getTransactionsFromBlocks(blockNumbers);
         assertEquals(2, transactions.size());
         System.out.println(transactions);
+    }
+
+    @Test
+    public void run() throws Exception {
+        testCollector.run();
+        verify(transactionHelperMock, times(1)).getLatestBlockNumber();
+        verify(transactionHelperMock, times(1)).getBlocks(Matchers.any(), Matchers.any());
+
     }
 }
