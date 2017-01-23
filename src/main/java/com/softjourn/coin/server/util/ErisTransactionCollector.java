@@ -39,7 +39,6 @@ public class ErisTransactionCollector implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Hello");
     }
 
     public List<Object> getMissedTransactions(BigInteger from, BigInteger to) throws ErisClientException {
@@ -78,5 +77,12 @@ public class ErisTransactionCollector implements Runnable {
         } catch (IOException | NullPointerException e) {
             throw new ErisClientException(e);
         }
+    }
+
+    public List<ErisTransactionDAO> getTransactionsFromBlocks(List<BigInteger> blockNumbers) throws ErisClientException {
+        return blockNumbers.stream()
+                .map(this::getTransactionsFromBlock)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 }

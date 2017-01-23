@@ -25,4 +25,8 @@ public class ErisTransactionDAO {
     public ErisTransactionDAO() {
     }
 
+    @Override
+    public String toString() {
+        return transaction.toString();
+    }
 }
