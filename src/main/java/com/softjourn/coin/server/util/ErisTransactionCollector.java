@@ -1,9 +1,8 @@
 package com.softjourn.coin.server.util;
 
-import com.softjourn.coin.server.dao.ErisTransactionDAO;
 import com.softjourn.coin.server.entity.TransactionStoring;
 import com.softjourn.coin.server.exceptions.ErisClientException;
-import com.softjourn.coin.server.repository.ErisTransactionRepository;
+import com.softjourn.coin.server.service.ErisTransactionService;
 import com.softjourn.eris.transaction.TransactionHelper;
 import com.softjourn.eris.transaction.type.Block;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +27,16 @@ public class ErisTransactionCollector implements Runnable {
 
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private TransactionHelper transactionHelper;
-    private ErisTransactionRepository transactionRepository;
+    private ErisTransactionService transactionService;
     private BigInteger latestBlockHeight = BigInteger.ONE;
 
 
     @Autowired
     public ErisTransactionCollector(@Value("${eris.chain.url}") String host
             , @Value("${eris.transaction.collector.interval}") Long interval
-            , ErisTransactionRepository transactionRepository) {
+            , ErisTransactionService transactionService) {
         this.transactionHelper = new TransactionHelper(host);
-        this.transactionRepository = transactionRepository;
+        this.transactionService = transactionService;
         scheduledExecutorService.schedule(this, interval, TimeUnit.SECONDS);
         scheduledExecutorService.submit(this);
     }
@@ -48,8 +47,7 @@ public class ErisTransactionCollector implements Runnable {
             BigInteger lastProduced = transactionHelper.getLatestBlockNumber();
             List<BigInteger> blocksWithTx = this.getBlockNumbersWithTransaction(this.latestBlockHeight, lastProduced);
             List<TransactionStoring> transactions = this.getTransactionsFromBlocks(blocksWithTx);
-            this.transactionRepository.save(transactions);
-            System.out.println(blocksWithTx);
+            this.transactionService.storeTransaction(transactions);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -85,11 +83,8 @@ public class ErisTransactionCollector implements Runnable {
     public List<TransactionStoring> getTransactionsFromBlock(BigInteger blockNumber) throws ErisClientException {
         try {
             Block block = transactionHelper.getBlock(blockNumber);
-            return block.getData().getErisTransactions().stream()
-                    .map(ErisTransactionDAO::new)
-                    .map(dao -> new TransactionStoring(blockNumber, block.getHeader().getDateTime(), dao))
-                    .collect(Collectors.toList());
-        } catch (IOException | NullPointerException e) {
+            return ErisTransactionService.getTransactionStoringFromBlock(block);
+        } catch (Exception e) {
             throw new ErisClientException(e);
         }
     }

@@ -2,7 +2,7 @@ package com.softjourn.coin.server.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.entity.TransactionStoring;
-import com.softjourn.coin.server.repository.ErisTransactionRepository;
+import com.softjourn.coin.server.service.ErisTransactionService;
 import com.softjourn.eris.transaction.TransactionHelper;
 import com.softjourn.eris.transaction.type.Block;
 import com.softjourn.eris.transaction.type.BlockMeta;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -33,8 +33,8 @@ public class ErisTransactionCollectorTest {
 
     private BigInteger lastBlock = BigInteger.valueOf(75);
     private String host = "http://172.17.0.1:1337";
-    private ErisTransactionRepository transactionRepository = mock(ErisTransactionRepository.class);
-    private ErisTransactionCollector testCollector = new ErisTransactionCollector(host, 30L, transactionRepository);
+    private ErisTransactionService transactionService = mock(ErisTransactionService.class);
+    private ErisTransactionCollector testCollector = new ErisTransactionCollector(host, 30L, transactionService);
     private ObjectMapper mapper = new ObjectMapper();
     private TransactionHelper transactionHelperMock = mock(TransactionHelper.class);
 
@@ -100,7 +100,11 @@ public class ErisTransactionCollectorTest {
         blocks = mapper.readValue(json, Blocks.class);
         when(transactionHelperMock.getBlocks(BigInteger.ONE, BigInteger.valueOf(75))).thenReturn(blocks);
 
-        when(transactionRepository.save(any(TransactionStoring.class))).thenReturn(new TransactionStoring());
+//        when(transactionRepository.save(any(TransactionStoring.class))).thenReturn(new TransactionStoring());
+        when(transactionService.storeTransaction(any(TransactionStoring.class)))
+                .thenAnswer(invocation -> invocation.getArgumentAt(0, TransactionStoring.class));
+        when(transactionService.storeTransaction(any(List.class))).thenCallRealMethod();
+
     }
 
 
@@ -159,8 +163,8 @@ public class ErisTransactionCollectorTest {
     @Test
     public void run() throws Exception {
         testCollector.run();
-        verify(transactionHelperMock, times(1)).getLatestBlockNumber();
-        verify(transactionHelperMock, times(1)).getBlocks(Matchers.any(), Matchers.any());
+        verify(transactionHelperMock, atLeastOnce()).getLatestBlockNumber();
+        verify(transactionHelperMock, atLeastOnce()).getBlocks(Matchers.any(), Matchers.any());
 
     }
 }
