@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableJpaRepositories(basePackages = "com.softjourn.coin.server.repository")
 @EntityScan(basePackages = "com.softjourn.coin.server.entity")
-//@ImportResource(value = {"classpath:persistence.xml","classpath:orm.xml"})
 public class Coins  {
 
 	public static void main(String[] args) {
