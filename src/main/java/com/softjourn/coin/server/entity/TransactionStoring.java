@@ -26,9 +26,11 @@ public class TransactionStoring {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @NotNull
     private Long id;
+    // TODO create entity HeaderDAO
     private BigInteger blockNumber;
     private LocalDateTime time;
     private String functionName;
+    private String chainId;
 
     @Embedded
     private ErisTransactionDAO transaction;

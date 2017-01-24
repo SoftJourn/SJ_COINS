@@ -95,6 +95,7 @@ public class ErisTransactionServiceTest {
         transaction33.setTime(block33.getHeader().getDateTime());
         transaction33.setFunctionName(contractUnit.getName());
         transaction33.setTransaction(block33.getData().getErisTransactions().get(0));
+        transaction33.setChainId("test");
         Map<String, String> callingValue = new HashMap<>();
         callingValue.put(contractUnit.getInputs()[0].getName(), "1");
         transaction33.setCallingValue(callingValue);

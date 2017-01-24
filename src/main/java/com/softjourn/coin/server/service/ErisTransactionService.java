@@ -40,7 +40,7 @@ public class ErisTransactionService {
     public List<TransactionStoring> getTransactionStoring(Block block) {
         Header header = block.getHeader();
         return block.getData().getErisTransactions().stream()
-                .map(transaction -> getTransactionStoring(transaction, header.getHeight(), header.getDateTime()))
+                .map(transaction -> getTransactionStoring(transaction, header.getHeight(), header.getDateTime(), header.getChainId()))
                 .collect(Collectors.toList());
     }
 
@@ -71,7 +71,7 @@ public class ErisTransactionService {
     }
 
     public TransactionStoring getTransactionStoring(ErisTransaction transaction, BigInteger blockNumber
-            , LocalDateTime time) {
+            , LocalDateTime time, String chainId) {
 
         TransactionStoring transactionStoring = new TransactionStoring();
         transactionStoring.setTransaction(transaction);
@@ -80,6 +80,7 @@ public class ErisTransactionService {
         transactionStoring.setFunctionName(unit.getName());
         transactionStoring.setBlockNumber(blockNumber);
         transactionStoring.setTime(time);
+        transactionStoring.setChainId(chainId);
         return transactionStoring;
     }
 
