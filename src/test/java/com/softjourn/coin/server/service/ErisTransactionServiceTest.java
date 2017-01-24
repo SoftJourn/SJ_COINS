@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -42,6 +43,7 @@ public class ErisTransactionServiceTest {
     // Block with deploy contract tx
     private Block block15;
     private Block block33;
+    private Block block1030101;
     private Contract contract;
     private ContractUnit contractUnit;
     private HashMap<String, String> inputArgsBlock33Tx;
@@ -63,6 +65,9 @@ public class ErisTransactionServiceTest {
         json = FileUtils.readFileToString(file);
         block33 = mapper.readValue(json, Block.class);
 
+        file = new File("./src/test/resources/json/block1030101.json");
+        json = FileUtils.readFileToString(file);
+        block1030101 = mapper.readValue(json, Block.class);
 
         file = new File("./src/test/resources/json/abi_coins.json");
         String abi = FileUtils.readFileToString(file);
@@ -111,5 +116,13 @@ public class ErisTransactionServiceTest {
     @Test
     public void getCallingData() throws Exception {
         assertEquals(inputArgsBlock33Tx, erisTransactionService.getCallingData(block33.getData().getErisTransactions().get(0), contractUnit));
+    }
+
+    @Test
+    public void getTransactionStoring_Blocks_ListTransactionStoringObj() throws Exception {
+        List<Block> blocks = new ArrayList<>();
+        blocks.add(block33);
+        blocks.add(block1030101);
+        assertEquals(2, erisTransactionService.getTransactionStoring(blocks).size());
     }
 }

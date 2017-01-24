@@ -57,12 +57,12 @@ public class ErisTransactionService {
     public ContractUnit getContractUnit(ErisTransaction transaction) {
         String contractAddress = transaction.getContractAddress();
         Contract contract = contractService.getContractsByAddress(contractAddress);
+        if (contract == null)
+            throw new ErisContractInstanceNotFound("Address " + contractAddress);
         try {
             return transaction.getContractUnit(contract.getAbi());
         } catch (IOException e) {
             throw new ErisProcessingException("Abi isn't correct", e);
-        } catch (NullPointerException e) {
-            throw new ErisContractInstanceNotFound(e);
         }
     }
 
@@ -81,5 +81,11 @@ public class ErisTransactionService {
         transactionStoring.setBlockNumber(blockNumber);
         transactionStoring.setTime(time);
         return transactionStoring;
+    }
+
+    public List<TransactionStoring> getTransactionStoring(List<Block> blocks) {
+        return blocks.stream().map(this::getTransactionStoring)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 }

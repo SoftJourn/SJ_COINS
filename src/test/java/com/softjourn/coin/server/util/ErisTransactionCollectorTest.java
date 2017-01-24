@@ -80,15 +80,22 @@ public class ErisTransactionCollectorTest {
         String json;
         Block block;
 
+        List<TransactionStoring> transactionStorings = new ArrayList<>();
+        transactionStorings.add(new TransactionStoring());
+
         file = new File("src/test/resources/json/block27.json");
         json = new Scanner(file).useDelimiter("\\Z").next();
         block = mapper.readValue(json, Block.class);
         when(transactionHelperMock.getBlock(BigInteger.valueOf(27))).thenReturn(block);
 
+        when(transactionService.getTransactionStoring(block)).thenReturn(transactionStorings);
+
         file = new File("src/test/resources/json/block33.json");
         json = new Scanner(file).useDelimiter("\\Z").next();
         block = mapper.readValue(json, Block.class);
         when(transactionHelperMock.getBlock(BigInteger.valueOf(33))).thenReturn(block);
+
+        when(transactionService.getTransactionStoring(block)).thenReturn(transactionStorings);
 
         file = new File("src/test/resources/json/block15.json");
         json = new Scanner(file).useDelimiter("\\Z").next();
@@ -100,7 +107,6 @@ public class ErisTransactionCollectorTest {
         blocks = mapper.readValue(json, Blocks.class);
         when(transactionHelperMock.getBlocks(BigInteger.ONE, BigInteger.valueOf(75))).thenReturn(blocks);
 
-//        when(transactionRepository.save(any(TransactionStoring.class))).thenReturn(new TransactionStoring());
         when(transactionService.storeTransaction(any(TransactionStoring.class)))
                 .thenAnswer(invocation -> invocation.getArgumentAt(0, TransactionStoring.class));
         when(transactionService.storeTransaction(any(List.class))).thenCallRealMethod();
@@ -156,8 +162,8 @@ public class ErisTransactionCollectorTest {
         blockNumbers.add(BigInteger.valueOf(33));
         List<TransactionStoring> transactions;
         transactions = testCollector.getTransactionsFromBlocks(blockNumbers);
-        assertEquals(2, transactions.size());
         System.out.println(transactions);
+        assertEquals(2, transactions.size());
     }
 
     @Test
