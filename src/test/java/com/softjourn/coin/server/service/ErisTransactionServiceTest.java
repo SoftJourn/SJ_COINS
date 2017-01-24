@@ -85,5 +85,6 @@ public class ErisTransactionServiceTest {
     public void getCallingData() throws Exception {
         TransactionStoring transactionStoring = ErisTransactionService.getTransactionStoringFromBlock(block33).get(0);
         ErisCallingData callingData = erisTransactionService.getCallingData(transactionStoring);
+        System.out.println(callingData);
     }
 }
