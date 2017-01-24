@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.dao;
 
 import com.softjourn.eris.transaction.type.ErisTransaction;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
 
 import javax.persistence.Access;
@@ -13,6 +14,7 @@ import javax.persistence.Embeddable;
  */
 @Embeddable
 @Access(AccessType.PROPERTY)
+@EqualsAndHashCode
 public class ErisTransactionDAO {
 
     @Delegate

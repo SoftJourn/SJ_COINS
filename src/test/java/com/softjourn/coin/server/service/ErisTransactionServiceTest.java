@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -47,7 +48,7 @@ public class ErisTransactionServiceTest {
     private Contract contract;
     private ContractUnit contractUnit;
     private HashMap<String, String> inputArgsBlock33Tx;
-
+    private TransactionStoring transaction33;
 
 
     @Before
@@ -89,6 +90,15 @@ public class ErisTransactionServiceTest {
         inputArgsBlock33Tx = new HashMap<>();
         inputArgsBlock33Tx.put("_tokenColor", "1");
 
+        transaction33 = new TransactionStoring();
+        transaction33.setBlockNumber(block33.getHeader().getHeight());
+        transaction33.setTime(block33.getHeader().getDateTime());
+        transaction33.setFunctionName(contractUnit.getName());
+        transaction33.setTransaction(block33.getData().getErisTransactions().get(0));
+        Map<String, String> callingValue = new HashMap<>();
+        callingValue.put(contractUnit.getInputs()[0].getName(), "1");
+        transaction33.setCallingValue(callingValue);
+
     }
 
 
@@ -97,6 +107,8 @@ public class ErisTransactionServiceTest {
         List<TransactionStoring> transactions = erisTransactionService.getTransactionStoring(block33);
         assertNotNull(transactions);
         assertEquals(transactions.size(), 1);
+        TransactionStoring transaction = transactions.get(0);
+        assertEquals(transaction33, transaction);
 
     }
 
