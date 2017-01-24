@@ -1,19 +1,23 @@
 package com.softjourn.coin.server.service;
 
-import com.softjourn.coin.server.dao.ErisTransactionDAO;
 import com.softjourn.coin.server.entity.Contract;
-import com.softjourn.coin.server.entity.ErisCallingData;
 import com.softjourn.coin.server.entity.TransactionStoring;
 import com.softjourn.coin.server.exceptions.ErisContractInstanceNotFound;
 import com.softjourn.coin.server.exceptions.ErisProcessingException;
 import com.softjourn.coin.server.repository.ErisTransactionRepository;
+import com.softjourn.eris.contract.ContractUnit;
 import com.softjourn.eris.transaction.type.Block;
+import com.softjourn.eris.transaction.type.ErisTransaction;
+import com.softjourn.eris.transaction.type.Header;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -33,10 +37,10 @@ public class ErisTransactionService {
         this.contractService = contractService;
     }
 
-    public static List<TransactionStoring> getTransactionStoringFromBlock(Block block) {
+    public List<TransactionStoring> getTransactionStoring(Block block) {
+        Header header = block.getHeader();
         return block.getData().getErisTransactions().stream()
-                .map(ErisTransactionDAO::new)
-                .map(dao -> new TransactionStoring(block.getHeader().getHeight(), block.getHeader().getDateTime(), dao))
+                .map(transaction -> getTransactionStoring(transaction, header.getHeight(), header.getDateTime()))
                 .collect(Collectors.toList());
     }
 
@@ -50,20 +54,32 @@ public class ErisTransactionService {
                 .collect(Collectors.toList());
     }
 
-    public ErisCallingData getCallingData(TransactionStoring transactionStoring) {
+    public ContractUnit getContractUnit(ErisTransaction transaction) {
+        String contractAddress = transaction.getContractAddress();
+        Contract contract = contractService.getContractsByAddress(contractAddress);
         try {
-            ErisTransactionDAO transactionDAO = transactionStoring.getTransaction();
-            String contractAddress = transactionDAO.getContractAddress();
-            System.out.println(contractAddress);
-            Contract contract = contractService.getContractsByAddress(contractAddress);
-            System.out.println(transactionDAO.parseCallingData(contract.getAbi()));
+            return transaction.getContractUnit(contract.getAbi());
         } catch (IOException e) {
             throw new ErisProcessingException("Abi isn't correct", e);
         } catch (NullPointerException e) {
             throw new ErisContractInstanceNotFound(e);
         }
+    }
 
+    public Map<String, String> getCallingData(ErisTransaction transaction, ContractUnit unit) {
+        return transaction.parseCallingData(unit);
+    }
 
-        return null;
+    public TransactionStoring getTransactionStoring(ErisTransaction transaction, BigInteger blockNumber
+            , LocalDateTime time) {
+
+        TransactionStoring transactionStoring = new TransactionStoring();
+        transactionStoring.setTransaction(transaction);
+        ContractUnit unit = this.getContractUnit(transaction);
+        transactionStoring.setCallingValue(this.getCallingData(transaction, unit));
+        transactionStoring.setFunctionName(unit.getName());
+        transactionStoring.setBlockNumber(blockNumber);
+        transactionStoring.setTime(time);
+        return transactionStoring;
     }
 }

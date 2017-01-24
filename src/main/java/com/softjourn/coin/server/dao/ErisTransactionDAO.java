@@ -25,6 +25,10 @@ public class ErisTransactionDAO {
     public ErisTransactionDAO() {
     }
 
+    public void setTransaction(ErisTransaction transaction) {
+        this.transaction = transaction;
+    }
+
     @Override
     public String toString() {
         return transaction.toString();

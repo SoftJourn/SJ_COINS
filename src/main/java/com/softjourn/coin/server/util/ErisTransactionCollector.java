@@ -83,7 +83,8 @@ public class ErisTransactionCollector implements Runnable {
     public List<TransactionStoring> getTransactionsFromBlock(BigInteger blockNumber) throws ErisClientException {
         try {
             Block block = transactionHelper.getBlock(blockNumber);
-            return ErisTransactionService.getTransactionStoringFromBlock(block);
+            return transactionService.getTransactionStoring(block);
+//            return null;
         } catch (Exception e) {
             throw new ErisClientException(e);
         }
