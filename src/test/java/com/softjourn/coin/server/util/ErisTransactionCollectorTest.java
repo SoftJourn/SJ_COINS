@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -55,15 +54,12 @@ public class ErisTransactionCollectorTest {
                 .peek(blockMeta -> blockMeta.getHeader().setNumTxs(0))
                 .collect(Collectors.toList());
 
-        Blocks blocks = new Blocks();
-        blocks.setBlockMetas(blockMetas);
-        when(transactionHelperMock.getBlocks(BigInteger.ONE, BigInteger.TEN)).thenReturn(blocks);
+        when(transactionHelperMock.getBlockStream(BigInteger.ONE, BigInteger.TEN)).thenReturn(blockMetas.stream());
 
         blockMetas = new ArrayList<>(blockMetas);
         blockMetas.add(null);
-        blocks = new Blocks();
-        blocks.setBlockMetas(blockMetas);
-        when(transactionHelperMock.getBlocks(BigInteger.ONE, BigInteger.TEN.add(BigInteger.ONE))).thenReturn(blocks);
+        when(transactionHelperMock.getBlockStream(BigInteger.ONE, BigInteger.TEN.add(BigInteger.ONE)))
+                .thenReturn(blockMetas.stream());
 
         blockMetas = new ArrayList<>(blockMetas);
         BlockMeta blockMetaWithTx = new BlockMeta();
@@ -72,9 +68,8 @@ public class ErisTransactionCollectorTest {
         header.setHeight(BigInteger.valueOf(12));
         blockMetaWithTx.setHeader(header);
         blockMetas.add(blockMetaWithTx);
-        blocks = new Blocks();
-        blocks.setBlockMetas(blockMetas);
-        when(transactionHelperMock.getBlocks(BigInteger.ONE, BigInteger.valueOf(12))).thenReturn(blocks);
+        when(transactionHelperMock.getBlockStream(BigInteger.ONE, BigInteger.valueOf(12)))
+                .thenReturn(blockMetas.stream());
 
         File file;
         String json;
@@ -104,8 +99,10 @@ public class ErisTransactionCollectorTest {
 
         file = new File("src/test/resources/json/blockRange1-75.json");
         json = new Scanner(file).useDelimiter("\\Z").next();
+        Blocks blocks;
         blocks = mapper.readValue(json, Blocks.class);
-        when(transactionHelperMock.getBlocks(BigInteger.ONE, BigInteger.valueOf(75))).thenReturn(blocks);
+        when(transactionHelperMock.getBlockStream(BigInteger.ONE, BigInteger.valueOf(75)))
+                .thenReturn(blocks.getBlockMetas().stream());
 
         when(transactionService.storeTransaction(any(TransactionStoring.class)))
                 .thenAnswer(invocation -> invocation.getArgumentAt(0, TransactionStoring.class));
@@ -113,12 +110,6 @@ public class ErisTransactionCollectorTest {
 
     }
 
-
-    @Test
-    public void getMissedTransactions() throws Exception {
-        assertNotNull(testCollector.getMissedTransactions(BigInteger.ZERO, BigInteger.TEN));
-        assertThat(testCollector.getMissedTransactions(BigInteger.ZERO, BigInteger.TEN), instanceOf(List.class));
-    }
 
     @Test
     public void getBlockNumbersWithTransaction_1_10_EmptyList() throws Exception {
@@ -170,7 +161,7 @@ public class ErisTransactionCollectorTest {
     public void run() throws Exception {
         testCollector.run();
         verify(transactionHelperMock, atLeastOnce()).getLatestBlockNumber();
-        verify(transactionHelperMock, atLeastOnce()).getBlocks(Matchers.any(), Matchers.any());
+        verify(transactionHelperMock, atLeastOnce()).getBlockStream(Matchers.any(), Matchers.any());
 
     }
 }

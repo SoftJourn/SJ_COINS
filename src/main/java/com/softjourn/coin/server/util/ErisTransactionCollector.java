@@ -5,13 +5,13 @@ import com.softjourn.coin.server.exceptions.ErisClientException;
 import com.softjourn.coin.server.service.ErisTransactionService;
 import com.softjourn.eris.transaction.TransactionHelper;
 import com.softjourn.eris.transaction.type.Block;
+import com.softjourn.eris.transaction.type.Blocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,7 +37,7 @@ public class ErisTransactionCollector implements Runnable {
             , ErisTransactionService transactionService) {
         this.transactionHelper = new TransactionHelper(host);
         this.transactionService = transactionService;
-        scheduledExecutorService.schedule(this, interval, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(this, interval, interval, TimeUnit.SECONDS);
         scheduledExecutorService.submit(this);
     }
 
@@ -53,14 +53,6 @@ public class ErisTransactionCollector implements Runnable {
         }
     }
 
-    public List<Object> getMissedTransactions(BigInteger from, BigInteger to) throws ErisClientException {
-        try {
-            transactionHelper.getBlocks(from, to);
-        } catch (IOException e) {
-            throw new ErisClientException(e.getMessage());
-        }
-        return new ArrayList<>();
-    }
 
     public BigInteger getDifference() throws ErisClientException {
         try {
@@ -71,12 +63,7 @@ public class ErisTransactionCollector implements Runnable {
     }
 
     public List<BigInteger> getBlockNumbersWithTransaction(BigInteger from, BigInteger to) throws ErisClientException {
-        try {
-            return transactionHelper.getBlocks(from, to)
-                    .getBlockNumbersWithTransaction();
-        } catch (IOException | NullPointerException e) {
-            throw new ErisClientException(e);
-        }
+        return Blocks.getBlockNumbersWithTransaction(transactionHelper.getBlockStream(from, to));
     }
 
 
