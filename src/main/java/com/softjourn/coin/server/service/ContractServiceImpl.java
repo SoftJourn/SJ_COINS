@@ -78,8 +78,11 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public Contract getContractsByAddress(String address) {
-        return instanceRepository.findByAddress(address).getContract();
+    public Contract getContractsByAddress(String address) throws ContractNotFoundException {
+        Instance instance = instanceRepository.findByAddress(address);
+        if (instance == null)
+            throw new ContractNotFoundException("There is no instance with address " + address);
+        return instance.getContract();
     }
 
     @Override

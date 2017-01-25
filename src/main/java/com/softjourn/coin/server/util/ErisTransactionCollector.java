@@ -37,7 +37,7 @@ public class ErisTransactionCollector implements Runnable {
             , ErisTransactionService transactionService) {
         this.transactionHelper = new TransactionHelper(host);
         this.transactionService = transactionService;
-        scheduledExecutorService.scheduleAtFixedRate(this, interval, interval, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(this, interval, 3, TimeUnit.SECONDS);
         scheduledExecutorService.submit(this);
     }
 
@@ -45,6 +45,7 @@ public class ErisTransactionCollector implements Runnable {
     public void run() {
         try {
             BigInteger lastProduced = transactionHelper.getLatestBlockNumber();
+            lastProduced = BigInteger.valueOf(1096);
             List<BigInteger> blocksWithTx = this.getBlockNumbersWithTransaction(this.latestBlockHeight, lastProduced);
             List<TransactionStoring> transactions = this.getTransactionsFromBlocks(blocksWithTx);
             this.transactionService.storeTransaction(transactions);
@@ -63,15 +64,16 @@ public class ErisTransactionCollector implements Runnable {
     }
 
     public List<BigInteger> getBlockNumbersWithTransaction(BigInteger from, BigInteger to) throws ErisClientException {
-        return Blocks.getBlockNumbersWithTransaction(transactionHelper.getBlockStream(from, to));
+        return Blocks.getBlockNumbersWithTransaction(transactionHelper.getBlocks(from, to));
     }
 
 
-    public List<TransactionStoring> getTransactionsFromBlock(BigInteger blockNumber) throws ErisClientException {
+    public List<TransactionStoring> getTransactionsFromBlock(BigInteger blockNumber) {
         try {
             Block block = transactionHelper.getBlock(blockNumber);
             return transactionService.getTransactionStoring(block);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ErisClientException(e);
         }
     }

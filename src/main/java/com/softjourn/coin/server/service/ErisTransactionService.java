@@ -2,7 +2,7 @@ package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.entity.Contract;
 import com.softjourn.coin.server.entity.TransactionStoring;
-import com.softjourn.coin.server.exceptions.ErisContractInstanceNotFound;
+import com.softjourn.coin.server.exceptions.ContractNotFoundException;
 import com.softjourn.coin.server.exceptions.ErisProcessingException;
 import com.softjourn.coin.server.repository.ErisTransactionRepository;
 import com.softjourn.eris.contract.ContractUnit;
@@ -45,7 +45,12 @@ public class ErisTransactionService {
     }
 
     public TransactionStoring storeTransaction(TransactionStoring transaction) {
-        return erisTransactionRepository.save(transaction);
+        try {
+            return erisTransactionRepository.save(transaction);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            return null;
+        }
     }
 
     public List<TransactionStoring> storeTransaction(List<TransactionStoring> transaction) {
@@ -56,14 +61,15 @@ public class ErisTransactionService {
 
     public ContractUnit getContractUnit(ErisTransaction transaction) {
         String contractAddress = transaction.getContractAddress();
-        Contract contract = contractService.getContractsByAddress(contractAddress);
-        if (contract == null)
-            throw new ErisContractInstanceNotFound("Address " + contractAddress);
         try {
+            Contract contract = contractService.getContractsByAddress(contractAddress);
             return transaction.getContractUnit(contract.getAbi());
         } catch (IOException e) {
-            throw new ErisProcessingException("Abi isn't correct", e);
+            new ErisProcessingException("Abi isn't correct", e).printStackTrace();
+        } catch (ContractNotFoundException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
     public Map<String, String> getCallingData(ErisTransaction transaction, ContractUnit unit) {
@@ -75,9 +81,15 @@ public class ErisTransactionService {
 
         TransactionStoring transactionStoring = new TransactionStoring();
         transactionStoring.setTransaction(transaction);
-        ContractUnit unit = this.getContractUnit(transaction);
-        transactionStoring.setCallingValue(this.getCallingData(transaction, unit));
-        transactionStoring.setFunctionName(unit.getName());
+        try {
+            ContractUnit unit = this.getContractUnit(transaction);
+            if (unit != null) {
+                transactionStoring.setCallingValue(this.getCallingData(transaction, unit));
+                transactionStoring.setFunctionName(unit.getName());
+            }
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
         transactionStoring.setBlockNumber(blockNumber);
         transactionStoring.setTime(time);
         transactionStoring.setChainId(chainId);
