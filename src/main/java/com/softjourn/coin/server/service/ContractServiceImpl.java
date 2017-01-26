@@ -11,6 +11,7 @@ import com.softjourn.coin.server.repository.InstanceRepository;
 import com.softjourn.coin.server.repository.TypeRepository;
 import com.softjourn.eris.contract.ContractUnit;
 import com.softjourn.eris.contract.Variable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 import static com.softjourn.eris.contract.Util.parseAbi;
 
 @Service
+@Slf4j
 public class ContractServiceImpl implements ContractService {
 
     private final ContractRepository contractRepository;

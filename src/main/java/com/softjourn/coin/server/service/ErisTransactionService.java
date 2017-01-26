@@ -3,12 +3,12 @@ package com.softjourn.coin.server.service;
 import com.softjourn.coin.server.entity.Contract;
 import com.softjourn.coin.server.entity.TransactionStoring;
 import com.softjourn.coin.server.exceptions.ContractNotFoundException;
-import com.softjourn.coin.server.exceptions.ErisProcessingException;
 import com.softjourn.coin.server.repository.ErisTransactionRepository;
 import com.softjourn.eris.contract.ContractUnit;
 import com.softjourn.eris.transaction.type.Block;
 import com.softjourn.eris.transaction.type.ErisTransaction;
 import com.softjourn.eris.transaction.type.Header;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -19,12 +19,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * ErisTransactionService created for managing transactions from blockchain
  * Created by vromanchuk on 23.01.17.
  */
 @Service
+@Slf4j
 public class ErisTransactionService {
 
     private final ErisTransactionRepository erisTransactionRepository;
@@ -53,10 +55,12 @@ public class ErisTransactionService {
         }
     }
 
-    public List<TransactionStoring> storeTransaction(List<TransactionStoring> transaction) {
-        return transaction.stream()
-                .map(this::storeTransaction)
-                .collect(Collectors.toList());
+    public void storeTransaction(Stream<TransactionStoring> transaction) {
+        transaction.forEach(this::storeTransaction);
+    }
+
+    public void storeTransaction(List<TransactionStoring> transaction) {
+        storeTransaction(transaction.stream());
     }
 
     public ContractUnit getContractUnit(ErisTransaction transaction) {
@@ -65,9 +69,9 @@ public class ErisTransactionService {
             Contract contract = contractService.getContractsByAddress(contractAddress);
             return transaction.getContractUnit(contract.getAbi());
         } catch (IOException e) {
-            new ErisProcessingException("Abi isn't correct", e).printStackTrace();
+            log.warn("Abi isn't correct", e);
         } catch (ContractNotFoundException e) {
-            e.printStackTrace();
+            log.warn("Unable to get contract", e);
         }
         return null;
     }
@@ -100,5 +104,13 @@ public class ErisTransactionService {
         return blocks.stream().map(this::getTransactionStoring)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
+    }
+
+    public BigInteger getHeightLastStored() {
+        TransactionStoring transactionStoring = erisTransactionRepository.findFirstByOrderByBlockNumberDesc();
+        if (transactionStoring == null)
+            return BigInteger.ZERO;
+        else
+            return transactionStoring.getBlockNumber();
     }
 }

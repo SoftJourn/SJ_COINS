@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.controller
 
+import com.softjourn.coin.server.util.ErisTransactionCollector
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Rule
@@ -8,6 +9,7 @@ import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.restdocs.JUnitRestDocumentation
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
@@ -37,6 +39,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureTestDatabase
 @WebAppConfiguration
 class CoinsControllerTests {
+
+    @MockBean
+    private ErisTransactionCollector erisTransactionCollector
 
     @Rule
     public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation('target/generated-snippets')

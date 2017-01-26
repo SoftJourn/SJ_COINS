@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -24,9 +23,10 @@ public class TransactionStoring {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @NotNull
     private Long id;
+
     // TODO create entity HeaderDAO
+    @Column(columnDefinition = "BIGINT")
     private BigInteger blockNumber;
     private LocalDateTime time;
     private String functionName;

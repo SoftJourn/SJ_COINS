@@ -5,6 +5,7 @@ import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
+import com.softjourn.coin.server.util.ErisTransactionCollector;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
 import com.softjourn.eris.contract.response.TxParams;
@@ -15,6 +16,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -39,6 +41,9 @@ import static org.mockito.Mockito.*;
 @Rollback
 @Transactional
 public class CoinServiceTransactionsTest {
+
+    @MockBean
+    ErisTransactionCollector erisTransactionCollector;
 
     @Autowired
     TransactionRepository transactionRepository;

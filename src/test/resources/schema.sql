@@ -1,16 +1,20 @@
 DROP TABLE eris IF EXISTS CASCADE;
 DROP TABLE accounts IF EXISTS CASCADE;
 DROP TABLE transactions IF EXISTS;
+DROP TABLE tx_calling_data
+IF EXISTS;
+DROP TABLE transaction_history
+IF EXISTS;
 
 CREATE TABLE accounts
 (
-    ldap_id VARCHAR(255) NOT NULL PRIMARY KEY,
-    amount DECIMAL(10),
-    full_name VARCHAR(255),
-    account_type VARCHAR(32) DEFAULT 'REGULAR',
-    image VARCHAR(255),
-    is_new TINYINT DEFAULT 1,
-    deleted INT DEFAULT 0
+  ldap_id      VARCHAR(255) NOT NULL PRIMARY KEY,
+  amount       DECIMAL(10),
+  full_name    VARCHAR(255),
+  account_type VARCHAR(32) DEFAULT 'REGULAR',
+  image        VARCHAR(255),
+  is_new       BOOLEAN     DEFAULT 1,
+  deleted      BOOLEAN     DEFAULT 0
 );
 
 CREATE TABLE transactions
@@ -38,3 +42,32 @@ CREATE TABLE eris
 );
 CREATE INDEX FK55s0o6jfa48iqty8bc1nxxrf2 ON eris (account_ldap_id);
 CREATE UNIQUE INDEX UKrpsbty0f34qu89n6juppia3ge ON eris (type, account_ldap_id);
+
+CREATE TABLE transaction_history
+(
+  block_number          BIGINT PRIMARY KEY NOT NULL,
+  chain_id              VARCHAR(255),
+  function_name         VARCHAR(255),
+  time                  DATETIME,
+  amount                VARCHAR(255),
+  caller_address        VARCHAR(255),
+  caller_pub_key        VARCHAR(255),
+  calling_data          VARCHAR(255000),
+  contract_address      VARCHAR(255),
+  fee                   VARCHAR(255),
+  function_name_hash    VARCHAR(255),
+  gas_limit             VARCHAR(255),
+  identifier            VARCHAR(255),
+  sequence              VARCHAR(255),
+  sequence_size         VARCHAR(255),
+  transaction_signature VARCHAR(255)
+);
+
+CREATE TABLE tx_calling_data
+(
+  tx_id         BIGINT       NOT NULL,
+  calling_value VARCHAR(255),
+  function_name VARCHAR(255) NOT NULL,
+  CONSTRAINT PRIMARY_KEY PRIMARY KEY (tx_id, function_name),
+  CONSTRAINT FKcdwwj4qxq3unv7cveilenig5d FOREIGN KEY (tx_id) REFERENCES transaction_history (block_number)
+);

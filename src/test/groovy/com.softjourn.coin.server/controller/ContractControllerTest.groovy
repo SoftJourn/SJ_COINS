@@ -3,6 +3,7 @@ package com.softjourn.coin.server.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.softjourn.coin.server.dto.NewContractDTO
 import com.softjourn.coin.server.dto.NewContractInstanceDTO
+import com.softjourn.coin.server.util.ErisTransactionCollector
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -10,6 +11,7 @@ import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.restdocs.JUnitRestDocumentation
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.test.context.support.WithMockUser
@@ -34,6 +36,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureTestDatabase
 @WebAppConfiguration
 class ContractControllerTest {
+
+    @MockBean
+    private ErisTransactionCollector erisTransactionCollector;
 
     @Rule
     public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation('target/generated-snippets')

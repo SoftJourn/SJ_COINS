@@ -10,7 +10,6 @@ import com.softjourn.eris.transaction.type.Blocks;
 import com.softjourn.eris.transaction.type.Header;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -23,19 +22,73 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 public class ErisTransactionCollectorTest {
 
-    private BigInteger lastBlock = BigInteger.valueOf(75);
+    private BigInteger lastBlock = BigInteger.valueOf(12);
     private String host = "http://172.17.0.1:1337";
     private ErisTransactionService transactionService = mock(ErisTransactionService.class);
     private ErisTransactionCollector testCollector = new ErisTransactionCollector(host, 30L, transactionService);
     private ObjectMapper mapper = new ObjectMapper();
     private TransactionHelper transactionHelperMock = mock(TransactionHelper.class);
+
+    @Test
+    public void getBlockNumbersWithTransaction_1_10_EmptyList() throws Exception {
+        List<BigInteger> list = testCollector
+                .getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.TEN)
+                .collect(Collectors.toList());
+        assertTrue(list.isEmpty());
+    }
+
+    @Test
+    public void getBlockNumbersWithTransaction_1_11_EmptyList() throws Exception {
+        List<BigInteger> list = testCollector
+                .getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.TEN.add(BigInteger.ONE))
+                .collect(Collectors.toList());
+        assertTrue(list.isEmpty());
+    }
+
+    @Test
+    public void getBlockNumbersWithTransaction_1_12_BlockHeight11() throws Exception {
+        System.out.println("ErisTransactionCollectorTest.getBlockNumbersWithTransaction_1_12_BlockHeight11");
+        List<BigInteger> list = testCollector.getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.valueOf(13))
+                .collect(Collectors.toList());
+        System.out.println(list);
+        assertFalse(list.isEmpty());
+        assertTrue(list.contains(BigInteger.valueOf(12)));
+    }
+
+    @Test
+    public void getTransactionsFromBlock_BlockNumber_ListOfTransactions() throws Exception {
+        List<TransactionStoring> transactions;
+        transactions = testCollector.getTransactionsFromBlock(BigInteger.valueOf(27));
+        assertEquals(1, transactions.size());
+        transactions = testCollector.getTransactionsFromBlock(BigInteger.valueOf(33));
+        assertEquals(1, transactions.size());
+    }
+
+    @Test
+    public void getTransactionsFromBlocks_ListBlockNumbers_ListOfTransactions() throws Exception {
+        System.out.println("ErisTransactionCollectorTest.getTransactionsFromBlocks_ListBlockNumbers_ListOfTransactions");
+        List<BigInteger> blockNumbers = new ArrayList<>();
+        blockNumbers.add(BigInteger.valueOf(27));
+        blockNumbers.add(BigInteger.valueOf(33));
+        List<TransactionStoring> transactions;
+        transactions = testCollector.getTransactionsFromBlocks(blockNumbers);
+        System.out.println(transactions);
+        assertEquals(2, transactions.size());
+    }
+
+    @Test
+    public void run() throws Exception {
+        testCollector.run();
+        verify(transactionHelperMock, atLeastOnce()).getLatestBlockNumber();
+        verify(transactionService, atLeastOnce()).getHeightLastStored();
+
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -68,7 +121,7 @@ public class ErisTransactionCollectorTest {
         header.setHeight(BigInteger.valueOf(12));
         blockMetaWithTx.setHeader(header);
         blockMetas.add(blockMetaWithTx);
-        when(transactionHelperMock.getBlockStream(BigInteger.ONE, BigInteger.valueOf(12)))
+        when(transactionHelperMock.getBlockStream(BigInteger.ONE, BigInteger.valueOf(13)))
                 .thenReturn(blockMetas.stream());
 
         File file;
@@ -106,62 +159,13 @@ public class ErisTransactionCollectorTest {
 
         when(transactionService.storeTransaction(any(TransactionStoring.class)))
                 .thenAnswer(invocation -> invocation.getArgumentAt(0, TransactionStoring.class));
-        when(transactionService.storeTransaction(any(List.class))).thenCallRealMethod();
+
+        doCallRealMethod().when(transactionService).storeTransaction(any(List.class));
+
+        when(transactionService.getHeightLastStored()).thenReturn(BigInteger.ZERO);
 
     }
 
 
-    @Test
-    public void getBlockNumbersWithTransaction_1_10_EmptyList() throws Exception {
-        List<BigInteger> list = testCollector.getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.TEN);
-        assertTrue(list.isEmpty());
-    }
 
-    @Test
-    public void getBlockNumbersWithTransaction_1_11_EmptyList() throws Exception {
-        List<BigInteger> list = testCollector
-                .getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.TEN.add(BigInteger.ONE));
-        assertTrue(list.isEmpty());
-    }
-
-    @Test
-    public void getBlockNumbersWithTransaction_1_12_BlockHeight11() throws Exception {
-        List<BigInteger> list = testCollector.getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.valueOf(12));
-        assertFalse(list.isEmpty());
-        assertTrue(list.contains(BigInteger.valueOf(12)));
-    }
-
-    @Test
-    public void getDifference() throws Exception {
-        assertNotNull(testCollector.getDifference());
-        assertEquals(lastBlock.subtract(BigInteger.ONE), testCollector.getDifference());
-    }
-
-    @Test
-    public void getTransactionsFromBlock_BlockNumber_ListOfTransactions() throws Exception {
-        List<TransactionStoring> transactions;
-        transactions = testCollector.getTransactionsFromBlock(BigInteger.valueOf(27));
-        assertEquals(1, transactions.size());
-        transactions = testCollector.getTransactionsFromBlock(BigInteger.valueOf(33));
-        assertEquals(1, transactions.size());
-    }
-
-    @Test
-    public void getTransactionsFromBlocks_ListBlockNumbers_ListOfTransactions() throws Exception {
-        List<BigInteger> blockNumbers = new ArrayList<>();
-        blockNumbers.add(BigInteger.valueOf(27));
-        blockNumbers.add(BigInteger.valueOf(33));
-        List<TransactionStoring> transactions;
-        transactions = testCollector.getTransactionsFromBlocks(blockNumbers);
-        System.out.println(transactions);
-        assertEquals(2, transactions.size());
-    }
-
-    @Test
-    public void run() throws Exception {
-        testCollector.run();
-        verify(transactionHelperMock, atLeastOnce()).getLatestBlockNumber();
-        verify(transactionHelperMock, atLeastOnce()).getBlockStream(Matchers.any(), Matchers.any());
-
-    }
 }
