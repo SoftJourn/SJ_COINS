@@ -33,8 +33,10 @@ public class ErisTransactionCollector implements Runnable {
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private TransactionHelper transactionHelper;
     private ErisTransactionService transactionService;
+    private BigInteger lastCheckedBlockNumber = BigInteger.ZERO;
     private BigInteger lastSavedBlockHeightWithTx;
     private int errorInSequenceCount;
+    private BigInteger lastProduced;
 
 
     @Autowired
@@ -45,21 +47,25 @@ public class ErisTransactionCollector implements Runnable {
         this.transactionService = transactionService;
         scheduledExecutorService.scheduleAtFixedRate(this, interval, 3, TimeUnit.SECONDS);
         scheduledExecutorService.submit(this);
+        lastCheckedBlockNumber = transactionService.getHeightLastStored();
     }
 
     @Override
     public void run() {
         try {
-            BigInteger lastProduced = transactionHelper.getLatestBlockNumber().add(BigInteger.ONE);
-            lastSavedBlockHeightWithTx = transactionService.getHeightLastStored().add(BigInteger.ONE);
-            Stream<BigInteger> blocksWithTx = this.getBlockNumbersWithTransaction(this.lastSavedBlockHeightWithTx, lastProduced);
-            Stream<TransactionStoring> transactions = this.getTransactionsFromBlocks(blocksWithTx);
-            this.transactionService.storeTransaction(transactions);
-            errorInSequenceCount = 0;
+            lastProduced = transactionHelper.getLatestBlockNumber();
+            if (!lastProduced.equals(lastCheckedBlockNumber)) {
+                Stream<BigInteger> blocksWithTx = this
+                        .getBlockNumbersWithTransaction(lastCheckedBlockNumber.add(BigInteger.ONE), lastProduced.add(BigInteger.ONE));
+                Stream<TransactionStoring> transactions = this.getTransactionsFromBlocks(blocksWithTx);
+                this.transactionService.storeTransaction(transactions);
+                errorInSequenceCount = 0;
+                lastCheckedBlockNumber = lastProduced;
+            }
         } catch (Exception e) {
             errorInSequenceCount++;
             log.warn("Cyclic error in collector scheduler. Please fix me ...", e);
-            if(errorInSequenceCount > MAX_ERRORS_IN_SEQUENCE) {
+            if (errorInSequenceCount > MAX_ERRORS_IN_SEQUENCE) {
                 log.error("Scheduler stopped due to a lot of errors in a sequence");
                 scheduledExecutorService.shutdown();
             }
