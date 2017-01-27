@@ -21,7 +21,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,8 +54,8 @@ public class ErisTransactionServiceTest {
     public void getHeightLastStored() throws Exception {
         System.out.println("ErisTransactionServiceTest.getHeightLastStored");
         System.out.println(erisTransactionService);
-        BigInteger lastSavedBlockHeightWithTx = erisTransactionService.getHeightLastStored();
-        assertEquals(BigInteger.ZERO, lastSavedBlockHeightWithTx);
+        long lastSavedBlockHeightWithTx = erisTransactionService.getHeightLastStored();
+        assertEquals(0L, lastSavedBlockHeightWithTx);
         erisTransactionService.storeTransaction(transaction33);
         assertEquals(transaction33.getBlockNumber(), erisTransactionService.getHeightLastStored());
     }
@@ -106,9 +105,6 @@ public class ErisTransactionServiceTest {
         json = FileUtils.readFileToString(file);
         Block block15 = mapper.readValue(json, Block.class);
 
-//        when(transactionRepository.save(any(TransactionStoring.class)))
-//                .then(invocation -> invocation.getArgumentAt(0, TransactionStoring.class));
-
         file = new File("./src/test/resources/json/block33.json");
         json = FileUtils.readFileToString(file);
         block33 = mapper.readValue(json, Block.class);
@@ -143,6 +139,9 @@ public class ErisTransactionServiceTest {
         transaction33.setFunctionName(contractUnit.getName());
         transaction33.setTransaction(block33.getData().getErisTransactions().get(0));
         transaction33.setChainId("test");
+        String txId = TransactionStoring.getTxId(transaction33.getChainId(),transaction33.getTransaction());
+        transaction33.setTxId(txId);
+
         Map<String, String> callingValue = new HashMap<>();
         callingValue.put(contractUnit.getInputs()[0].getName(), "1");
         transaction33.setCallingValue(callingValue);

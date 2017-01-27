@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +28,6 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 public class ErisTransactionCollectorTest {
 
-    private BigInteger lastBlock = BigInteger.valueOf(12);
     private ErisTransactionService transactionService = mock(ErisTransactionService.class);
     private ErisTransactionCollector testCollector;
     private ObjectMapper mapper = new ObjectMapper();
@@ -38,8 +36,8 @@ public class ErisTransactionCollectorTest {
 
     @Test
     public void getBlockNumbersWithTransaction_1_10_EmptyList() throws Exception {
-        List<BigInteger> list = testCollector
-                .getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.TEN)
+        List<Long> list = testCollector
+                .getBlockNumbersWithTransaction(1L, 10L)
                 .collect(Collectors.toList());
         assertTrue(list.isEmpty());
     }
@@ -47,8 +45,8 @@ public class ErisTransactionCollectorTest {
     @Test
     public void getBlockNumbersWithTransaction_1_11_EmptyList() throws Exception {
         scheduledExecutorService.shutdown();
-        List<BigInteger> list = testCollector
-                .getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.TEN.add(BigInteger.ONE))
+        List<Long> list = testCollector
+                .getBlockNumbersWithTransaction(1L, 11L)
                 .collect(Collectors.toList());
         assertTrue(list.isEmpty());
     }
@@ -57,28 +55,28 @@ public class ErisTransactionCollectorTest {
     public void getBlockNumbersWithTransaction_1_12_BlockHeight11() throws Exception {
         System.out.println("ErisTransactionCollectorTest.getBlockNumbersWithTransaction_1_12_BlockHeight11");
         scheduledExecutorService.shutdown();
-        List<BigInteger> list = testCollector.getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.valueOf(13))
+        List<Long> list = testCollector.getBlockNumbersWithTransaction(1L, 13L)
                 .collect(Collectors.toList());
         System.out.println(list);
         assertFalse(list.isEmpty());
-        assertTrue(list.contains(BigInteger.valueOf(12)));
+        assertTrue(list.contains(12L));
     }
 
     @Test
     public void getTransactionsFromBlock_BlockNumber_ListOfTransactions() throws Exception {
         List<TransactionStoring> transactions;
-        transactions = testCollector.getTransactionsFromBlock(BigInteger.valueOf(27));
+        transactions = testCollector.getTransactionsFromBlock(27L);
         assertEquals(1, transactions.size());
-        transactions = testCollector.getTransactionsFromBlock(BigInteger.valueOf(33));
+        transactions = testCollector.getTransactionsFromBlock(33L);
         assertEquals(1, transactions.size());
     }
 
     @Test
     public void getTransactionsFromBlocks_ListBlockNumbers_ListOfTransactions() throws Exception {
         System.out.println("ErisTransactionCollectorTest.getTransactionsFromBlocks_ListBlockNumbers_ListOfTransactions");
-        List<BigInteger> blockNumbers = new ArrayList<>();
-        blockNumbers.add(BigInteger.valueOf(27));
-        blockNumbers.add(BigInteger.valueOf(33));
+        List<Long> blockNumbers = new ArrayList<>();
+        blockNumbers.add(27L);
+        blockNumbers.add(33L);
         List<TransactionStoring> transactions;
         transactions = testCollector.getTransactionsFromBlocks(blockNumbers);
         System.out.println(transactions);
@@ -95,7 +93,8 @@ public class ErisTransactionCollectorTest {
 
     @Before
     public void setUp() throws Exception {
-        when(transactionService.getHeightLastStored()).thenReturn(BigInteger.ZERO);
+        when(transactionService.getHeightLastStored()).thenReturn(0L);
+        Long lastBlock = 12L;
         when(transactionHelperMock.getLatestBlockNumber()).thenReturn(lastBlock);
 
         int[] blocksInitArray = new int[9];
@@ -105,11 +104,11 @@ public class ErisTransactionCollectorTest {
                 .peek(blockMeta -> blockMeta.getHeader().setNumTxs(0))
                 .collect(Collectors.toList());
 
-        when(transactionHelperMock.getBlockStream(BigInteger.ONE, BigInteger.TEN)).thenReturn(blockMetas.stream());
+        when(transactionHelperMock.getBlockStream(1L, 10L)).thenReturn(blockMetas.stream());
 
         blockMetas = new ArrayList<>(blockMetas);
         blockMetas.add(null);
-        when(transactionHelperMock.getBlockStream(BigInteger.ONE, BigInteger.TEN.add(BigInteger.ONE)))
+        when(transactionHelperMock.getBlockStream(1L, 11L))
                 .thenReturn(blockMetas.stream());
 
         blockMetas = new ArrayList<>(blockMetas);
@@ -117,10 +116,10 @@ public class ErisTransactionCollectorTest {
         Header header;
         header = new Header();
         header.setNumTxs(1);
-        header.setHeight(BigInteger.valueOf(12));
+        header.setHeight(12L);
         blockMetaWithTx.setHeader(header);
         blockMetas.add(blockMetaWithTx);
-        when(transactionHelperMock.getBlockStream(BigInteger.ONE, BigInteger.valueOf(13)))
+        when(transactionHelperMock.getBlockStream(1L, 13L))
                 .thenReturn(blockMetas.stream());
 
         File file;
@@ -133,27 +132,27 @@ public class ErisTransactionCollectorTest {
         file = new File("src/test/resources/json/block27.json");
         json = new Scanner(file).useDelimiter("\\Z").next();
         block = mapper.readValue(json, Block.class);
-        when(transactionHelperMock.getBlock(BigInteger.valueOf(27))).thenReturn(block);
+        when(transactionHelperMock.getBlock(27L)).thenReturn(block);
 
         when(transactionService.getTransactionStoring(block)).thenReturn(transactionStorings);
 
         file = new File("src/test/resources/json/block33.json");
         json = new Scanner(file).useDelimiter("\\Z").next();
         block = mapper.readValue(json, Block.class);
-        when(transactionHelperMock.getBlock(BigInteger.valueOf(33))).thenReturn(block);
+        when(transactionHelperMock.getBlock(33L)).thenReturn(block);
 
         when(transactionService.getTransactionStoring(block)).thenReturn(transactionStorings);
 
         file = new File("src/test/resources/json/block15.json");
         json = new Scanner(file).useDelimiter("\\Z").next();
         block = mapper.readValue(json, Block.class);
-        when(transactionHelperMock.getBlock(BigInteger.valueOf(15))).thenReturn(block);
+        when(transactionHelperMock.getBlock(15L)).thenReturn(block);
 
         file = new File("src/test/resources/json/blockRange1-75.json");
         json = new Scanner(file).useDelimiter("\\Z").next();
         Blocks blocks;
         blocks = mapper.readValue(json, Blocks.class);
-        when(transactionHelperMock.getBlockStream(BigInteger.ONE, BigInteger.valueOf(75)))
+        when(transactionHelperMock.getBlockStream(1L, 75L))
                 .thenReturn(blocks.getBlockMetas().stream());
 
         when(transactionService.storeTransaction(any(TransactionStoring.class)))

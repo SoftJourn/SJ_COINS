@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.service;
 
+import com.softjourn.coin.server.dao.ErisTransactionDAO;
 import com.softjourn.coin.server.entity.Contract;
 import com.softjourn.coin.server.entity.TransactionStoring;
 import com.softjourn.coin.server.exceptions.ContractNotFoundException;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class ErisTransactionService {
 
+    private final String DEPLOY_FUNCTION_NAME = "DEPLOY";
     private final ErisTransactionRepository erisTransactionRepository;
     private final ContractService contractService;
 
@@ -80,23 +81,29 @@ public class ErisTransactionService {
         return transaction.parseCallingData(unit);
     }
 
-    public TransactionStoring getTransactionStoring(ErisTransaction transaction, BigInteger blockNumber
+    public TransactionStoring getTransactionStoring(ErisTransaction transaction, Long blockNumber
             , LocalDateTime time, String chainId) {
-
-        TransactionStoring transactionStoring = new TransactionStoring();
-        transactionStoring.setTransaction(transaction);
-        try {
-            ContractUnit unit = this.getContractUnit(transaction);
-            if (unit != null) {
-                transactionStoring.setCallingValue(this.getCallingData(transaction, unit));
-                transactionStoring.setFunctionName(unit.getName());
+        TransactionStoring transactionStoring = null;
+        if (!transaction.getIsDeploy()) {
+            try {
+                ContractUnit unit = this.getContractUnit(transaction);
+                if (unit != null) {
+                    transactionStoring = new TransactionStoring(blockNumber, time, unit.getName(), chainId
+                            , new ErisTransactionDAO(transaction)
+                            , this.getCallingData(transaction, unit));
+                }
+            } catch (RuntimeException e) {
+                e.printStackTrace();
             }
-        } catch (RuntimeException e) {
-            e.printStackTrace();
+        } else {
+
+            transactionStoring = new TransactionStoring();
+            transactionStoring.setTransaction(transaction);
+            transactionStoring.setBlockNumber(blockNumber);
+            transactionStoring.setTime(time);
+            transactionStoring.setChainId(chainId);
+            transactionStoring.setFunctionName(DEPLOY_FUNCTION_NAME);
         }
-        transactionStoring.setBlockNumber(blockNumber);
-        transactionStoring.setTime(time);
-        transactionStoring.setChainId(chainId);
         return transactionStoring;
     }
 
@@ -106,12 +113,12 @@ public class ErisTransactionService {
                 .collect(Collectors.toList());
     }
 
-    public BigInteger getHeightLastStored() {
-        if(erisTransactionRepository.count()<1)
-            return BigInteger.ZERO;
+    public Long getHeightLastStored() {
+        if (erisTransactionRepository.count() < 1)
+            return 0L;
         TransactionStoring transactionStoring = erisTransactionRepository.findFirstByOrderByBlockNumberDesc();
         if (transactionStoring == null)
-            return BigInteger.ZERO;
+            return 0L;
         else
             return transactionStoring.getBlockNumber();
     }

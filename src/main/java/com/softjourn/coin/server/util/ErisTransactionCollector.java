@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,7 +35,7 @@ public class ErisTransactionCollector implements Runnable {
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private TransactionHelper transactionHelper;
     private ErisTransactionService transactionService;
-    private BigInteger lastCheckedBlockNumber = BigInteger.ZERO;
+    private Long lastCheckedBlockNumber = 0L;
     private int errorInSequenceCount;
 
 
@@ -54,13 +53,13 @@ public class ErisTransactionCollector implements Runnable {
     @Override
     public void run() {
         try {
-            BigInteger lastProduced = transactionHelper.getLatestBlockNumber();
+            Long lastProduced = transactionHelper.getLatestBlockNumber();
             if (!lastProduced.equals(lastCheckedBlockNumber)) {
                 log.trace(marker, "Calling blocks from "
                         + lastCheckedBlockNumber
-                        + " to " + lastProduced );
-                Stream<BigInteger> blocksWithTx = this
-                        .getBlockNumbersWithTransaction(lastCheckedBlockNumber.add(BigInteger.ONE), lastProduced.add(BigInteger.ONE));
+                        + " to " + lastProduced);
+                Stream<Long> blocksWithTx = this
+                        .getBlockNumbersWithTransaction(lastCheckedBlockNumber + 1, lastProduced + 1);
                 Stream<TransactionStoring> transactions = this.getTransactionsFromBlocks(blocksWithTx);
                 this.transactionService.storeTransaction(transactions);
                 errorInSequenceCount = 0;
@@ -77,12 +76,12 @@ public class ErisTransactionCollector implements Runnable {
     }
 
 
-    public Stream<BigInteger> getBlockNumbersWithTransaction(BigInteger from, BigInteger to) throws ErisClientException {
+    public Stream<Long> getBlockNumbersWithTransaction(Long from, Long to) throws ErisClientException {
         return Blocks.getBlockNumbersWithTransaction(transactionHelper.getBlockStream(from, to));
     }
 
 
-    public List<TransactionStoring> getTransactionsFromBlock(BigInteger blockNumber) {
+    public List<TransactionStoring> getTransactionsFromBlock(Long blockNumber) {
         try {
             Block block = transactionHelper.getBlock(blockNumber);
             return transactionService.getTransactionStoring(block);
@@ -92,11 +91,11 @@ public class ErisTransactionCollector implements Runnable {
         }
     }
 
-    public List<TransactionStoring> getTransactionsFromBlocks(List<BigInteger> blockNumbers) throws ErisClientException {
+    public List<TransactionStoring> getTransactionsFromBlocks(List<Long> blockNumbers) throws ErisClientException {
         return getTransactionsFromBlocks(blockNumbers.stream()).collect(Collectors.toList());
     }
 
-    public Stream<TransactionStoring> getTransactionsFromBlocks(Stream<BigInteger> blockNumbers) throws ErisClientException {
+    public Stream<TransactionStoring> getTransactionsFromBlocks(Stream<Long> blockNumbers) throws ErisClientException {
         return blockNumbers
                 .map(this::getTransactionsFromBlock)
                 .flatMap(List::stream);
