@@ -43,6 +43,7 @@ public class ErisTransactionServiceTest {
     private ContractServiceImpl contractServiceImpl;
     @MockBean
     private ErisTransactionCollector erisTransactionCollector;
+
     private ObjectMapper mapper = new ObjectMapper();
     private Block block33;
     private Block block1030101;

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -29,11 +30,11 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class ErisTransactionCollectorTest {
 
     private BigInteger lastBlock = BigInteger.valueOf(12);
-    private String host = "http://172.17.0.1:1337";
     private ErisTransactionService transactionService = mock(ErisTransactionService.class);
-    private ErisTransactionCollector testCollector = new ErisTransactionCollector(host, 30L, transactionService);
+    private ErisTransactionCollector testCollector;
     private ObjectMapper mapper = new ObjectMapper();
     private TransactionHelper transactionHelperMock = mock(TransactionHelper.class);
+    private ScheduledExecutorService scheduledExecutorService;
 
     @Test
     public void getBlockNumbersWithTransaction_1_10_EmptyList() throws Exception {
@@ -45,6 +46,7 @@ public class ErisTransactionCollectorTest {
 
     @Test
     public void getBlockNumbersWithTransaction_1_11_EmptyList() throws Exception {
+        scheduledExecutorService.shutdown();
         List<BigInteger> list = testCollector
                 .getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.TEN.add(BigInteger.ONE))
                 .collect(Collectors.toList());
@@ -54,6 +56,7 @@ public class ErisTransactionCollectorTest {
     @Test
     public void getBlockNumbersWithTransaction_1_12_BlockHeight11() throws Exception {
         System.out.println("ErisTransactionCollectorTest.getBlockNumbersWithTransaction_1_12_BlockHeight11");
+        scheduledExecutorService.shutdown();
         List<BigInteger> list = testCollector.getBlockNumbersWithTransaction(BigInteger.ONE, BigInteger.valueOf(13))
                 .collect(Collectors.toList());
         System.out.println(list);
@@ -92,12 +95,7 @@ public class ErisTransactionCollectorTest {
 
     @Before
     public void setUp() throws Exception {
-
-        //get transaction helper
-        Field transactionHelperField = testCollector.getClass().getDeclaredField("transactionHelper");
-        transactionHelperField.setAccessible(true);
-
-        transactionHelperField.set(testCollector, transactionHelperMock);
+        when(transactionService.getHeightLastStored()).thenReturn(BigInteger.ZERO);
         when(transactionHelperMock.getLatestBlockNumber()).thenReturn(lastBlock);
 
         int[] blocksInitArray = new int[9];
@@ -116,7 +114,8 @@ public class ErisTransactionCollectorTest {
 
         blockMetas = new ArrayList<>(blockMetas);
         BlockMeta blockMetaWithTx = new BlockMeta();
-        Header header = new Header();
+        Header header;
+        header = new Header();
         header.setNumTxs(1);
         header.setHeight(BigInteger.valueOf(12));
         blockMetaWithTx.setHeader(header);
@@ -162,8 +161,21 @@ public class ErisTransactionCollectorTest {
 
         doCallRealMethod().when(transactionService).storeTransaction(any(List.class));
 
-        when(transactionService.getHeightLastStored()).thenReturn(BigInteger.ZERO);
 
+        long runningExecutionTimeSeconds = Long.MAX_VALUE;
+        String host = "http://172.17.0.2:1337";
+        testCollector = new ErisTransactionCollector(host, runningExecutionTimeSeconds, transactionService);
+
+        Field scheduledExecutorServiceField = testCollector.getClass().getDeclaredField("scheduledExecutorService");
+        scheduledExecutorServiceField.setAccessible(true);
+        scheduledExecutorService = (ScheduledExecutorService)scheduledExecutorServiceField.get(testCollector);
+        scheduledExecutorService.shutdownNow();
+
+        //get transaction helper
+        Field transactionHelperField = testCollector.getClass().getDeclaredField("transactionHelper");
+        transactionHelperField.setAccessible(true);
+
+        transactionHelperField.set(testCollector, transactionHelperMock);
     }
 
 

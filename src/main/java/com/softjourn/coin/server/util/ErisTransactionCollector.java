@@ -7,6 +7,8 @@ import com.softjourn.eris.transaction.TransactionHelper;
 import com.softjourn.eris.transaction.type.Block;
 import com.softjourn.eris.transaction.type.Blocks;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -28,15 +30,14 @@ import java.util.stream.Stream;
 
 public class ErisTransactionCollector implements Runnable {
 
-    private static int MAX_ERRORS_IN_SEQUENCE = 10;
+    private static final Marker marker = MarkerFactory.getMarker("TRANSACTION_MARKER");
+    private static final int MAX_ERRORS_IN_SEQUENCE = 10;
 
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private TransactionHelper transactionHelper;
     private ErisTransactionService transactionService;
     private BigInteger lastCheckedBlockNumber = BigInteger.ZERO;
-    private BigInteger lastSavedBlockHeightWithTx;
     private int errorInSequenceCount;
-    private BigInteger lastProduced;
 
 
     @Autowired
@@ -45,7 +46,7 @@ public class ErisTransactionCollector implements Runnable {
             , ErisTransactionService transactionService) {
         this.transactionHelper = new TransactionHelper(host);
         this.transactionService = transactionService;
-        scheduledExecutorService.scheduleAtFixedRate(this, interval, 3, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(this, interval, interval, TimeUnit.SECONDS);
         scheduledExecutorService.submit(this);
         lastCheckedBlockNumber = transactionService.getHeightLastStored();
     }
@@ -53,8 +54,11 @@ public class ErisTransactionCollector implements Runnable {
     @Override
     public void run() {
         try {
-            lastProduced = transactionHelper.getLatestBlockNumber();
+            BigInteger lastProduced = transactionHelper.getLatestBlockNumber();
             if (!lastProduced.equals(lastCheckedBlockNumber)) {
+                log.trace(marker, "Calling blocks from "
+                        + lastCheckedBlockNumber
+                        + " to " + lastProduced );
                 Stream<BigInteger> blocksWithTx = this
                         .getBlockNumbersWithTransaction(lastCheckedBlockNumber.add(BigInteger.ONE), lastProduced.add(BigInteger.ONE));
                 Stream<TransactionStoring> transactions = this.getTransactionsFromBlocks(blocksWithTx);

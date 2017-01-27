@@ -4,26 +4,16 @@
         <encoder>
             <pattern>%highlight(%d{HH:mm:ss.SSS} %-5level [%thread] %-5level %logger{36} - %msg%n)</pattern>
         </encoder>
+        <!--<filter class="ch.qos.logback.core.filter.EvaluatorFilter">-->
+            <!--<evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">-->
+                <!--<marker>TRANSACTION_MARKER</marker>-->
+            <!--</evaluator>-->
+            <!--<OnMatch>ACCEPT</OnMatch>-->
+            <!--<OnMismatch>DENY</OnMismatch>>-->
+        <!--</filter>-->
     </appender>
 
-<!--
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logFile.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            &lt;!&ndash; daily rollover &ndash;&gt;
-            <fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
-
-            &lt;!&ndash; keep 30 days' worth of history &ndash;&gt;
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-
-        <encoder>
-            <pattern>%highlight(%d{HH:mm:ss.SSS} %-5level [%thread] %-5level %logger{36} - %msg%n)</pattern>
-        </encoder>
-    </appender>
--->
-
-    <root level="info">
+    <root level="all">
         <appender-ref ref="STDOUT" />
         <!--<appender-ref ref="FILE" />-->
     </root>

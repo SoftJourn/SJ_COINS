@@ -107,6 +107,8 @@ public class ErisTransactionService {
     }
 
     public BigInteger getHeightLastStored() {
+        if(erisTransactionRepository.count()<1)
+            return BigInteger.ZERO;
         TransactionStoring transactionStoring = erisTransactionRepository.findFirstByOrderByBlockNumberDesc();
         if (transactionStoring == null)
             return BigInteger.ZERO;
