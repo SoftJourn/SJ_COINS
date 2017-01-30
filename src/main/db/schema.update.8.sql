@@ -28,3 +28,6 @@ CREATE TABLE tx_calling_data
   CONSTRAINT `PRIMARY` PRIMARY KEY (tx_id, function_name),
   CONSTRAINT FKcdwwj4qxq3unv7cveilenig5d FOREIGN KEY (tx_id) REFERENCES transaction_history (id)
 );
+
+ALTER TABLE instances
+  ADD COLUMN name VARCHAR(255);
