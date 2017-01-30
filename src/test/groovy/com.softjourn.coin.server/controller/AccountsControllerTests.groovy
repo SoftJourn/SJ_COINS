@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AccountsControllerTests {
 
     @MockBean
-    private ErisTransactionCollector erisTransactionCollector;
+    private ErisTransactionCollector erisTransactionCollector
 
     @Rule
     public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation('target/generated-snippets')

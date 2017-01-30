@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
@@ -28,6 +29,9 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @RunWith(SpringRunner.class)
 @AutoConfigureRestDocs("target/generated-snippets")
 public class OAuthHelperTest {
+
+    @MockBean
+    private ErisTransactionCollector erisTransactionCollector;
 
     @Mock
     private RestTemplate restTemplate;
