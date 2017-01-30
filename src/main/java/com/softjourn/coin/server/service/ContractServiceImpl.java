@@ -7,6 +7,7 @@ import com.softjourn.coin.server.entity.Contract;
 import com.softjourn.coin.server.entity.Instance;
 import com.softjourn.coin.server.entity.Type;
 import com.softjourn.coin.server.exceptions.ContractNotFoundException;
+import com.softjourn.coin.server.exceptions.TypeNotFoundException;
 import com.softjourn.coin.server.repository.ContractRepository;
 import com.softjourn.coin.server.repository.InstanceRepository;
 import com.softjourn.coin.server.repository.TypeRepository;
@@ -48,29 +49,39 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public ContractCreateResponseDTO newContract(NewContractDTO dto) {
         // deploy contract on eris
-        com.softjourn.eris.contract.Contract erisContract = contractService.deploy(dto.getCode(),
-                dto.getAbi(), dto.getParameters());
         com.softjourn.coin.server.entity.Type type = typeRepository.findOne(dto.getType());
-        // if deploy was successful save Contract data into db
-        Contract contract = new Contract();
-        contract.setName(dto.getName());
-        contract.setType(type);
-        contract.setAbi(dto.getAbi());
-        contract.setCode(dto.getCode());
-        Contract newContract = contractRepository.save(contract);
-        // save data about new contact instance
-        Instance instance = new Instance();
-        instance.setAddress(erisContract.getAddress());
-        instance.setContract(newContract);
-        Instance newInstance = instanceRepository.save(instance);
+        if (type != null) {
+            com.softjourn.eris.contract.Contract erisContract = contractService.deploy(dto.getCode(),
+                    dto.getAbi(), dto.getParameters());
+            // if deploy was successful save Contract data into db
+            Contract contract = new Contract();
+            contract.setName(dto.getName());
+            contract.setType(type);
+            contract.setAbi(dto.getAbi());
+            contract.setCode(dto.getCode());
+            Contract newContract = contractRepository.save(contract);
+            // save data about new contact instance
+            Instance instance = new Instance();
+            instance.setName(contract.getName());
+            instance.setAddress(erisContract.getAddress());
+            instance.setContract(newContract);
+            Instance newInstance = instanceRepository.save(instance);
 
-        return new ContractCreateResponseDTO(newContract.getId(), newContract.getName(),
-                newContract.getType().getType(), newInstance.getAddress());
+            return new ContractCreateResponseDTO(newContract.getId(), newContract.getName(),
+                    newContract.getType().getType(), newInstance.getAddress());
+        } else {
+            throw new TypeNotFoundException(String.format("Such contract type as %s does not exist!", dto.getType()));
+        }
     }
 
     @Override
     public List<Contract> getContracts() {
         return contractRepository.findAll();
+    }
+
+    @Override
+    public Contract getContractById(Long id) {
+        return this.contractRepository.findOne(id);
     }
 
     @Override
@@ -93,7 +104,7 @@ public class ContractServiceImpl implements ContractService {
         List<Instance> instances = instanceRepository.findByContractId(id);
         if (instances != null) {
             return instances.stream().map(instance ->
-                    new ContractCreateResponseDTO(instance.getContract().getId(), instance.getContract().getName(),
+                    new ContractCreateResponseDTO(instance.getId(), instance.getName(),
                             instance.getContract().getType().getType(), instance.getAddress()))
                     .collect(Collectors.toList());
         } else {
@@ -112,10 +123,11 @@ public class ContractServiceImpl implements ContractService {
             // save data about new contact instance
             Instance instance = new Instance();
             instance.setAddress(erisContract.getAddress());
+            instance.setName(dto.getName());
             instance.setContract(contract);
             Instance newInstance = instanceRepository.save(instance);
 
-            return new ContractCreateResponseDTO(contract.getId(), contract.getName(),
+            return new ContractCreateResponseDTO(contract.getId(), instance.getName(),
                     contract.getType().getType(), newInstance.getAddress());
         } else {
             throw new ContractNotFoundException(String.format("Contract with id %d was not found", dto.getContractId()));

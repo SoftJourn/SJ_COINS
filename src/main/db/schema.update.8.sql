@@ -1,0 +1,2 @@
+ALTER TABLE instances
+  ADD COLUMN name VARCHAR(255);

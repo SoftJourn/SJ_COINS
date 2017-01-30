@@ -108,12 +108,15 @@ class ContractControllerTest {
     void 'test of POST request to /api/v1/contracts/instances endpoint'() {
         mockMvc.perform(post('/api/v1/contracts/instances')
                 .contentType(APPLICATION_JSON)
-                .content(json(new NewContractInstanceDTO(1, new ArrayList<>().toArray() as List<Object>))))
+                .content(json(new NewContractInstanceDTO(1, "Name", new ArrayList<>().toArray() as List<Object>))))
                 .andExpect(status().isOk())
                 .andDo(document("create-contract-instance-request", preprocessRequest(prettyPrint()),
                 requestFields(
                         fieldWithPath("contractId")
                                 .description("Contract's id(Required field)")
+                                .type(JsonFieldType.NUMBER),
+                        fieldWithPath("name")
+                                .description("Instances's name(Required field)")
                                 .type(JsonFieldType.NUMBER),
                         fieldWithPath("parameters")
                                 .description("Input parameters of contract constructor," +
@@ -143,8 +146,8 @@ class ContractControllerTest {
 
     @Test
     @WithMockUser(roles = ["USER"])
-    void 'test of GET request to /api/v1/contracts/{address} endpoint'() {
-        mockMvc.perform(get('/api/v1/contracts/{address}', "some address"))
+    void 'test of GET request to /api/v1/contracts/address/{address} endpoint'() {
+        mockMvc.perform(get('/api/v1/contracts/address/{address}', "some address"))
                 .andDo(document("get-contract-by-address-request",
                 pathParameters(parameterWithName("address").description("Eris contract address"))
         ))
@@ -158,6 +161,12 @@ class ContractControllerTest {
                         fieldWithPath('name')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's name."),
+                        fieldWithPath('code')
+                                .type(JsonFieldType.STRING)
+                                .description("Contract's bytecode."),
+                        fieldWithPath('abi')
+                                .type(JsonFieldType.ARRAY)
+                                .description("Contract's abi."),
                         fieldWithPath('type.type')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's type."),
@@ -206,6 +215,12 @@ class ContractControllerTest {
                         fieldWithPath('[0].name')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's name."),
+                        fieldWithPath('[0].code')
+                                .type(JsonFieldType.STRING)
+                                .description("Contract's bytecode."),
+                        fieldWithPath('[0].abi')
+                                .type(JsonFieldType.ARRAY)
+                                .description("Contract's abi."),
                         fieldWithPath('[0].type.type')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's type."),
@@ -257,6 +272,12 @@ class ContractControllerTest {
                         fieldWithPath('[0].name')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's name."),
+                        fieldWithPath('[0].code')
+                                .type(JsonFieldType.STRING)
+                                .description("Contract's bytecode."),
+                        fieldWithPath('[0].abi')
+                                .type(JsonFieldType.ARRAY)
+                                .description("Contract's abi."),
                         fieldWithPath('[0].type.type')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's type."),

@@ -13,12 +13,16 @@ import com.softjourn.coin.server.exceptions.WrongMimeTypeException;
 import com.softjourn.coin.server.exceptions.TypeNotFoundException;
 import com.softjourn.eris.contract.ContractDeploymentException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.NoHandlerFoundException;
+
+import java.util.Objects;
 
 @ControllerAdvice
 @Slf4j
@@ -112,6 +116,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(buildErrorDetails(e, 40003, e.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorDetail> handle(MethodArgumentNotValidException e) {
+        log.info(e.getMessage());
+        String message = e.getBindingResult().getAllErrors().stream()
+                .findFirst()
+                .filter(Objects::nonNull)
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .orElse("");
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(buildErrorDetails(e, null, message));
     }
 
     private ErrorDetail buildErrorDetails(Exception e, Integer code, String message) {

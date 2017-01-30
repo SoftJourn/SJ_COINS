@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -13,22 +14,26 @@ import java.util.List;
 @AllArgsConstructor
 public class NewContractDTO {
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Contract name should not be null!")
+    @NotBlank(message = "Contract name should not be blank!")
     private String name;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Contract type should not be null!")
+    @NotBlank(message = "Contract type should not be blank!")
+    @NotEmpty(message = "Contract type should not be empty!")
     private String type;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Contract code should not be null!")
+    @NotBlank(message = "Contract code should not be blank!")
+    @NotEmpty(message = "Contract code should not be empty!")
     private String code;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Contract abi should not be null!")
+    @NotBlank(message = "Contract abi should not be blank!")
+    @NotEmpty(message = "Contract abi should not be empty!")
     private String abi;
 
+    @NotNull(message = "Contract parameters should not be null!")
     private List<Object> parameters;
 
 }
