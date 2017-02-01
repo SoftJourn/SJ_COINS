@@ -64,7 +64,7 @@ CREATE TABLE transaction_history
   fee                   VARCHAR(255),
   function_name_hash    VARCHAR(255),
   gas_limit             VARCHAR(255),
-  identifier            VARCHAR(255),
+  tx_type_call            VARCHAR(255),
   is_deploy             BIT(1),
   sequence              VARCHAR(255),
   sequence_size         VARCHAR(255),
