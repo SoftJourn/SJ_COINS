@@ -6,9 +6,9 @@ import com.softjourn.coin.server.entity.TransactionStoring;
 import com.softjourn.coin.server.exceptions.ContractNotFoundException;
 import com.softjourn.coin.server.repository.ErisTransactionRepository;
 import com.softjourn.eris.contract.ContractUnit;
-import com.softjourn.eris.transaction.type.Block;
-import com.softjourn.eris.transaction.type.ErisTransaction;
-import com.softjourn.eris.transaction.type.Header;
+import com.softjourn.eris.transaction.pojo.Block;
+import com.softjourn.eris.transaction.pojo.ErisTransaction;
+import com.softjourn.eris.transaction.pojo.Header;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,14 +27,14 @@ import java.util.stream.Stream;
  */
 @Service
 @Slf4j
-public class ErisTransactionService {
+public class ErisTransactionHistoryService {
 
     private final String DEPLOY_FUNCTION_NAME = "DEPLOY";
     private final ErisTransactionRepository erisTransactionRepository;
     private final ContractService contractService;
 
     @Autowired
-    public ErisTransactionService(@Qualifier("erisTransactionRepository") ErisTransactionRepository erisTransactionRepository
+    public ErisTransactionHistoryService(@Qualifier("erisTransactionRepository") ErisTransactionRepository erisTransactionRepository
             , @Qualifier("contractServiceImpl") ContractService contractService) {
         this.erisTransactionRepository = erisTransactionRepository;
         this.contractService = contractService;

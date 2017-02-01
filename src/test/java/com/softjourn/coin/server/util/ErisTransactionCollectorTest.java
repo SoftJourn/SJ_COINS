@@ -2,12 +2,12 @@ package com.softjourn.coin.server.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.entity.TransactionStoring;
-import com.softjourn.coin.server.service.ErisTransactionService;
-import com.softjourn.eris.transaction.TransactionHelper;
-import com.softjourn.eris.transaction.type.Block;
-import com.softjourn.eris.transaction.type.BlockMeta;
-import com.softjourn.eris.transaction.type.Blocks;
-import com.softjourn.eris.transaction.type.Header;
+import com.softjourn.coin.server.service.ErisTransactionHistoryService;
+import com.softjourn.eris.transaction.ErisTransactionService;
+import com.softjourn.eris.transaction.pojo.Block;
+import com.softjourn.eris.transaction.pojo.BlockMeta;
+import com.softjourn.eris.transaction.pojo.Blocks;
+import com.softjourn.eris.transaction.pojo.Header;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,10 +28,10 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 public class ErisTransactionCollectorTest {
 
-    private ErisTransactionService transactionService = mock(ErisTransactionService.class);
+    private ErisTransactionHistoryService transactionService = mock(ErisTransactionHistoryService.class);
     private ErisTransactionCollector testCollector;
     private ObjectMapper mapper = new ObjectMapper();
-    private TransactionHelper transactionHelperMock = mock(TransactionHelper.class);
+    private ErisTransactionService transactionHelperMock = mock(ErisTransactionService.class);
     private ScheduledExecutorService scheduledExecutorService;
 
     @Test

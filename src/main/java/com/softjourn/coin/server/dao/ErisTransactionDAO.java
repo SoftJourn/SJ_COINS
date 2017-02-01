@@ -1,7 +1,6 @@
 package com.softjourn.coin.server.dao;
 
-import com.softjourn.eris.transaction.type.ErisTransaction;
-import com.softjourn.eris.transaction.type.NotValidTransactionException;
+import com.softjourn.eris.transaction.pojo.ErisTransaction;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
 
@@ -43,28 +42,5 @@ public class ErisTransactionDAO {
 
     interface ICallingData {
         String getCallingData();
-        Long getAmountLongValue() throws NotValidTransactionException;
-        Long getSequenceLongValue() throws NotValidTransactionException;
-        Long getGasLimitLongValue() throws NotValidTransactionException;
-        Long getFeeLongValue() throws NotValidTransactionException;
-    }
-
-    @Transient
-    public Long getAmountLongValue() throws NotValidTransactionException {
-        return transaction.getAmountLongValue();
-    }
-    @Transient
-    public Long getSequenceLongValue() throws NotValidTransactionException {
-        return transaction.getSequenceLongValue();
-    }
-
-    @Transient
-    public Long getGasLimitLongValue() throws NotValidTransactionException {
-        return transaction.getGasLimitLongValue();
-    }
-
-    @Transient
-    public Long getFeeLongValue() throws NotValidTransactionException {
-        return transaction.getFeeLongValue();
     }
 }

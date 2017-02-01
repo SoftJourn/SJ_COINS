@@ -2,10 +2,10 @@ package com.softjourn.coin.server.util;
 
 import com.softjourn.coin.server.entity.TransactionStoring;
 import com.softjourn.coin.server.exceptions.ErisClientException;
-import com.softjourn.coin.server.service.ErisTransactionService;
-import com.softjourn.eris.transaction.TransactionHelper;
-import com.softjourn.eris.transaction.type.Block;
-import com.softjourn.eris.transaction.type.Blocks;
+import com.softjourn.coin.server.service.ErisTransactionHistoryService;
+import com.softjourn.eris.transaction.ErisTransactionService;
+import com.softjourn.eris.transaction.pojo.Block;
+import com.softjourn.eris.transaction.pojo.Blocks;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
@@ -33,8 +33,8 @@ public class ErisTransactionCollector implements Runnable {
     private static final int MAX_ERRORS_IN_SEQUENCE = 10;
 
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
-    private TransactionHelper transactionHelper;
-    private ErisTransactionService transactionService;
+    private ErisTransactionService transactionHelper;
+    private ErisTransactionHistoryService transactionService;
     private Long lastCheckedBlockNumber = 0L;
     private int errorInSequenceCount;
 
@@ -42,8 +42,8 @@ public class ErisTransactionCollector implements Runnable {
     @Autowired
     public ErisTransactionCollector(@Value("${eris.chain.url}") String host
             , @Value("${eris.transaction.collector.interval}") Long interval
-            , ErisTransactionService transactionService) {
-        this.transactionHelper = new TransactionHelper(host);
+            , ErisTransactionHistoryService transactionService) {
+        this.transactionHelper = new ErisTransactionService(host);
         this.transactionService = transactionService;
         scheduledExecutorService.scheduleAtFixedRate(this, interval, interval, TimeUnit.SECONDS);
         scheduledExecutorService.submit(this);

@@ -1,8 +1,7 @@
 package com.softjourn.coin.server.entity;
 
 import com.softjourn.coin.server.dao.ErisTransactionDAO;
-import com.softjourn.eris.transaction.type.ErisTransaction;
-import com.softjourn.eris.transaction.type.NotValidTransactionException;
+import com.softjourn.eris.transaction.pojo.ErisTransaction;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.codec.binary.Hex;
@@ -89,12 +88,8 @@ public class TransactionStoring {
     private static String getTxJson(String chainId, ErisTransactionDAO transaction){
 
         String txInputJson = getTxInputJson(transaction);
-        try {
             return getTxJson(chainId,transaction.getContractAddress(),transaction.getCallingData()
-                    ,transaction.getFeeLongValue(),transaction.getGasLimitLongValue(),txInputJson);
-        } catch (NotValidTransactionException e) {
-            return "";
-        }
+                    ,transaction.getFee(),transaction.getGasLimit(),txInputJson);
     }
 
     private static String getTxInputJson(String userAddress, long amount, long sequence) {
@@ -102,11 +97,7 @@ public class TransactionStoring {
     }
 
     private static String getTxInputJson(ErisTransactionDAO transaction){
-        try {
-            return getTxInputJson(transaction.getCallerAddress(),transaction.getAmountLongValue(),transaction.getSequenceLongValue());
-        } catch (NotValidTransactionException e) {
-            return "";
-        }
+            return getTxInputJson(transaction.getCallerAddress(),transaction.getAmount(),transaction.getSequence());
     }
 
     public static String getTxId(String chainId, ErisTransactionDAO transaction){
