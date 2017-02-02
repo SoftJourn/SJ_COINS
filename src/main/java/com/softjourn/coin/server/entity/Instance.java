@@ -21,6 +21,8 @@ public class Instance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
     private String address;
 
     @ManyToOne
@@ -35,6 +37,7 @@ public class Instance {
     public String toString() {
         return "Instance{" +
                 "id=" + id +
+                ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 '}';
     }

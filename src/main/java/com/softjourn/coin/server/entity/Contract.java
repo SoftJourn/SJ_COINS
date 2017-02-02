@@ -1,7 +1,6 @@
 package com.softjourn.coin.server.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,12 +32,10 @@ public class Contract {
 
     @Lob
     @Column
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String code;
 
     @Lob
     @Column
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String abi;
 
     @ManyToOne

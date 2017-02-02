@@ -1,11 +1,10 @@
 package com.softjourn.coin.server.controller;
 
-import com.softjourn.coin.server.dto.NewContractDTO;
 import com.softjourn.coin.server.dto.ContractCreateResponseDTO;
+import com.softjourn.coin.server.dto.NewContractDTO;
 import com.softjourn.coin.server.dto.NewContractInstanceDTO;
 import com.softjourn.coin.server.entity.Contract;
 import com.softjourn.coin.server.entity.Type;
-import com.softjourn.coin.server.repository.TypeRepository;
 import com.softjourn.coin.server.service.ContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class ContractController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(method = RequestMethod.POST)
-    public ContractCreateResponseDTO createNewContract(@RequestBody NewContractDTO dto) {
+    public ContractCreateResponseDTO createNewContract(@Valid @RequestBody NewContractDTO dto) {
         return this.contractService.newContract(dto);
     }
 
@@ -44,7 +44,13 @@ public class ContractController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "/{address}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public Contract getContract(@PathVariable Long id) {
+        return this.contractService.getContractById(id);
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/address/{address}", method = RequestMethod.GET)
     public Contract getContractByAddress(@PathVariable String address) {
         return this.contractService.getContractsByAddress(address);
     }
@@ -69,7 +75,7 @@ public class ContractController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/instances", method = RequestMethod.POST)
-    public ContractCreateResponseDTO deployInstanceOfExistingContract(@RequestBody NewContractInstanceDTO dto) {
+    public ContractCreateResponseDTO deployInstanceOfExistingContract(@Valid @RequestBody NewContractInstanceDTO dto) {
         return this.contractService.newInstance(dto);
     }
 
