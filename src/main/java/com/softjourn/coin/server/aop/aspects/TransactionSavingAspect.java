@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Aspect
 @Order(value = 100)
@@ -42,7 +44,7 @@ public class TransactionSavingAspect {
             prepareTransaction(transaction, joinPoint);
             transaction.setStatus(TransactionStatus.SUCCESS);
             setRemainAmount((MethodSignature) joinPoint.getSignature(), joinPoint.getArgs(), transaction);
-            return transaction;
+            return transactionRepository.save(transaction);
         } catch (Throwable e) {
             transaction.setStatus(TransactionStatus.FAILED);
             transaction.setError(e.getLocalizedMessage());
@@ -59,12 +61,18 @@ public class TransactionSavingAspect {
     }
 
     private Transaction fillTransaction(Transaction transaction, MethodSignature signature, Object[] arguments) {
-        transaction.setAccount(getAccount(signature, arguments, "accountName"));
-        transaction.setDestination(getDestination(signature, arguments, "destinationName"));
-        transaction.setAmount(getArg(signature, arguments, "amount", BigDecimal.class));
-        transaction.setComment(getArg(signature, arguments, "comment", String.class));
+        replaceIfNull(transaction::getAccount, transaction::setAccount, getAccount(signature, arguments, "accountName"));
+        replaceIfNull(transaction::getDestination, transaction::setDestination, getDestination(signature, arguments, "destinationName"));
+        replaceIfNull(transaction::getAmount, transaction::setAmount, getArg(signature, arguments, "amount", BigDecimal.class));
+        replaceIfNull(transaction::getComment, transaction::setComment, getArg(signature, arguments, "comment", String.class));
         transaction.setCreated(Instant.now());
         return transaction;
+    }
+
+    private <T> void replaceIfNull(Supplier<T> getter, Consumer<T> setter, T value) {
+        if (getter.get() == null) {
+            setter.accept(value);
+        }
     }
 
     private void setRemainAmount(MethodSignature signature, Object[] arguments, Transaction transaction) {

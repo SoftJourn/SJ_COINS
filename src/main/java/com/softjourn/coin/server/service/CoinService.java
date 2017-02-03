@@ -14,6 +14,7 @@ import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
 import com.softjourn.coin.server.exceptions.ErisProcessingException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
+import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.coin.server.util.QRCodeUtil;
 import com.softjourn.eris.contract.response.Response;
 import com.softjourn.eris.contract.response.TxParams;
@@ -66,12 +67,15 @@ public class CoinService {
 
     private ErisAccount treasuryErisAccount;
 
+    private TransactionRepository transactionRepository;
+
 
     @SuppressWarnings("unused")
     @Autowired
-    public CoinService(AccountsService accountsService, ErisContractService contractService, ErisAccountRepository erisAccountRepository) {
+    public CoinService(AccountsService accountsService, ErisContractService contractService, ErisAccountRepository erisAccountRepository, TransactionRepository transactionRepository) {
         this.accountsService = accountsService;
         this.contractService = contractService;
+        this.transactionRepository = transactionRepository;
     }
 
     @PostConstruct
@@ -214,6 +218,21 @@ public class CoinService {
 
             return mapToTransaction(response);
         }
+    }
+
+    @SaveTransaction
+    public Transaction rollback(Long txId) {
+        Transaction transaction = transactionRepository.findOne(txId);
+        Account user = transaction.getAccount();
+        Account merchant = transaction.getDestination();
+        BigDecimal amount = transaction.getAmount();
+        Response response = moveByEris(user.getErisAccount(), merchant.getErisAccount().getAddress(), amount);
+        Transaction rollbackTx = mapToTransaction(response);
+        rollbackTx.setAccount(merchant);
+        rollbackTx.setDestination(user);
+        rollbackTx.setAmount(amount);
+        rollbackTx.setComment("Rollback buying transaction. ID: " + txId);
+        return rollbackTx;
     }
 
     @SuppressWarnings("unused")
