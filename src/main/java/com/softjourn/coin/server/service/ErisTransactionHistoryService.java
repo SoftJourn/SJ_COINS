@@ -11,13 +11,13 @@ import com.softjourn.eris.transaction.pojo.ErisTransaction;
 import com.softjourn.eris.transaction.pojo.Header;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,8 +34,7 @@ public class ErisTransactionHistoryService {
     private final ContractService contractService;
 
     @Autowired
-    public ErisTransactionHistoryService(@Qualifier("erisTransactionRepository") ErisTransactionRepository erisTransactionRepository
-            , @Qualifier("contractServiceImpl") ContractService contractService) {
+    public ErisTransactionHistoryService(ErisTransactionRepository erisTransactionRepository, ContractService contractService) {
         this.erisTransactionRepository = erisTransactionRepository;
         this.contractService = contractService;
     }
@@ -44,6 +43,7 @@ public class ErisTransactionHistoryService {
         Header header = block.getHeader();
         return block.getData().getErisTransactions().stream()
                 .map(transaction -> getTransactionStoring(transaction, header.getHeight(), header.getDateTime(), header.getChainId()))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
@@ -64,7 +64,7 @@ public class ErisTransactionHistoryService {
         storeTransaction(transaction.stream());
     }
 
-    public ContractUnit getContractUnit(ErisTransaction transaction) {
+    ContractUnit getContractUnit(ErisTransaction transaction) {
         String contractAddress = transaction.getContractAddress();
         try {
             Contract contract = contractService.getContractsByAddress(contractAddress);
@@ -77,49 +77,47 @@ public class ErisTransactionHistoryService {
         return null;
     }
 
-    public Map<String, String> getCallingData(ErisTransaction transaction, ContractUnit unit) {
+    Map<String, String> getCallingData(ErisTransaction transaction, ContractUnit unit) {
         return transaction.parseCallingData(unit);
     }
 
-    public TransactionStoring getTransactionStoring(ErisTransaction transaction, Long blockNumber
-            , LocalDateTime time, String chainId) {
-        TransactionStoring transactionStoring = null;
+    private TransactionStoring getTransactionStoring(ErisTransaction transaction, Long blockNumber, LocalDateTime time, String chainId) {
         if (!transaction.getIsDeploy()) {
             try {
                 ContractUnit unit = this.getContractUnit(transaction);
                 if (unit != null) {
-                    transactionStoring = new TransactionStoring(blockNumber, time, unit.getName(), chainId
-                            , new ErisTransactionDAO(transaction)
-                            , this.getCallingData(transaction, unit));
+                    return new TransactionStoring(blockNumber, time, unit.getName(), chainId, new ErisTransactionDAO(transaction), this.getCallingData(transaction, unit));
                 }
             } catch (RuntimeException e) {
-                e.printStackTrace();
+                log.warn("Can't get transactions from block " + blockNumber);
             }
         } else {
-
-            transactionStoring = new TransactionStoring();
+            TransactionStoring transactionStoring = new TransactionStoring();
             transactionStoring.setTransaction(transaction);
             transactionStoring.setBlockNumber(blockNumber);
             transactionStoring.setTime(time);
             transactionStoring.setChainId(chainId);
             transactionStoring.setFunctionName(DEPLOY_FUNCTION_NAME);
+            return transactionStoring;
         }
-        return transactionStoring;
+        return null;
     }
 
-    public List<TransactionStoring> getTransactionStoring(List<Block> blocks) {
+    List<TransactionStoring> getTransactionStoring(List<Block> blocks) {
         return blocks.stream().map(this::getTransactionStoring)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
 
     public Long getHeightLastStored() {
-        if (erisTransactionRepository.count() < 1)
+        if (erisTransactionRepository.count() < 1) {
             return 0L;
+        }
         TransactionStoring transactionStoring = erisTransactionRepository.findFirstByOrderByBlockNumberDesc();
-        if (transactionStoring == null)
+        if (transactionStoring == null) {
             return 0L;
-        else
+        } else {
             return transactionStoring.getBlockNumber();
+        }
     }
 }

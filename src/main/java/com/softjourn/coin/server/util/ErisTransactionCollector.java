@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,13 +41,12 @@ public class ErisTransactionCollector implements Runnable {
 
 
     @Autowired
-    public ErisTransactionCollector(@Value("${eris.chain.url}") String host
-            , @Value("${eris.transaction.collector.interval}") Long interval
-            , ErisTransactionHistoryService transactionService) {
+    public ErisTransactionCollector(@Value("${eris.chain.url}") String host,
+                                    @Value("${eris.transaction.collector.interval}") Long interval,
+                                    ErisTransactionHistoryService transactionService) {
         this.transactionHelper = new ErisTransactionService(host);
         this.transactionService = transactionService;
-        scheduledExecutorService.scheduleAtFixedRate(this, interval, interval, TimeUnit.SECONDS);
-        scheduledExecutorService.submit(this);
+        scheduledExecutorService.scheduleAtFixedRate(this, 20, interval, TimeUnit.SECONDS);
         lastCheckedBlockNumber = transactionService.getHeightLastStored();
     }
 
@@ -76,26 +76,26 @@ public class ErisTransactionCollector implements Runnable {
     }
 
 
-    public Stream<Long> getBlockNumbersWithTransaction(Long from, Long to) throws ErisClientException {
+    Stream<Long> getBlockNumbersWithTransaction(Long from, Long to) throws ErisClientException {
         return Blocks.getBlockNumbersWithTransaction(transactionHelper.getBlockStream(from, to));
     }
 
 
-    public List<TransactionStoring> getTransactionsFromBlock(Long blockNumber) {
+    List<TransactionStoring> getTransactionsFromBlock(Long blockNumber) {
         try {
             Block block = transactionHelper.getBlock(blockNumber);
             return transactionService.getTransactionStoring(block);
         } catch (Exception e) {
             log.warn("Block can't parse transactions", e);
-            return null;
+            return Collections.emptyList();
         }
     }
 
-    public List<TransactionStoring> getTransactionsFromBlocks(List<Long> blockNumbers) throws ErisClientException {
+    List<TransactionStoring> getTransactionsFromBlocks(List<Long> blockNumbers) throws ErisClientException {
         return getTransactionsFromBlocks(blockNumbers.stream()).collect(Collectors.toList());
     }
 
-    public Stream<TransactionStoring> getTransactionsFromBlocks(Stream<Long> blockNumbers) throws ErisClientException {
+    private Stream<TransactionStoring> getTransactionsFromBlocks(Stream<Long> blockNumbers) throws ErisClientException {
         return blockNumbers
                 .map(this::getTransactionsFromBlock)
                 .flatMap(List::stream);
