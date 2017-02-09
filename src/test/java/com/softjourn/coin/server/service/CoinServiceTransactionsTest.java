@@ -5,7 +5,6 @@ import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
-import com.softjourn.coin.server.util.ErisTransactionCollector;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
 import com.softjourn.eris.contract.response.TxParams;

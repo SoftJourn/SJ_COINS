@@ -42,7 +42,13 @@
         <dependency>
             <groupId>com.softjourn</groupId>
             <artifactId>eris-java-client</artifactId>
-            <version>0.9.1</version>
+            <version>0.9.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.softjourn</groupId>
+            <artifactId>common</artifactId>
+            <version>0.2.0</version>
         </dependency>
 
         <dependency>

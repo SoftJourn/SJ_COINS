@@ -2,13 +2,12 @@ package com.softjourn.coin.server.entity;
 
 import com.softjourn.coin.server.dao.ErisTransactionDAO;
 import com.softjourn.eris.transaction.pojo.ErisTransaction;
+import com.softjourn.eris.transaction.pojo.Header;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.jcajce.provider.digest.RIPEMD160;
+import lombok.NonNull;
 
 import javax.persistence.*;
-import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -23,8 +22,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class TransactionStoring {
 
-    public static final int TX_TYPE_CALL = 2;
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -34,6 +31,7 @@ public class TransactionStoring {
     private LocalDateTime time;
     private String functionName;
     private String chainId;
+    @Column(unique = true)
     private String txId;
 
     @Embedded
@@ -44,17 +42,14 @@ public class TransactionStoring {
     @MapKeyColumn(name = "function_name")
     private Map<String, String> callingValue;
 
-    public TransactionStoring(Long blockNumber, LocalDateTime time, String functionName
-            , String chainId, ErisTransactionDAO transaction, Map<String, String> callingValue) {
-        this.blockNumber = blockNumber;
-        this.time = time;
+    public TransactionStoring(Header blockHeader, String functionName, @NonNull ErisTransactionDAO transaction, Map<String, String> callingValue, String txId) {
+        this.blockNumber = blockHeader.getHeight();
+        this.time = blockHeader.getDateTime();
         this.functionName = functionName;
-        this.chainId = chainId;
+        this.chainId = blockHeader.getChainId();
         this.transaction = transaction;
         this.callingValue = callingValue;
-        if(this.transaction == null)
-            throw new IllegalArgumentException("transaction can not be null");
-        this.txId = getTxId(chainId, transaction);
+        this.txId = txId;
     }
 
     public void setTransaction(ErisTransaction transaction) {
@@ -67,48 +62,5 @@ public class TransactionStoring {
 
     public void setTransaction(ErisTransactionDAO transaction) {
         this.transaction = transaction;
-    }
-
-    private static String getTxId(String tx) {
-        MessageDigest messageDigest = new RIPEMD160.Digest();
-        return Hex.encodeHexString(messageDigest.digest(tx.getBytes()));
-    }
-
-    private static String getTxJson(String chainId, String contractAddress, String txData, long fee, long gasLimit, String txInput) {
-        return "{\"chain_id\":\"" + chainId + "\","
-                + "\"tx\":[" + TX_TYPE_CALL
-                + ",{\"address\":\"" + contractAddress
-                + "\",\"data\":\"" + txData
-                + "\"," + "\"fee\":"
-                + fee + ",\"gas_limit\":"
-                + gasLimit + ",\"input\":"
-                + txInput + "" + "}]}";
-    }
-
-    private static String getTxJson(String chainId, ErisTransactionDAO transaction){
-
-        String txInputJson = getTxInputJson(transaction);
-            return getTxJson(chainId,transaction.getContractAddress(),transaction.getCallingData()
-                    ,transaction.getFee(),transaction.getGasLimit(),txInputJson);
-    }
-
-    private static String getTxInputJson(String userAddress, long amount, long sequence) {
-        return "{\"address\":\"" + userAddress + "\",\"amount\":" + amount + ",\"sequence\":" + sequence + "}";
-    }
-
-    private static String getTxInputJson(ErisTransactionDAO transaction){
-            return getTxInputJson(transaction.getCallerAddress(),transaction.getAmount(),transaction.getSequence());
-    }
-
-    public static String getTxId(String chainId, ErisTransactionDAO transaction){
-        String txJson = getTxJson(chainId,transaction);
-        return getTxId(txJson);
-    }
-
-    public String getTxId() {
-        if(this.chainId == null || this.transaction == null)
-            return "";
-        getTxId(this.chainId,this.transaction);
-        return txId;
     }
 }

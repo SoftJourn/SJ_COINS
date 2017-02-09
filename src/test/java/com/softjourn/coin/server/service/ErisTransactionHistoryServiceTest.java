@@ -3,7 +3,7 @@ package com.softjourn.coin.server.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.entity.Contract;
 import com.softjourn.coin.server.entity.TransactionStoring;
-import com.softjourn.coin.server.util.ErisTransactionCollector;
+import com.softjourn.coin.server.repository.ErisTransactionRepository;
 import com.softjourn.eris.contract.ContractUnit;
 import com.softjourn.eris.contract.ContractUnitType;
 import com.softjourn.eris.contract.Variable;
@@ -13,35 +13,30 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
-@AutoConfigureTestDatabase
-@SpringBootTest
-@DataJpaTest
+@RunWith(MockitoJUnitRunner.class)
 public class ErisTransactionHistoryServiceTest {
 
-    @Autowired
-    private ErisTransactionHistoryService erisTransactionHistoryService;
-    @MockBean
+    @Mock
     private ContractServiceImpl contractServiceImpl;
-    @MockBean
+    @Mock
     private ErisTransactionCollector erisTransactionCollector;
+    @Mock
+    private ErisTransactionRepository erisTransactionRepository;
+    @InjectMocks
+    private ErisTransactionHistoryServiceV11 erisTransactionHistoryService;
 
     private ObjectMapper mapper = new ObjectMapper();
     private Block block33;
@@ -49,51 +44,6 @@ public class ErisTransactionHistoryServiceTest {
     private ContractUnit contractUnit;
     private HashMap<String, String> inputArgsBlock33Tx;
     private TransactionStoring transaction33;
-
-    @Test
-    public void getHeightLastStored() throws Exception {
-        System.out.println("ErisTransactionServiceTest.getHeightLastStored");
-        System.out.println(erisTransactionHistoryService);
-        long lastSavedBlockHeightWithTx = erisTransactionHistoryService.getHeightLastStored();
-        assertEquals(0L, lastSavedBlockHeightWithTx);
-        erisTransactionHistoryService.storeTransaction(transaction33);
-        assertEquals(transaction33.getBlockNumber(), erisTransactionHistoryService.getHeightLastStored());
-    }
-
-    @Test
-    public void getTransactionStoring_Block_ListTransactionStoringObj() throws Exception {
-        List<TransactionStoring> transactions = erisTransactionHistoryService.getTransactionStoring(block33);
-        assertNotNull(transactions);
-        assertEquals(transactions.size(), 1);
-        TransactionStoring transaction = transactions.get(0);
-        assertEquals(transaction33, transaction);
-
-    }
-
-    @Test
-    public void storeTransaction_TransactionStoring_TransactionStoring() throws Exception {
-        TransactionStoring transactionStoring = erisTransactionHistoryService.getTransactionStoring(block33).get(0);
-        assertEquals(transactionStoring, erisTransactionHistoryService.storeTransaction(transactionStoring));
-    }
-
-    @Test
-    public void getContractUnit() throws Exception {
-        assertEquals(contractUnit, erisTransactionHistoryService.getContractUnit(block33.getData().getErisTransactions().get(0)));
-
-    }
-
-    @Test
-    public void getCallingData() throws Exception {
-        assertEquals(inputArgsBlock33Tx, erisTransactionHistoryService.getCallingData(block33.getData().getErisTransactions().get(0), contractUnit));
-    }
-
-    @Test
-    public void getTransactionStoring_Blocks_ListTransactionStoringObj() throws Exception {
-        List<Block> blocks = new ArrayList<>();
-        blocks.add(block33);
-        blocks.add(block1030101);
-        assertEquals(2, erisTransactionHistoryService.getTransactionStoring(blocks).size());
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -139,14 +89,73 @@ public class ErisTransactionHistoryServiceTest {
         transaction33.setFunctionName(contractUnit.getName());
         transaction33.setTransaction(block33.getData().getErisTransactions().get(0));
         transaction33.setChainId("test");
-        String txId = TransactionStoring.getTxId(transaction33.getChainId(),transaction33.getTransaction());
-        transaction33.setTxId(txId);
+        transaction33.setTxId("4090245DC57B93EB8DEC3EA40FC75685595F6AAB");
 
         Map<String, String> callingValue = new HashMap<>();
         callingValue.put(contractUnit.getInputs()[0].getName(), "1");
         transaction33.setCallingValue(callingValue);
 
+        Set<TransactionStoring> tss = new HashSet<>();
+        when(erisTransactionRepository.save(any(TransactionStoring.class))).thenAnswer(i -> {
+            TransactionStoring ts = (TransactionStoring) i.getArguments()[0];
+            tss.add(ts);
+            return ts;
+        });
+        when(erisTransactionRepository.findFirstByOrderByBlockNumberDesc())
+                .thenAnswer(i -> tss.stream()
+                        .sorted(Comparator.comparing(TransactionStoring::getBlockNumber))
+                        .limit(1)
+                        .findFirst()
+                        .orElse(null));
+        when(erisTransactionRepository.count())
+                .thenAnswer(i -> {
+                    return (long)tss.size();
+                });
     }
 
+    @Test
+    public void getHeightLastStored() throws Exception {
+        System.out.println("ErisTransactionServiceTest.getHeightLastStored");
+        System.out.println(erisTransactionHistoryService);
+        long lastSavedBlockHeightWithTx = erisTransactionHistoryService.getHeightLastStored();
+        assertEquals(0L, lastSavedBlockHeightWithTx);
+        erisTransactionHistoryService.storeTransaction(transaction33);
+        assertEquals(transaction33.getBlockNumber(), erisTransactionHistoryService.getHeightLastStored());
+    }
+
+    @Test
+    public void getTransactionStoring_Block_ListTransactionStoringObj() throws Exception {
+        List<TransactionStoring> transactions = erisTransactionHistoryService.getTransactionStoring(block33).collect(Collectors.toList());
+        assertNotNull(transactions);
+        assertEquals(transactions.size(), 1);
+        TransactionStoring transaction = transactions.get(0);
+        assertEquals(transaction33, transaction);
+
+    }
+
+    @Test
+    public void storeTransaction_TransactionStoring_TransactionStoring() throws Exception {
+        TransactionStoring transactionStoring = erisTransactionHistoryService.getTransactionStoring(block33).collect(Collectors.toList()).get(0);
+        assertEquals(transactionStoring, erisTransactionHistoryService.storeTransaction(transactionStoring));
+    }
+
+    @Test
+    public void getContractUnit() throws Exception {
+        assertEquals(contractUnit, erisTransactionHistoryService.getContractUnit(block33.getData().getErisTransactions().get(0)));
+
+    }
+
+    @Test
+    public void getCallingData() throws Exception {
+        assertEquals(inputArgsBlock33Tx, erisTransactionHistoryService.getCallingData(block33.getData().getErisTransactions().get(0), contractUnit));
+    }
+
+    @Test
+    public void getTransactionStoring_Blocks_ListTransactionStoringObj() throws Exception {
+        List<Block> blocks = new ArrayList<>();
+        blocks.add(block33);
+        blocks.add(block1030101);
+        assertEquals(2, erisTransactionHistoryService.getTransactionStoring(blocks).collect(Collectors.toList()).size());
+    }
 
 }

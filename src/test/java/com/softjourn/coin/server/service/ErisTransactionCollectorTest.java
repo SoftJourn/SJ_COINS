@@ -1,8 +1,7 @@
-package com.softjourn.coin.server.util;
+package com.softjourn.coin.server.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.entity.TransactionStoring;
-import com.softjourn.coin.server.service.ErisTransactionHistoryService;
 import com.softjourn.eris.transaction.ErisTransactionService;
 import com.softjourn.eris.transaction.pojo.Block;
 import com.softjourn.eris.transaction.pojo.BlockMeta;
@@ -19,16 +18,18 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 public class ErisTransactionCollectorTest {
 
-    private ErisTransactionHistoryService transactionService = mock(ErisTransactionHistoryService.class);
+    private ErisTransactionHistoryService transactionService = mock(ErisTransactionHistoryServiceV11.class);
     private ErisTransactionCollector testCollector;
     private ObjectMapper mapper = new ObjectMapper();
     private ErisTransactionService transactionHelperMock = mock(ErisTransactionService.class);
@@ -64,36 +65,22 @@ public class ErisTransactionCollectorTest {
 
     @Test
     public void getTransactionsFromBlock_BlockNumber_ListOfTransactions() throws Exception {
-        List<TransactionStoring> transactions;
+        Stream<TransactionStoring> transactions;
         transactions = testCollector.getTransactionsFromBlock(27L);
-        assertEquals(1, transactions.size());
+        assertEquals(1, transactions.count());
         transactions = testCollector.getTransactionsFromBlock(33L);
-        assertEquals(1, transactions.size());
-    }
-
-    @Test
-    public void getTransactionsFromBlocks_ListBlockNumbers_ListOfTransactions() throws Exception {
-        System.out.println("ErisTransactionCollectorTest.getTransactionsFromBlocks_ListBlockNumbers_ListOfTransactions");
-        List<Long> blockNumbers = new ArrayList<>();
-        blockNumbers.add(27L);
-        blockNumbers.add(33L);
-        List<TransactionStoring> transactions;
-        transactions = testCollector.getTransactionsFromBlocks(blockNumbers);
-        System.out.println(transactions);
-        assertEquals(2, transactions.size());
+        assertEquals(1, transactions.count());
     }
 
     @Test
     public void run() throws Exception {
         testCollector.run();
         verify(transactionHelperMock, atLeastOnce()).getLatestBlockNumber();
-        verify(transactionService, atLeastOnce()).getHeightLastStored();
 
     }
 
     @Before
     public void setUp() throws Exception {
-        when(transactionService.getHeightLastStored()).thenReturn(0L);
         Long lastBlock = 12L;
         when(transactionHelperMock.getLatestBlockNumber()).thenReturn(lastBlock);
 
@@ -134,14 +121,14 @@ public class ErisTransactionCollectorTest {
         block = mapper.readValue(json, Block.class);
         when(transactionHelperMock.getBlock(27L)).thenReturn(block);
 
-        when(transactionService.getTransactionStoring(block)).thenReturn(transactionStorings);
+        when(transactionService.getTransactionStoring(block)).thenReturn(transactionStorings.stream());
 
         file = new File("src/test/resources/json/block33.json");
         json = new Scanner(file).useDelimiter("\\Z").next();
         block = mapper.readValue(json, Block.class);
         when(transactionHelperMock.getBlock(33L)).thenReturn(block);
 
-        when(transactionService.getTransactionStoring(block)).thenReturn(transactionStorings);
+        when(transactionService.getTransactionStoring(block)).thenReturn(transactionStorings.stream());
 
         file = new File("src/test/resources/json/block15.json");
         json = new Scanner(file).useDelimiter("\\Z").next();
@@ -157,9 +144,6 @@ public class ErisTransactionCollectorTest {
 
         when(transactionService.storeTransaction(any(TransactionStoring.class)))
                 .thenAnswer(invocation -> invocation.getArgumentAt(0, TransactionStoring.class));
-
-        doCallRealMethod().when(transactionService).storeTransaction(any(List.class));
-
 
         long runningExecutionTimeSeconds = Long.MAX_VALUE;
         String host = "http://172.17.0.2:1337";

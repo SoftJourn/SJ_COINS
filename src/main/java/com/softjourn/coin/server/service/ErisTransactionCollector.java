@@ -1,8 +1,7 @@
-package com.softjourn.coin.server.util;
+package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.entity.TransactionStoring;
 import com.softjourn.coin.server.exceptions.ErisClientException;
-import com.softjourn.coin.server.service.ErisTransactionHistoryService;
 import com.softjourn.eris.transaction.ErisTransactionService;
 import com.softjourn.eris.transaction.pojo.Block;
 import com.softjourn.eris.transaction.pojo.Blocks;
@@ -13,12 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 /**
@@ -27,7 +24,6 @@ import java.util.stream.Stream;
  */
 @Component
 @Slf4j
-
 public class ErisTransactionCollector implements Runnable {
 
     private static final Marker marker = MarkerFactory.getMarker("TRANSACTION_MARKER");
@@ -36,7 +32,7 @@ public class ErisTransactionCollector implements Runnable {
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private ErisTransactionService transactionHelper;
     private ErisTransactionHistoryService transactionService;
-    private Long lastCheckedBlockNumber = 0L;
+    private AtomicLong lastCheckedBlockNumber = new AtomicLong(0);
     private int errorInSequenceCount;
 
 
@@ -46,24 +42,21 @@ public class ErisTransactionCollector implements Runnable {
                                     ErisTransactionHistoryService transactionService) {
         this.transactionHelper = new ErisTransactionService(host);
         this.transactionService = transactionService;
-        scheduledExecutorService.scheduleAtFixedRate(this, 20, interval, TimeUnit.SECONDS);
-        lastCheckedBlockNumber = transactionService.getHeightLastStored();
+        scheduledExecutorService.scheduleWithFixedDelay(this, 20, interval, TimeUnit.SECONDS);
+        //lastCheckedBlockNumber = new AtomicLong(transactionService.getHeightLastStored());
     }
 
     @Override
     public void run() {
         try {
             Long lastProduced = transactionHelper.getLatestBlockNumber();
-            if (!lastProduced.equals(lastCheckedBlockNumber)) {
-                log.trace(marker, "Calling blocks from "
-                        + lastCheckedBlockNumber
-                        + " to " + lastProduced);
-                Stream<Long> blocksWithTx = this
-                        .getBlockNumbersWithTransaction(lastCheckedBlockNumber + 1, lastProduced + 1);
-                Stream<TransactionStoring> transactions = this.getTransactionsFromBlocks(blocksWithTx);
-                this.transactionService.storeTransaction(transactions);
+            if (!lastProduced.equals(lastCheckedBlockNumber.get())) {
+                log.trace(marker, "Calling blocks from " + lastCheckedBlockNumber + " to " + lastProduced);
+
+                getBlockNumbersWithTransaction(lastCheckedBlockNumber.get() + 1, lastProduced + 1)
+                        .flatMap(this::getTransactionsFromBlock)
+                        .forEach(transactionService::storeTransaction);
                 errorInSequenceCount = 0;
-                lastCheckedBlockNumber = lastProduced;
             }
         } catch (Exception e) {
             errorInSequenceCount++;
@@ -81,24 +74,16 @@ public class ErisTransactionCollector implements Runnable {
     }
 
 
-    List<TransactionStoring> getTransactionsFromBlock(Long blockNumber) {
+    Stream<TransactionStoring> getTransactionsFromBlock(Long blockNumber) {
         try {
+            long newValue = blockNumber > lastCheckedBlockNumber.get() ? blockNumber : lastCheckedBlockNumber.get();
+            lastCheckedBlockNumber.set(newValue);
             Block block = transactionHelper.getBlock(blockNumber);
             return transactionService.getTransactionStoring(block);
         } catch (Exception e) {
             log.warn("Block can't parse transactions", e);
-            return Collections.emptyList();
+            return Stream.empty();
         }
-    }
-
-    List<TransactionStoring> getTransactionsFromBlocks(List<Long> blockNumbers) throws ErisClientException {
-        return getTransactionsFromBlocks(blockNumbers.stream()).collect(Collectors.toList());
-    }
-
-    private Stream<TransactionStoring> getTransactionsFromBlocks(Stream<Long> blockNumbers) throws ErisClientException {
-        return blockNumbers
-                .map(this::getTransactionsFromBlock)
-                .flatMap(List::stream);
     }
 
 }

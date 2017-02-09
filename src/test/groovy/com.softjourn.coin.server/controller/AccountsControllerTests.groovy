@@ -1,6 +1,6 @@
 package com.softjourn.coin.server.controller
 
-import com.softjourn.coin.server.util.ErisTransactionCollector
+import com.softjourn.coin.server.service.ErisTransactionCollector
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
