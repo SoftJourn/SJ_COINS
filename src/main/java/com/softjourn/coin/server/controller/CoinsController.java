@@ -63,6 +63,14 @@ public class CoinsController {
         return coinService.buy(merchantLdapId, principal.getName(), amountDto.getAmount(), amountDto.getComment());
     }
 
+    @PreAuthorize("#oauth2.hasScope('rollback')")
+    @RequestMapping(value = "/rollback/{txId}", method = RequestMethod.POST)
+    public Transaction rollback(@PathVariable Long txId, Principal principal) {
+        System.out.println(principal);
+        Transaction rollbackTx = coinService.rollback(txId);
+        return rollbackTx;
+    }
+
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/move/{account}", method = RequestMethod.POST)
     public Transaction moveAmount(Principal principal,

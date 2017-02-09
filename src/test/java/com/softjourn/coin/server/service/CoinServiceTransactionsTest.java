@@ -73,7 +73,7 @@ public class CoinServiceTransactionsTest {
         contract = mock(Contract.class);
         ErisContractService contractService = mock(ErisContractService.class);
 
-        coinService = new CoinService(accountsService, contractService, erisAccountRepository);
+        coinService = new CoinService(accountsService, contractService, erisAccountRepository, transactionRepository);
 
         when(contractService.getTokenContractForAccount(any())).thenReturn(contract);
 

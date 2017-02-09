@@ -54,6 +54,7 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
     public DefaultTokenServices tokenServices() {
         DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
         defaultTokenServices.setTokenStore(tokenStore());
+        defaultTokenServices.setTokenEnhancer(accessTokenConverter());
         return defaultTokenServices;
     }
 

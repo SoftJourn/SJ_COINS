@@ -7,17 +7,31 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.core.io.ClassPathResource
+import org.springframework.http.HttpHeaders
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.restdocs.JUnitRestDocumentation
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.oauth2.common.OAuth2AccessToken
+import org.springframework.security.oauth2.provider.OAuth2Authentication
+import org.springframework.security.oauth2.provider.OAuth2Request
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter
+import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+
+import java.security.KeyPair
+import java.util.stream.Collectors
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
@@ -38,6 +52,17 @@ class AccountsControllerTests {
     @MockBean
     private ErisTransactionCollector erisTransactionCollector
 
+    @Autowired
+    private DefaultTokenServices tokenService;
+    @Value('${authKeyFileName}')
+    private String authKeyFileName
+    @Value('${authKeyStorePass}')
+    private String authKeyStorePass
+    @Value('${authKeyMasterPass}')
+    private String authKeyMasterPass
+    @Value('${authKeyAlias}')
+    private String authKeyAlias
+
     @Rule
     public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation('target/generated-snippets')
 
@@ -56,9 +81,9 @@ class AccountsControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = ["SUPER_USER"])
     void 'test of GET request to /api/v1/account endpoint'() {
-        mockMvc.perform(get('/api/v1/account'))
+        mockMvc.perform(get('/api/v1/account')
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
                 .andExpect(status().isOk())
                 .andDo(document('account',
                 preprocessResponse(prettyPrint()),
@@ -80,10 +105,16 @@ class AccountsControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = ["SUPER_ADMIN"])
+    void 'test of GET request to /api/v1/account endpoint without auth header'() {
+        mockMvc.perform(get('/api/v1/account'))
+                .andExpect(status().isUnauthorized())
+    }
+
+    @Test
     void 'test of POST request to /api/v1/account/merchant endpoint'() {
         mockMvc.perform(post('/api/v1/account/merchant')
                 .content('{\n  "name": "VM1",\n  "uniqueId": "123456-123456-123456"\n}')
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document('addSeller',
@@ -106,9 +137,18 @@ class AccountsControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = ["SUPER_ADMIN"])
+    void 'test of POST request to /api/v1/account/merchant endpoint with wrong ROLE'() {
+        mockMvc.perform(post('/api/v1/account/merchant')
+                .content('{\n  "name": "VM1",\n  "uniqueId": "123456-123456-123456"\n}')
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM"))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+    }
+
+    @Test
     void 'test of GET request to /api/v1/accounts endpoint'() {
-        mockMvc.perform(get('/api/v1/accounts'))
+        mockMvc.perform(get('/api/v1/accounts')
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
                 .andExpect(status().isOk())
                 .andDo(document('accounts',
                 preprocessResponse(prettyPrint()),
@@ -142,9 +182,16 @@ class AccountsControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = ["SUPER_ADMIN"])
+    void 'test of GET request to /api/v1/accounts endpoint wrong ROLE'() {
+        mockMvc.perform(get('/api/v1/accounts')
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADMIN")))
+                .andExpect(status().isForbidden())
+    }
+
+    @Test
     void 'test of GET request to /api/v1/accounts/{accountType} endpoint'() {
-        mockMvc.perform(get('/api/v1/accounts/{accountType}', 'merchant'))
+        mockMvc.perform(get('/api/v1/accounts/{accountType}', 'merchant')
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
                 .andExpect(status().isOk())
                 .andDo(document('merchantAccounts',
                 preprocessResponse(prettyPrint()),
@@ -167,9 +214,15 @@ class AccountsControllerTests {
     }
 
     @Test
-    @WithMockUser(roles = ["SUPER_ADMIN"])
+    void 'test of GET request to /api/v1/accounts/{accountType} endpoint without auth header'() {
+        mockMvc.perform(get('/api/v1/accounts/{accountType}', 'merchant'))
+                .andExpect(status().isUnauthorized())
+    }
+
+    @Test
     void 'test of DELETE request to /api/v1/account/{accountName} endpoint'() {
-        mockMvc.perform(delete('/api/v1/account/{ldapId}', 'VM1'))
+        mockMvc.perform(delete('/api/v1/account/{ldapId}', 'VM1')
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
                 .andExpect(status().isOk())
                 .andDo(document('deleteAccount',
                 preprocessResponse(prettyPrint()),
@@ -180,5 +233,33 @@ class AccountsControllerTests {
                                 .description('Status of delete operation')
                 )
         ))
+    }
+
+    @Test
+    void 'test of DELETE request to /api/v1/account/{accountName} endpoint wrong role'() {
+        mockMvc.perform(delete('/api/v1/account/{ldapId}', 'VM1')
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM")))
+                .andExpect(status().isForbidden())
+    }
+
+
+    private String prepareToken(Set<String> scopes, String... authorities) {
+
+        def authoritiesCollection = Arrays.asList(authorities).stream().map({ s ->
+            (GrantedAuthority) { -> s
+            }
+        }).collect(Collectors.toList())
+        OAuth2Request oauth2Request = new OAuth2Request(null, "test", authoritiesCollection, true, scopes, null, null, null, null)
+        Authentication userAuth = new TestingAuthenticationToken("test", null, authorities)
+        OAuth2Authentication oauth2auth = new OAuth2Authentication(oauth2Request, userAuth)
+        JwtAccessTokenConverter converter = new JwtAccessTokenConverter()
+        KeyPair keyPair = new KeyStoreKeyFactory(
+                new ClassPathResource(authKeyFileName), authKeyStorePass.toCharArray())
+                .getKeyPair(authKeyAlias, authKeyMasterPass.toCharArray())
+        converter.setKeyPair(keyPair)
+
+        tokenService.setTokenEnhancer(converter)
+        OAuth2AccessToken token = tokenService.createAccessToken(oauth2auth)
+        return token.getValue();
     }
 }

@@ -1,48 +1,22 @@
 package com.softjourn.coin.server.controller
 
-import com.softjourn.coin.server.dto.ContractCreateResponseDTO
-import com.softjourn.coin.server.dto.CrowdsaleInfoDTO
-import com.softjourn.coin.server.dto.CrowdsaleTransactionResultDTO
-import com.softjourn.coin.server.dto.DonateDTO
-import com.softjourn.coin.server.dto.MerchantDTO
-import com.softjourn.coin.server.dto.NewContractDTO
-import com.softjourn.coin.server.dto.NewContractInstanceDTO
-import com.softjourn.coin.server.entity.Account
-import com.softjourn.coin.server.entity.AccountType
-import com.softjourn.coin.server.entity.Contract
-import com.softjourn.coin.server.entity.Instance
-import com.softjourn.coin.server.entity.Transaction
-import com.softjourn.coin.server.entity.TransactionStatus
-import com.softjourn.coin.server.entity.Type
+import com.softjourn.coin.server.dto.*
+import com.softjourn.coin.server.entity.*
 import com.softjourn.coin.server.service.AccountsService
 import com.softjourn.coin.server.service.CoinService
 import com.softjourn.coin.server.service.ContractService
 import com.softjourn.coin.server.service.CrowdsaleService
-import org.apache.commons.io.IOUtils
 import org.mockito.Mockito
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
-import org.springframework.core.io.ClassPathResource
-import org.springframework.http.HttpMethod
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter
-import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices
-import org.springframework.security.oauth2.provider.token.TokenStore
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter
-import org.springframework.security.oauth2.provider.token.store.JwtTokenStore
 import org.springframework.test.context.web.WebAppConfiguration
 
 import java.security.Principal
 import java.time.Instant
 
-import static org.mockito.Matchers.any
-import static org.mockito.Matchers.anyLong
-import static org.mockito.Matchers.anyString
+import static org.mockito.Matchers.*
 import static org.mockito.Mockito.when
 
 @Configuration
@@ -63,6 +37,7 @@ class ControllerTestConfig {
         def transaction = createTransaction(account, account)
         def transactionMove = createTransaction(account, account2)
         def transactionMove2 = createTransaction(vm, treasury)
+        def rollbackTx = createTransaction(account2, account)
 
         when(coinService.getAmount(any(String.class))).thenReturn(new BigDecimal('100'))
         when(coinService.buy(any(String.class), any(String.class), any(BigDecimal.class), any(String.class)))
@@ -73,6 +48,9 @@ class ControllerTestConfig {
                 .thenReturn(transactionMove)
         when(coinService.moveToTreasury(anyString(), any(BigDecimal.class), anyString()))
                 .thenReturn(transactionMove2)
+        when(coinService.rollback(anyLong()))
+                .thenReturn(rollbackTx)
+
 
         coinService
     }
@@ -165,7 +143,7 @@ class ControllerTestConfig {
         crowdsaleService
     }
 
-    private Transaction createTransaction(Account account, Account destinationAccount) {
+    private static Transaction createTransaction(Account account, Account destinationAccount) {
         def transaction = new Transaction()
         transaction.account = account
         transaction.amount = 10
@@ -178,60 +156,4 @@ class ControllerTestConfig {
         transaction
     }
 
-    protected static class ResourceServerConfig extends ResourceServerConfigurerAdapter {
-        @Value('${authPublicKeyFile}')
-        private String authPublicKeyFile;
-
-        @Bean
-        public TokenStore tokenStore() {
-            return new JwtTokenStore(accessTokenConverter());
-        }
-
-        @Bean
-        public JwtAccessTokenConverter accessTokenConverter() {
-            JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-            String publicKey = readPublicKey(authPublicKeyFile);
-            converter.setVerifierKey(publicKey);
-            return converter;
-        }
-
-        @Bean
-        public DefaultTokenServices tokenServices() {
-            DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
-            defaultTokenServices.setTokenStore(tokenStore());
-            return defaultTokenServices;
-        }
-
-        private String readPublicKey(String authPublicKeyFile) {
-            def inputStream = new ClassPathResource(authPublicKeyFile).getInputStream()
-
-            try {
-                return IOUtils.toString(inputStream);
-            } catch (IOException e) {
-                throw new RuntimeException("Can't read auth public key from file " + authPublicKeyFile);
-            } finally {
-                if (inputStream) {
-                    inputStream.close()
-                }
-            }
-        }
-
-        @Override
-        public void configure(HttpSecurity http) throws Exception {
-            http
-                    .authorizeRequests()
-                    .antMatchers(HttpMethod.POST, "/api/v1/add/**").hasRole("COIN_ADMIN")
-                    .anyRequest().authenticated()
-                    .and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
-                    .and()
-                    .csrf().disable()
-            ;
-        }
-
-        @Override
-        void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-            resources.tokenServices(tokenServices()).stateless(false)
-        }
-    }
 }

@@ -9,14 +9,12 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "com.softjourn.coin.server")
 @EnableResourceServer
 @EnableAspectJAutoProxy
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableJpaRepositories(basePackages = "com.softjourn.coin.server.repository")
 @EntityScan(basePackages = "com.softjourn.coin.server.entity")
 public class Coins  {

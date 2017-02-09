@@ -81,7 +81,7 @@ public class CoinServiceTestConcurrent {
         when(accountsService.getAccount("user")).thenReturn(account);
         when(accountsService.getAccount("seller")).thenReturn(sellerAccount);
 
-        coinService = new CoinService(accountsService, contractService, erisAccountRepository);
+        coinService = new CoinService(accountsService, contractService, erisAccountRepository, transactionRepository);
 
         when(contractService.getTokenContractForAccount(any())).thenReturn(contract);
 
