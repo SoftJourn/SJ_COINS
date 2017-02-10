@@ -226,7 +226,7 @@ public class CoinService {
         Account user = transaction.getAccount();
         Account merchant = transaction.getDestination();
         BigDecimal amount = transaction.getAmount();
-        Response response = moveByEris(user.getErisAccount(), merchant.getErisAccount().getAddress(), amount);
+        Response response = moveByEris(merchant.getErisAccount(), user.getErisAccount().getAddress(), amount);
         Transaction rollbackTx = mapToTransaction(response);
         rollbackTx.setAccount(merchant);
         rollbackTx.setDestination(user);
