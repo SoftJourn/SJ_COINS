@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.config;
 
 import com.softjourn.coin.server.entity.Transaction;
+import com.softjourn.common.auth.OAuthHelper;
 import com.softjourn.eris.accounts.AccountsService;
 import com.softjourn.eris.accounts.KeyService;
 import com.softjourn.eris.rpc.HTTPRPCClient;
@@ -40,6 +41,13 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
     @Bean
     public TokenStore tokenStore() {
         return new JwtTokenStore(accessTokenConverter());
+    }
+
+    @Bean
+    public OAuthHelper oAuthHelper(@Value("${auth.client.client-id}") String clientId,
+                                   @Value("${auth.client.client-secret}") String clientSecret,
+                                   @Value("${auth.server.url}") String authServerUrl) {
+        return new OAuthHelper(clientId, clientSecret, authServerUrl, new RestTemplate());
     }
 
     @Bean
