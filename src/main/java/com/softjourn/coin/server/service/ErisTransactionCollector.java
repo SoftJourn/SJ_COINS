@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 public class ErisTransactionCollector implements Runnable {
 
     private static final Marker marker = MarkerFactory.getMarker("TRANSACTION_MARKER");
-    private static final int MAX_ERRORS_IN_SEQUENCE = 10;
+    private static final int MAX_ERRORS_IN_SEQUENCE = 100;
 
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private ErisTransactionService transactionHelper;
@@ -43,7 +43,7 @@ public class ErisTransactionCollector implements Runnable {
         this.transactionHelper = new ErisTransactionService(host);
         this.transactionService = transactionService;
         scheduledExecutorService.scheduleWithFixedDelay(this, 20, interval, TimeUnit.SECONDS);
-        //lastCheckedBlockNumber = new AtomicLong(transactionService.getHeightLastStored());
+        lastCheckedBlockNumber = new AtomicLong(transactionService.getHeightLastStored());
     }
 
     @Override
