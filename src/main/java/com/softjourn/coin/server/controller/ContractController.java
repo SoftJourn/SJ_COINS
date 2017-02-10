@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -41,6 +42,13 @@ public class ContractController {
     @RequestMapping(method = RequestMethod.GET)
     public List<Contract> getContracts() {
         return this.contractService.getContracts();
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/compile",method = RequestMethod.POST)
+    public String  compile(@RequestBody String json) {
+        RestTemplate template = new RestTemplate();
+        return template.postForObject("http://46.101.203.71/compile",json, String.class);
     }
 
     @PreAuthorize("authenticated")
