@@ -7,7 +7,7 @@ import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.AccountWasDeletedException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
-import com.softjourn.coin.server.util.OAuthHelper;
+import com.softjourn.common.auth.OAuthHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
