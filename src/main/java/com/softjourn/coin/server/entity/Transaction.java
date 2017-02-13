@@ -47,6 +47,10 @@ public class Transaction {
     @JsonIgnore
     private String erisTransactionId;
 
+    @OneToOne
+    @JoinColumn(name = "erisTransactionId", referencedColumnName = "txId", insertable = false, updatable = false)
+    private TransactionStoring transactionStoring;
+
     public Transaction() {
     }
 
