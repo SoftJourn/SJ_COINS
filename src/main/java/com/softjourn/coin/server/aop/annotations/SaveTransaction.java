@@ -17,9 +17,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *      - "accountName" - for donor account;
  *      - "destinationName" - for acceptor account;
  *      - "amount" - for coins amount
- *      - "comment" - for additional information about transaction
+ *      - "comment" - for additional information about body
  *
- * if there no such argument or it's name not mach specified above null will be set to appropriate transaction fields
+ * if there no such argument or it's name not mach specified above null will be set to appropriate body fields
  */
 @Retention(RUNTIME)
 @Target(ElementType.METHOD)

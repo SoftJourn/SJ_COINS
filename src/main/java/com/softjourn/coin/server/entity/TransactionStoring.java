@@ -1,8 +1,9 @@
 package com.softjourn.coin.server.entity;
 
 import com.softjourn.coin.server.dao.ErisTransactionDAO;
-import com.softjourn.eris.transaction.pojo.ErisTransaction;
-import com.softjourn.eris.transaction.pojo.Header;
+import com.softjourn.eris.block.pojo.BlockHeader;
+import com.softjourn.eris.transaction.pojo.ErisCallTransaction;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 /**
  * TransactionStoring is an object that will have all valuable information
- * about transaction. It should contain information that can be checked via blockchain
+ * about body. It should contain information that can be checked via blockchain
  * Created by vromanchuk on 17.01.17.
  */
 @Data
@@ -29,10 +30,7 @@ public class TransactionStoring {
     @Column(columnDefinition = "BIGINT")
     private Long blockNumber;
     private LocalDateTime time;
-    private String functionName;
     private String chainId;
-    @Column(unique = true)
-    private String txId;
 
     @Embedded
     private ErisTransactionDAO transaction;
@@ -42,17 +40,16 @@ public class TransactionStoring {
     @MapKeyColumn(name = "function_name")
     private Map<String, String> callingValue;
 
-    public TransactionStoring(Header blockHeader, String functionName, @NonNull ErisTransactionDAO transaction, Map<String, String> callingValue, String txId) {
-        this.blockNumber = blockHeader.getHeight();
-        this.time = blockHeader.getDateTime();
-        this.functionName = functionName;
-        this.chainId = blockHeader.getChainId();
+    public TransactionStoring(BlockHeader blockHeader, String functionName, @NonNull ErisTransactionDAO transaction,
+                              Map<String, String> callingValue, String txId) {
+        this.blockNumber = blockHeader.getBlockNumber();
+        this.time = blockHeader.getTimeCreated();
+        this.chainId = blockHeader.getChainName();
         this.transaction = transaction;
         this.callingValue = callingValue;
-        this.txId = txId;
     }
 
-    public void setTransaction(ErisTransaction transaction) {
+    public void setTransaction(ErisCallTransaction transaction) {
         if (this.transaction == null) {
             this.transaction = new ErisTransactionDAO(transaction);
         } else {

@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Not enough amount of coins oin account.")
     @ExceptionHandler(NotEnoughAmountInAccountException.class)
     public void handleNotEnoughAmount(Exception e) {
-        log.info("Request for transaction with too big amount. " + e.getLocalizedMessage());
+        log.info("Request for body with too big amount. " + e.getLocalizedMessage());
     }
 
     @ResponseStatus(value = HttpStatus.CONFLICT, reason = "No free eris account")

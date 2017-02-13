@@ -1,10 +1,14 @@
 package com.softjourn.coin.server.dao;
 
+import com.softjourn.eris.block.pojo.BlockHeader;
+import com.softjourn.eris.transaction.pojo.ErisCallTransaction;
 import com.softjourn.eris.transaction.pojo.ErisTransaction;
+import com.softjourn.eris.transaction.pojo.ErisTransactionType;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
 
 import javax.persistence.*;
+import java.util.Map;
 
 /**
  * ErisTransactionDAO created to map hibernate entity to ErisTransaction
@@ -16,9 +20,9 @@ import javax.persistence.*;
 public class ErisTransactionDAO {
 
     @Delegate(excludes = ICallingData.class)
-    private ErisTransaction transaction = new ErisTransaction();
+    private ErisCallTransaction transaction = ErisCallTransaction.builder().build();
 
-    public ErisTransactionDAO(ErisTransaction transaction) {
+    public ErisTransactionDAO(ErisCallTransaction transaction) {
         this.transaction = transaction;
     }
 
@@ -26,7 +30,7 @@ public class ErisTransactionDAO {
     }
 
     @Transient
-    public void setTransaction(ErisTransaction transaction) {
+    public void setTransaction(ErisCallTransaction transaction) {
         this.transaction = transaction;
     }
 
@@ -40,7 +44,11 @@ public class ErisTransactionDAO {
         return transaction.getCallingData();
     }
 
+    @SuppressWarnings("unused")
     interface ICallingData {
         String getCallingData();
+        BlockHeader getBlockHeader();
+        Map getFunctionArguments();
+        ErisTransactionType getTransactionType();
     }
 }

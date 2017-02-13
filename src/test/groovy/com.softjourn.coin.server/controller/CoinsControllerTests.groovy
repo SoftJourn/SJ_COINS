@@ -191,7 +191,7 @@ class CoinsControllerTests {
                                 .description('Transaction status'),
                         fieldWithPath('remain')
                                 .type(JsonFieldType.NUMBER)
-                                .description('Remaining amount after transaction'),
+                                .description('Remaining amount after body'),
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
                                 .description('Error description')
@@ -217,7 +217,7 @@ class CoinsControllerTests {
                 preprocessResponse(prettyPrint()),
                 pathParameters(
                         parameterWithName("txId")
-                                .description("Id of transaction that needs to be rolled back")
+                                .description("Id of body that needs to be rolled back")
                 ),
                 responseFields(
                         fieldWithPath('id')
@@ -243,7 +243,7 @@ class CoinsControllerTests {
                                 .description('Transaction status'),
                         fieldWithPath('remain')
                                 .type(JsonFieldType.NUMBER)
-                                .description('Remaining amount after transaction'),
+                                .description('Remaining amount after body'),
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
                                 .description('Error description')
@@ -314,7 +314,7 @@ class CoinsControllerTests {
                                 .description('Transaction status'),
                         fieldWithPath('remain')
                                 .type(JsonFieldType.NUMBER)
-                                .description('Remaining amount after transaction'),
+                                .description('Remaining amount after body'),
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
                                 .description('Error description')
@@ -360,7 +360,7 @@ class CoinsControllerTests {
                                 .description('Transaction status'),
                         fieldWithPath('remain')
                                 .type(JsonFieldType.NUMBER)
-                                .description('Remaining amount after transaction'),
+                                .description('Remaining amount after body'),
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
                                 .description('Error description')
@@ -415,7 +415,7 @@ class CoinsControllerTests {
                                 .description('Transaction status'),
                         fieldWithPath('remain')
                                 .type(JsonFieldType.NUMBER)
-                                .description('Remaining amount after transaction'),
+                                .description('Remaining amount after body'),
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
                                 .description('Error description')

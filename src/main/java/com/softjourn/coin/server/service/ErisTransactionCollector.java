@@ -1,10 +1,6 @@
 package com.softjourn.coin.server.service;
 
-import com.softjourn.coin.server.entity.TransactionStoring;
-import com.softjourn.coin.server.exceptions.ErisClientException;
-import com.softjourn.eris.transaction.ErisTransactionService;
-import com.softjourn.eris.transaction.pojo.Block;
-import com.softjourn.eris.transaction.pojo.Blocks;
+import com.softjourn.eris.block.BlockChainService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
@@ -16,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Stream;
 
 /**
  * ErisTransactionHelper
@@ -30,18 +25,16 @@ public class ErisTransactionCollector implements Runnable {
     private static final int MAX_ERRORS_IN_SEQUENCE = 100;
 
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
-    private ErisTransactionService transactionHelper;
-    private ErisTransactionHistoryService transactionService;
+    private BlockChainService blockChainService;
     private AtomicLong lastCheckedBlockNumber = new AtomicLong(0);
     private int errorInSequenceCount;
 
 
     @Autowired
-    public ErisTransactionCollector(@Value("${eris.chain.url}") String host,
+    public ErisTransactionCollector(BlockChainService blockChainService,
                                     @Value("${eris.transaction.collector.interval}") Long interval,
                                     ErisTransactionHistoryService transactionService) {
-        this.transactionHelper = new ErisTransactionService(host);
-        this.transactionService = transactionService;
+        this.blockChainService = blockChainService;
         scheduledExecutorService.scheduleWithFixedDelay(this, 20, interval, TimeUnit.SECONDS);
         lastCheckedBlockNumber = new AtomicLong(transactionService.getHeightLastStored());
     }
@@ -49,13 +42,15 @@ public class ErisTransactionCollector implements Runnable {
     @Override
     public void run() {
         try {
-            Long lastProduced = transactionHelper.getLatestBlockNumber();
+            Long lastProduced = blockChainService.getLatestBlockNumber();
             if (!lastProduced.equals(lastCheckedBlockNumber.get())) {
                 log.trace(marker, "Calling blocks from " + lastCheckedBlockNumber + " to " + lastProduced);
 
-                getBlockNumbersWithTransaction(lastCheckedBlockNumber.get() + 1, lastProduced + 1)
-                        .flatMap(this::getTransactionsFromBlock)
-                        .forEach(transactionService::storeTransaction);
+                blockChainService.visitTransactionsFromBlocks(lastCheckedBlockNumber.get() + 1, lastProduced + 1);
+//                getBlockNumbersWithTransaction(lastCheckedBlockNumber.get() + 1, lastProduced + 1)
+//                        .flatMap(this::getTransactionsFromBlock)
+//                        .forEach(transactionService::storeTransaction);
+
                 errorInSequenceCount = 0;
             }
         } catch (Exception e) {
@@ -65,24 +60,6 @@ public class ErisTransactionCollector implements Runnable {
                 log.error("Scheduler stopped due to a lot of errors in a sequence");
                 scheduledExecutorService.shutdown();
             }
-        }
-    }
-
-
-    Stream<Long> getBlockNumbersWithTransaction(Long from, Long to) throws ErisClientException {
-        return Blocks.getBlockNumbersWithTransaction(transactionHelper.getBlockStream(from, to));
-    }
-
-
-    Stream<TransactionStoring> getTransactionsFromBlock(Long blockNumber) {
-        try {
-            long newValue = blockNumber > lastCheckedBlockNumber.get() ? blockNumber : lastCheckedBlockNumber.get();
-            lastCheckedBlockNumber.set(newValue);
-            Block block = transactionHelper.getBlock(blockNumber);
-            return transactionService.getTransactionStoring(block);
-        } catch (Exception e) {
-            log.warn("Block can't parse transactions", e);
-            return Stream.empty();
         }
     }
 
