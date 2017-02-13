@@ -86,7 +86,7 @@ class ControllerTestConfig {
     @Bean
     ContractService contractService() {
         def contractService = Mockito.mock(ContractService.class)
-        def contract = new Contract(1L, "some name", "some code", "some abi", new Type("type"), new ArrayList<Instance>() {
+        def contract = new Contract(1L, "some name", true, "some code", "some abi", new Type("type"), new ArrayList<Instance>() {
             {
                 add(new Instance("SomeAddress"))
             }
