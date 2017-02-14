@@ -194,6 +194,9 @@ class CoinsControllerTests {
                                 .description('Remaining amount after transaction'),
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
+                                .description('Error description'),
+                        fieldWithPath('transactionStoring')
+                                .type(JsonFieldType.OBJECT)
                                 .description('Error description')
                 )
         ))
@@ -246,6 +249,9 @@ class CoinsControllerTests {
                                 .description('Remaining amount after transaction'),
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
+                                .description('Error description'),
+                        fieldWithPath('transactionStoring')
+                                .type(JsonFieldType.OBJECT)
                                 .description('Error description')
                 )
         ))
@@ -317,6 +323,9 @@ class CoinsControllerTests {
                                 .description('Remaining amount after transaction'),
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
+                                .description('Error description'),
+                        fieldWithPath('transactionStoring')
+                                .type(JsonFieldType.OBJECT)
                                 .description('Error description')
                 )
         ))
@@ -363,6 +372,9 @@ class CoinsControllerTests {
                                 .description('Remaining amount after transaction'),
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
+                                .description('Error description'),
+                        fieldWithPath('transactionStoring')
+                                .type(JsonFieldType.OBJECT)
                                 .description('Error description')
                 )
         ))
@@ -418,6 +430,12 @@ class CoinsControllerTests {
                                 .description('Remaining amount after transaction'),
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
+                                .description('Error description'),
+                        fieldWithPath('transactionStoring')
+                                .type(JsonFieldType.OBJECT)
+                                .description('Error description'),
+                        fieldWithPath('transactionStoring')
+                                .type(JsonFieldType.OBJECT)
                                 .description('Error description')
                 )
         ))
