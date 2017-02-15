@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.criteria.*;
 import java.lang.reflect.Field;
@@ -39,7 +40,34 @@ public class GenericFilter<T> implements Specification<T> {
     }
 
     private Predicate buildEqualPredicate(CriteriaBuilder criteriaBuilder, Root<T> root, Condition condition){
-        return criteriaBuilder.equal(getPathBySimpleFieldOrEntityFieldId(root, condition), condition.value);
+        return criteriaBuilder.equal(getFieldPath(root, condition), condition.value);
+    }
+
+    private Predicate buildGreaterThanPredicate(CriteriaBuilder criteriaBuilder, Root<T> root, Condition condition){
+        return criteriaBuilder.greaterThanOrEqualTo(getFieldPath(root, condition), (Comparable)condition.value);
+    }
+
+    private Predicate buildLesThanPredicate(CriteriaBuilder criteriaBuilder, Root<T> root, Condition condition){
+        return criteriaBuilder.lessThanOrEqualTo(getFieldPath(root, condition), (Comparable)condition.value);
+    }
+
+    private Predicate buildInPredicate(CriteriaBuilder criteriaBuilder, Root<T> root, Condition condition) {
+        if (condition.value instanceof Collection) {
+            if(((Collection) condition.value).isEmpty()) {
+                return criteriaBuilder.isTrue(criteriaBuilder.literal(true));
+            }
+            return getFieldPath(root, condition).in((Collection<?>) condition.value);
+        } else throw new IllegalArgumentException("Method buildInPredicate can be applied only for collections");
+    }
+
+    private Path getFieldPath(Root<T> root, Condition condition) {
+        if (isCompositeField(condition.field)) {
+            return getPathByCompositeField(root, condition);
+        } else if (condition.value instanceof Collection){
+            return getPathBySimpleFieldOrEntityFieldIdForInCause(root, condition);
+        } else {
+            return getPathBySimpleFieldOrEntityFieldId(root, condition);
+        }
     }
 
     private Path getPathBySimpleFieldOrEntityFieldIdForInCause(Root<T> root, Condition condition) {
@@ -55,17 +83,27 @@ public class GenericFilter<T> implements Specification<T> {
         return getPathBySimpleFieldOrEntityFieldId(root, condition.field, condition.value);
     }
 
+    private Path getPathByCompositeField(Root<T> root, Condition condition) {
+        String[] fieldsPath = fieldsPath(condition.field);
+        Join path = root.join(fieldsPath[0], JoinType.INNER);
+        for (int i = 1; i < fieldsPath.length - 1; i++) {
+            String field = fieldsPath[i];
+            path = path.join(field, JoinType.INNER);
+        }
+        return path.get(fieldsPath[fieldsPath.length - 1]);
+    }
+
     private Path getPathBySimpleFieldOrEntityFieldId(Root<T> root, String fieldName, Object value) {
         Class fieldType = root.getModel().getAttribute(fieldName).getJavaType();
-        if (fieldType.isInstance(value)) {
-            return root.get(fieldName);
-        } else {
+        if (fieldType.isAnnotationPresent(Entity.class)){
             Class fieldIdType = getIdFieldType(fieldType);
             if (fieldIdType.isInstance(value)) {
                 return root.join(fieldName, JoinType.INNER).get(getIdFieldName(fieldType));
             } else {
                 throw new IllegalArgumentException("Can't create criteria based on field " + fieldName + " with value " + value + ".");
             }
+        } else {
+            return root.get(fieldName);
         }
     }
 
@@ -86,23 +124,12 @@ public class GenericFilter<T> implements Specification<T> {
                 .orElseThrow(() -> new IllegalArgumentException("Can't get ID field of entity " + entityClass));
     }
 
-
-
-    private Predicate buildGreaterThanPredicate(CriteriaBuilder criteriaBuilder, Root<T> root, Condition condition){
-        return criteriaBuilder.greaterThanOrEqualTo(root.get(condition.field), (Comparable)condition.value);
+    private boolean isCompositeField(String fielsName) {
+        return fielsName.contains(".");
     }
 
-    private Predicate buildLesThanPredicate(CriteriaBuilder criteriaBuilder, Root<T> root, Condition condition){
-        return criteriaBuilder.lessThanOrEqualTo(root.get(condition.field), (Comparable)condition.value);
-    }
-
-    private Predicate buildInPredicate(CriteriaBuilder criteriaBuilder, Root<T> root, Condition condition) {
-        if (condition.value instanceof Collection) {
-            if(((Collection) condition.value).isEmpty()) {
-                return criteriaBuilder.isTrue(criteriaBuilder.literal(true));
-            }
-            return getPathBySimpleFieldOrEntityFieldIdForInCause(root, condition).in(condition.value);
-        } else throw new IllegalArgumentException("Method buildInPredicate can be applied only for collections");
+    private String[] fieldsPath(String compositeField) {
+        return compositeField.split("\\.");
     }
 
     public enum Comparison {

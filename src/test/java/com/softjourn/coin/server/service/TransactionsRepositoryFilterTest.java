@@ -2,6 +2,7 @@ package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.Transaction;
+import com.softjourn.coin.server.entity.TransactionStoring;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -164,5 +166,70 @@ public class TransactionsRepositoryFilterTest {
                 .map(Transaction::getAccount)
                 .map(Account::getLdapId)
                 .allMatch(id -> id.equals("vdanyliuk") || id.equals("ovovchuk")));
+    }
+
+    @Test
+    public void filteringTest_bySubField_inCondition() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        List<GenericFilter.Condition> conditions = new ArrayList<>();
+
+        GenericFilter.Condition eqAccountCondition = new GenericFilter.Condition();
+        eqAccountCondition.setComparison(GenericFilter.Comparison.in);
+        eqAccountCondition.setField("transactionStoring.blockNumber");
+        eqAccountCondition.setValue(Arrays.asList(3788719, 3699719));
+
+        conditions.add(eqAccountCondition);
+
+        filter.setConditions(conditions);
+        filter.setPageable(defaultPageable);
+
+
+        List<Transaction> result = repository.findAll(filter, filter.getPageable()).getContent();
+        assertEquals(2, result.size());
+
+        assertTrue(result.stream()
+                .map(Transaction::getTransactionStoring)
+                .map(TransactionStoring::getBlockNumber)
+                .allMatch(id -> id.equals(3788719L) || id.equals(3699719L)));
+    }
+
+    @Test
+    public void filteringTest_castableType() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        List<GenericFilter.Condition> conditions = new ArrayList<>();
+
+        GenericFilter.Condition eqAccountCondition = new GenericFilter.Condition();
+        eqAccountCondition.setComparison(GenericFilter.Comparison.eq);
+        eqAccountCondition.setField("amount");
+        eqAccountCondition.setValue("1000000");
+
+        conditions.add(eqAccountCondition);
+
+        filter.setConditions(conditions);
+        filter.setPageable(defaultPageable);
+
+
+        List<Transaction> result = repository.findAll(filter, filter.getPageable()).getContent();
+        assertEquals(2, result.size());
+    }
+
+    @Test(expected = InvalidDataAccessApiUsageException.class)
+    public void filteringTest_nonCastableValue() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        List<GenericFilter.Condition> conditions = new ArrayList<>();
+
+        GenericFilter.Condition eqAccountCondition = new GenericFilter.Condition();
+        eqAccountCondition.setComparison(GenericFilter.Comparison.eq);
+        eqAccountCondition.setField("amount");
+        eqAccountCondition.setValue("value");
+
+        conditions.add(eqAccountCondition);
+
+        filter.setConditions(conditions);
+        filter.setPageable(defaultPageable);
+
+
+        List<Transaction> result = repository.findAll(filter, filter.getPageable()).getContent();
+        assertEquals(2, result.size());
     }
 }
