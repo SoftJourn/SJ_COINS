@@ -1,13 +1,20 @@
 package com.softjourn.coin.server.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.criteria.*;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -15,18 +22,54 @@ import java.util.stream.Stream;
 
 
 @Data
+@NoArgsConstructor
 public class GenericFilter<T> implements Specification<T> {
 
-    private List<Condition> conditions;
+    private List<Condition> conditions = new ArrayList<>();
 
-    private Pageable pageable;
+    private PageRequestImpl pageable;
+
+    @JsonIgnore
+    private Pageable innerPageable;
+
+    @JsonIgnore
+    private BoolOperation operation = BoolOperation.AND;
+
+    public GenericFilter(List<Condition> conditions, PageRequestImpl pageable) {
+        this.conditions = conditions;
+        this.pageable = pageable;
+        this.innerPageable = pageable.toPageable();
+    }
 
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
         Predicate[] predicates = conditions.stream()
                 .map(condition -> buildPredicate(root, criteriaBuilder, criteriaQuery, condition))
                 .toArray(Predicate[]::new);
-        return criteriaBuilder.and(predicates);
+        return operation == BoolOperation.AND ? criteriaBuilder.and(predicates) : criteriaBuilder.or(predicates);
+    }
+
+    public static <T> GenericFilter<T> and(Condition... condition) {
+        return and(null, condition);
+    }
+
+    public static <T> GenericFilter<T> and(PageRequest pageable, Condition... condition) {
+        GenericFilter<T> filter = new GenericFilter<>();
+        filter.innerPageable = pageable;
+        filter.conditions = Arrays.asList(condition);
+        return filter;
+    }
+
+    public static <T> GenericFilter<T> or(Condition... condition) {
+        return or(null, condition);
+    }
+
+    public static <T> GenericFilter<T> or(PageRequest pageable, Condition... condition) {
+        GenericFilter<T> filter = new GenericFilter<>();
+        filter.innerPageable = pageable;
+        filter.conditions = Arrays.asList(condition);
+        filter.operation = BoolOperation.OR;
+        return filter;
     }
 
     private Predicate buildPredicate(Root<T> root, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> criteriaQuery, Condition condition) {
@@ -132,16 +175,52 @@ public class GenericFilter<T> implements Specification<T> {
         return compositeField.split("\\.");
     }
 
+    public enum BoolOperation {
+        OR, AND
+    }
+
     public enum Comparison {
         eq, in, gt, lt
     }
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Condition {
         private String field;
 
         private Object value;
 
         private Comparison comparison;
+
+        public static Condition eq(String field, Object value) {
+            return new Condition(field, value, Comparison.eq);
+        }
+
+        public static Condition in(String field, Object value) {
+            return new Condition(field, value, Comparison.in);
+        }
+
+        public static Condition gt(String field, Object value) {
+            return new Condition(field, value, Comparison.gt);
+        }
+
+        public static Condition lt(String field, Object value) {
+            return new Condition(field, value, Comparison.lt);
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PageRequestImpl {
+        private int size;
+        private int page;
+        private Sort.Direction direction;
+        private String[] sortFields;
+
+        public Pageable toPageable() {
+            return new PageRequest(page, size, direction, sortFields);
+        }
     }
 }

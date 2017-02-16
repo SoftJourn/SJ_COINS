@@ -2,15 +2,16 @@ package com.softjourn.coin.server.controller
 
 import com.softjourn.coin.server.dto.*
 import com.softjourn.coin.server.entity.*
-import com.softjourn.coin.server.service.AccountsService
-import com.softjourn.coin.server.service.CoinService
-import com.softjourn.coin.server.service.ContractService
-import com.softjourn.coin.server.service.CrowdsaleService
+import com.softjourn.coin.server.service.*
 import org.mockito.Mockito
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.test.context.web.WebAppConfiguration
 
 import java.security.Principal
@@ -143,6 +144,30 @@ class ControllerTestConfig {
         crowdsaleService
     }
 
+    @Bean
+    TransactionsService transactionsService() {
+        def account = new Account('account1', 100)
+        def account2 = new Account('account2', 100)
+        def vm = new Account('VM1', 100)
+        def treasury = new Account('Treasury', 100)
+
+        def transaction = createTransaction(account2, account)
+        def transactionMove = createTransaction(account, account2)
+        def transactionMove2 = createTransaction(vm, treasury)
+        def rollbackTx = createTransaction(account2, vm)
+
+        def pageable = new PageRequest(0, 4)
+        List<Transaction> data = [transaction, transactionMove, transactionMove2, rollbackTx]
+        Page<Transaction> page = new PageImpl<>(data, pageable, 4)
+
+        def transactionsService = Mockito.mock(TransactionsService.class)
+        when(transactionsService.get(anyLong())).thenReturn(transaction)
+        when(transactionsService.getFiltered(any(GenericFilter.class), any(Pageable.class))).thenReturn(page)
+        when(transactionsService.getForUser(anyString(), any(Pageable.class))).thenReturn(page)
+
+        transactionsService
+    }
+
     private static Transaction createTransaction(Account account, Account destinationAccount) {
         def transaction = new Transaction()
         transaction.account = account
@@ -152,7 +177,7 @@ class ControllerTestConfig {
         transaction.destination = destinationAccount
         transaction.id = 1
         transaction.status = TransactionStatus.SUCCESS
-
+        transaction.transactionStoring = new TransactionStoring();
         transaction
     }
 

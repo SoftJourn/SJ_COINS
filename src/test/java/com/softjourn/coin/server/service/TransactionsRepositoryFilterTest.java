@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -35,7 +35,7 @@ public class TransactionsRepositoryFilterTest {
     private TransactionRepository repository;
 
     @Mock
-    private Pageable defaultPageable;
+    private PageRequest defaultPageable;
 
     @Before
     public void setUp() throws Exception {
@@ -57,10 +57,10 @@ public class TransactionsRepositoryFilterTest {
         conditions.add(after_16_11_2016);
 
         filter.setConditions(conditions);
-        filter.setPageable(defaultPageable);
+        filter.setInnerPageable(defaultPageable);
 
 
-        List<Transaction> result = repository.findAll(filter, filter.getPageable()).getContent();
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
         assertEquals(5, result.size());
         assertTrue(result.stream().allMatch(transaction -> transaction.getCreated().isAfter(thresholdTime)));
     }
@@ -79,10 +79,10 @@ public class TransactionsRepositoryFilterTest {
         conditions.add(before_16_11_2016);
 
         filter.setConditions(conditions);
-        filter.setPageable(defaultPageable);
+        filter.setInnerPageable(defaultPageable);
 
 
-        List<Transaction> result = repository.findAll(filter, filter.getPageable()).getContent();
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
         assertEquals(5, result.size());
         assertTrue(result.stream().map(Transaction::getCreated).allMatch(time -> time.isBefore(thresholdTime)));
     }
@@ -108,10 +108,10 @@ public class TransactionsRepositoryFilterTest {
         conditions.add(after_16_11_2016);
 
         filter.setConditions(conditions);
-        filter.setPageable(defaultPageable);
+        filter.setInnerPageable(defaultPageable);
 
 
-        List<Transaction> result = repository.findAll(filter, filter.getPageable()).getContent();
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
         assertEquals(2, result.size());
         assertTrue(result.stream()
                 .map(Transaction::getCreated)
@@ -131,10 +131,10 @@ public class TransactionsRepositoryFilterTest {
         conditions.add(eqAccountCondition);
 
         filter.setConditions(conditions);
-        filter.setPageable(defaultPageable);
+        filter.setInnerPageable(defaultPageable);
 
 
-        List<Transaction> result = repository.findAll(filter, filter.getPageable()).getContent();
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
         assertEquals(3, result.size());
 
         assertTrue(result.stream()
@@ -156,10 +156,10 @@ public class TransactionsRepositoryFilterTest {
         conditions.add(eqAccountCondition);
 
         filter.setConditions(conditions);
-        filter.setPageable(defaultPageable);
+        filter.setInnerPageable(defaultPageable);
 
 
-        List<Transaction> result = repository.findAll(filter, filter.getPageable()).getContent();
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
         assertEquals(8, result.size());
 
         assertTrue(result.stream()
@@ -181,10 +181,10 @@ public class TransactionsRepositoryFilterTest {
         conditions.add(eqAccountCondition);
 
         filter.setConditions(conditions);
-        filter.setPageable(defaultPageable);
+        filter.setInnerPageable(defaultPageable);
 
 
-        List<Transaction> result = repository.findAll(filter, filter.getPageable()).getContent();
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
         assertEquals(2, result.size());
 
         assertTrue(result.stream()
@@ -206,10 +206,10 @@ public class TransactionsRepositoryFilterTest {
         conditions.add(eqAccountCondition);
 
         filter.setConditions(conditions);
-        filter.setPageable(defaultPageable);
+        filter.setInnerPageable(defaultPageable);
 
 
-        List<Transaction> result = repository.findAll(filter, filter.getPageable()).getContent();
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
         assertEquals(2, result.size());
     }
 
@@ -226,10 +226,27 @@ public class TransactionsRepositoryFilterTest {
         conditions.add(eqAccountCondition);
 
         filter.setConditions(conditions);
-        filter.setPageable(defaultPageable);
+        filter.setInnerPageable(defaultPageable);
 
 
-        List<Transaction> result = repository.findAll(filter, filter.getPageable()).getContent();
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
         assertEquals(2, result.size());
+    }
+
+    @Test
+    public void filteringTest_emptyFilter() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
+        assertEquals(10, result.size());
+    }
+
+    @Test
+    public void filteringTest_emptyFilter_limitPageSize() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        filter.setInnerPageable(new PageRequest(0, 5));
+
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
+        assertEquals(5, result.size());
     }
 }
