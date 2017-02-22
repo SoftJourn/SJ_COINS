@@ -72,7 +72,7 @@ class ControllerTestConfig {
 
         when(accountsService.getAccount(anyString())).thenReturn(account1)
 
-        when(accountsService.addMerchant(any(MerchantDTO.class))).thenReturn(seller)
+        when(accountsService.addMerchant(any(MerchantDTO.class), eq(AccountType.MERCHANT))).thenReturn(seller)
 
         when(accountsService.getAll()).thenReturn([account1, account2])
 

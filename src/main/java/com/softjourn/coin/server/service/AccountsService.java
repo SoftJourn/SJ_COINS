@@ -165,10 +165,10 @@ public class AccountsService {
     }
 
     @Transactional
-    public Account addMerchant(MerchantDTO merchantDTO) {
+    public Account addMerchant(MerchantDTO merchantDTO, AccountType accountType) {
         Account newMerchantAccount = new Account(merchantDTO.getUniqueId(), BigDecimal.ZERO);
         newMerchantAccount.setFullName(merchantDTO.getName());
-        newMerchantAccount.setAccountType(AccountType.MERCHANT);
+        newMerchantAccount.setAccountType(accountType);
         newMerchantAccount.setNew(true);
         ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
 

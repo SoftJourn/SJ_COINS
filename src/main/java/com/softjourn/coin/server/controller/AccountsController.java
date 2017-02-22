@@ -60,7 +60,7 @@ public class AccountsController {
     @RequestMapping(value = "/account/merchant", method = RequestMethod.POST)
     @JsonView(JsonViews.ADMIN.class)
     public Account addMerchant(@RequestBody MerchantDTO merchantDTO) {
-        return accountsService.addMerchant(merchantDTO);
+        return accountsService.addMerchant(merchantDTO, AccountType.MERCHANT);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','INVENTORY')")
