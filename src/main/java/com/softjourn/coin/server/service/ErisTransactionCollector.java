@@ -10,6 +10,7 @@ import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,6 +22,7 @@ import java.util.stream.Stream;
  * ErisTransactionHelper
  * Created by vromanchuk on 12.01.17.
  */
+@Component
 @Slf4j
 public class ErisTransactionCollector implements Runnable {
 
