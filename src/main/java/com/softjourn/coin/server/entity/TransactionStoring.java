@@ -42,9 +42,11 @@ public class TransactionStoring {
 
     public TransactionStoring(BlockHeader blockHeader, String functionName, @NonNull ErisTransactionDAO transaction,
                               Map<String, String> callingValue, String txId) {
-        this.blockNumber = blockHeader.getBlockNumber();
-        this.time = blockHeader.getTimeCreated();
-        this.chainId = blockHeader.getChainName();
+        if(blockHeader != null) {
+            this.blockNumber = blockHeader.getBlockNumber();
+            this.time = blockHeader.getTimeCreated();
+            this.chainId = blockHeader.getChainName();
+        }
         this.transaction = transaction;
         this.callingValue = callingValue;
     }

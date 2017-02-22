@@ -43,7 +43,8 @@ public class BlockChainConfig {
                                                  ContractService contractService) {
         Map<ErisTransactionType, Consumer<? extends ErisTransaction>> consumerMap = new HashMap<>();
         Consumer<? extends ErisCallTransaction> consumer;
-        consumer = transaction -> historyService.storeTransaction(mapTransaction(transaction));
+        consumer = transaction -> historyService
+                .storeTransaction(mapTransaction(transaction));
         consumerMap.put(ErisTransactionType.CALL,consumer);
         Function<String, String> getAbiFromContractAddress = address -> contractService
                 .getContractsByAddress(address).getAbi();

@@ -26,6 +26,7 @@ public class ErisTransactionCollector implements Runnable {
 
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private BlockChainService blockChainService;
+    private ErisTransactionHistoryService transactionService;
     private AtomicLong lastCheckedBlockNumber = new AtomicLong(0);
     private int errorInSequenceCount;
 
@@ -35,6 +36,7 @@ public class ErisTransactionCollector implements Runnable {
                                     @Value("${eris.transaction.collector.interval}") Long interval,
                                     ErisTransactionHistoryService transactionService) {
         this.blockChainService = blockChainService;
+        this.transactionService = transactionService;
         scheduledExecutorService.scheduleWithFixedDelay(this, 20, interval, TimeUnit.SECONDS);
         lastCheckedBlockNumber = new AtomicLong(transactionService.getHeightLastStored());
     }
@@ -42,15 +44,12 @@ public class ErisTransactionCollector implements Runnable {
     @Override
     public void run() {
         try {
+            lastCheckedBlockNumber.set(transactionService.getHeightLastStored());
             Long lastProduced = blockChainService.getLatestBlockNumber();
             if (!lastProduced.equals(lastCheckedBlockNumber.get())) {
                 log.trace(marker, "Calling blocks from " + lastCheckedBlockNumber + " to " + lastProduced);
 
                 blockChainService.visitTransactionsFromBlocks(lastCheckedBlockNumber.get() + 1, lastProduced + 1);
-//                getBlockNumbersWithTransaction(lastCheckedBlockNumber.get() + 1, lastProduced + 1)
-//                        .flatMap(this::getTransactionsFromBlock)
-//                        .forEach(transactionService::storeTransaction);
-
                 errorInSequenceCount = 0;
             }
         } catch (Exception e) {

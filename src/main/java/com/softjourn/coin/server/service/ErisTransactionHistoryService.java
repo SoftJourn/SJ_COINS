@@ -34,7 +34,7 @@ public class ErisTransactionHistoryService {
         if (transactionStoring == null) {
             return 0L;
         } else {
-            return transactionStoring.getBlockNumber();
+            return transactionStoring.getBlockNumber()==null?0L:transactionStoring.getBlockNumber();
         }
     }
 
