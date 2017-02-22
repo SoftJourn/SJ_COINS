@@ -64,6 +64,13 @@ public class AccountsController {
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','INVENTORY')")
+    @RequestMapping(value = "/account/crowdsale", method = RequestMethod.POST)
+    @JsonView(JsonViews.ADMIN.class)
+    public Account addCrowdSaleAccount(@RequestBody MerchantDTO merchantDTO) {
+        return accountsService.addMerchant(merchantDTO, AccountType.CROWDSALE);
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','INVENTORY')")
     @RequestMapping(value = "/account/{ldapId}", method = RequestMethod.DELETE)
     @JsonView(JsonViews.ADMIN.class)
     public Map<String, Boolean> deleteAccount(@PathVariable String ldapId) {
