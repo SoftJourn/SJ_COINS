@@ -73,7 +73,7 @@ class ControllerTestConfig {
 
         when(accountsService.getAccount(anyString())).thenReturn(account1)
 
-        when(accountsService.addMerchant(any(MerchantDTO.class))).thenReturn(seller)
+        when(accountsService.addMerchant(any(MerchantDTO.class), eq(AccountType.MERCHANT))).thenReturn(seller)
 
         when(accountsService.getAll()).thenReturn([account1, account2])
 
@@ -87,7 +87,7 @@ class ControllerTestConfig {
     @Bean
     ContractService contractService() {
         def contractService = Mockito.mock(ContractService.class)
-        def contract = new Contract(1L, "some name", "some code", "some abi", new Type("type"), new ArrayList<Instance>() {
+        def contract = new Contract(1L, "some name", true, "some code", "some abi", new Type("type"), new ArrayList<Instance>() {
             {
                 add(new Instance("SomeAddress"))
             }

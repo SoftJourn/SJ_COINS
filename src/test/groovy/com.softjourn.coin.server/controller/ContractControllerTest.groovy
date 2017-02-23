@@ -215,6 +215,9 @@ class ContractControllerTest {
                         fieldWithPath('name')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's name."),
+                        fieldWithPath('active')
+                                .type(JsonFieldType.BOOLEAN)
+                                .description("Contract's status."),
                         fieldWithPath('code')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's bytecode."),
@@ -284,6 +287,9 @@ class ContractControllerTest {
                         fieldWithPath('[0].name')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's name."),
+                        fieldWithPath('[0].active')
+                                .type(JsonFieldType.BOOLEAN)
+                                .description("Contract's status."),
                         fieldWithPath('[0].code')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's bytecode."),
@@ -359,6 +365,9 @@ class ContractControllerTest {
                         fieldWithPath('[0].name')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's name."),
+                        fieldWithPath('[0].active')
+                                .type(JsonFieldType.BOOLEAN)
+                                .description("Contract's status."),
                         fieldWithPath('[0].code')
                                 .type(JsonFieldType.STRING)
                                 .description("Contract's bytecode."),

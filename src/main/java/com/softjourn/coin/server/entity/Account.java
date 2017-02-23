@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Entity
 @Table(name = "accounts")
@@ -64,6 +65,14 @@ public class Account {
     @JsonProperty(value = "ldapName", access = JsonProperty.Access.WRITE_ONLY)
     public void setLdapName(String ldapName) {
         ldapId = ldapName;
+    }
+
+    @JsonProperty(value = "address", access = JsonProperty.Access.READ_ONLY)
+    @JsonView({JsonViews.COINS_MANAGER.class})
+    private String getAddress() {
+        return Optional.ofNullable(erisAccount)
+                .map(ErisAccount::getAddress)
+                .orElse("");
     }
 
     @Override

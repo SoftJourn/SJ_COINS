@@ -30,6 +30,8 @@ public class Contract {
 
     private String name;
 
+    private Boolean active;
+
     @Lob
     @Column
     private String code;

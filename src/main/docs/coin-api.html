@@ -616,32 +616,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 </ul>
 </li>
-<li><a href="#_transactions_api">Transactions API</a>
-<ul class="sectlevel2">
-<li><a href="#_get_all_transactions">Get all transactions</a>
-<ul class="sectlevel3">
-<li><a href="#resources-tx-api-response">Example request</a></li>
-<li><a href="#_request_fields_2">Request fields</a></li>
-<li><a href="#resources-tx-api-response">Response fields</a></li>
-<li><a href="#_example_response_23">Example response</a></li>
-</ul>
-</li>
-<li><a href="#_get_concrete_transaction">Get concrete transaction</a>
-<ul class="sectlevel3">
-<li><a href="#resources-tx-response">Example request</a></li>
-<li><a href="#resources-tx-response">Response fields</a></li>
-<li><a href="#_example_response_24">Example response</a></li>
-</ul>
-</li>
-<li><a href="#_get_user_s_transactions">Get user&#8217;s transactions</a>
-<ul class="sectlevel3">
-<li><a href="#resources-users-tx-response">Example request</a></li>
-<li><a href="#resources-users-tx-response">Response fields</a></li>
-<li><a href="#_example_response_25">Example response</a></li>
-</ul>
-</li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -787,7 +761,7 @@ that describes the problem. The error object has the following structure:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/amount HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzAsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6ImE1MmI3ZjdlLTM5YzktNDc2ZC04OWNmLWIzYmU5OTA4NTQwNiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.qsGad4kV9c9H2Wvvhh3oP6kc1k_CTUJA-EWpoxrPrL2_u8PwaFIplSY0t2aHTIp-EPcVIbAoCDHX9zT8zhjl5rW10fInJPuohmGxABjwHcpJQwIb6ZuUBs3UvRwh0zu7ykPbOkwiHPDlTJv0ncbTX2yWKAHEavA-BTy78PM3cou0M5Ox6h-7Z4Meh0yVDQmjLd7fzio3NvrcCqV48qkS1jOgovcleKcoj24U7ZUj31OwEtxjta2APkKLeibuawDza8snCep1y2IEs9dzV1sUIHb4iVX_73lZzp5xmmuoXcRP9dD_PevSp_c_9_rF9ilr0Fa88GF1KgJ3jCLWJ83QmA
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MjgsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjIyNGY0YTVhLWFmYTEtNDU5Mi04YjljLTJjNTkzMjZjOGE3ZiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.skPiTAKGatx--JoDop6_i5T1X4jNkvEIDEru39CWk_lJgMvkn9X9Knj5bmdy9skpa4OxrSvd5ZOzpNFnpgAaupa994PnaDKyflSpgTfB4Nms44UR0V0Yp77ayY8Ee6hmkuhJVz3jokJm8aTgtJWx5YgeE42ma-9nKS6AfY90huRi3oGQjfUaY5VLFuqVEg8opWEnA50kMCMopODrCyVVYtZD2lpAVaEtARw-jTElZKsPzWbj1Vt1TIPrUSikRWTOionLfayfrvWXSnlRV-2NaXFsm6dulR-thp2HSC1GVXG93E27ENhnJrTwU3f25Z957noOxdzAU3SSwBF8BDFQww
 Host: localhost</code></pre>
 </div>
 </div>
@@ -864,7 +838,7 @@ Content-Length: 20
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/amount/merchant HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzAsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjU1NDljZjM4LWI5MTktNDJjMy1iNDEwLWVkYWQ0MWM1YWFjZCIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.dDMYvCw3cAfbpiJADTUuTT1ahXkEfMUm_GEixQImQzemVm2CrPKjJCLEIM0GqrRRio5wYLZbPiDvgkBdYgmjSqK4OWSvX8dBmku-0OtNif7PesdYcxp8CoeqLBcKq7YnxXq8y6UrHK4zFoVZYD-zV-5gQcGTi9yU2A-0efLbSBGmXZho_u57DEwOlH0uI5itLzMuUG66vcluoH9uDzpDrn_9bzGNCnyTOOTjjH3C_GGg3l-5SLeazCvPVLOuhOw0Uh3cbLxLAAhrYEv5SpajNIdV7TD3T-uOR0qIQXSys13NJXhi7Hh3FqQvUQI8BJdhdhhAg7mgu1ZpEFlxwguD5Q
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MjgsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6ImY0MDFiMjE0LTQ3ODgtNDc5ZS05MWI0LWY0NjU2YmYyODhjNCIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.Q5TvuEzJYSSkhCVUieogEGt6apOz7WwNUgoMjBMSwp1DZy1lpP028CmigcgfQPOPPjf5UdYXxnw6N74urY7jVD5N-zEdLF1F74SHUn73GJvH6B-u6vVuK_Sxkk7Sy8CakCU52b1I34iN8jryn2lP6DZlybIXsH-D5DlvpGqoas9MtTnyMeZ-mbCZEf33VwDouszbD-QeYi3ZrxpQPZkXkLMBW1uUDT9cRxiWB9OmEAQUJ6cah7sa34XAqWF_uNnwBxGPQ3rUGWhm3Pq8qEAIqT5osBoxgoWowIHrUicaHjg8U9PxoZE7l_zVHhXb9Oa85pOJICBG3LwqxD6ZaprfnQ
 Host: localhost</code></pre>
 </div>
 </div>
@@ -963,7 +937,7 @@ Content-Length: 21
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/amount/treasury HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzAsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjFmMzViODkwLTBmN2MtNDM3ZS04OTZjLTA1YTAyNzlkNDg3ZiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.iBOLfIee1Jk3msZCnHE56eN7u5QsC1Eu_Nymx3t2l0GSi6I2XrWTguL-PBA7805KK-DXGHRHKr15n8qChmgtyjoX8nQ8CjYYbIAyID6P_DtDRZ-4BdKqrV7LiX_bTP71hCIyjmhuzJS_9xPoA5snyGaOTQGvJPa35_qgWk3St-BhdMadIB84q8wSDfbu3APUsUin3qqE-imJ7WTjiOBH9_G2J68mV63tlHsGoGhEAxeroCILdhh6iJYWcqX5jE4s-BxphLGCKXtljfzb-CgqprOiterXJAuuIOpHtzc0BAMsebgoVwN2yZFbgtyw1UBx8_XtkqGfesb43r_TgzLLCA
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MjgsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjI0ZTZlZTZhLWViOGUtNDEwNy05MWI2LWQwM2VlZjRiOTI0NCIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.S-ic2P0PzNpBStOvrX9nbvsgaDK1q2Mb-gIIcI9O1_tca8GVtGSHr_Sd5gwe3QA3oy1JfS0ZJ2l6r7PIO363Q-gH1e7ruArts1mbrfqkRTIvCLKoW6vcwJ2KWyh8HgonK6iSkQvMW5ryY8Z5JaRP9OJ99r4zw3YrLjZAAjGzhhclHrK0g_QBy133yWOdzr7lWaYH3znJQRBcY4eP4BalGgqqig79GwhONdElxHUgMRdJWJan4sTAruE9bwPVtWA7yog7b3_geMLNgB8WIXEJ0aD3CboJoQX5bAz9FG0YiQZGW_DWSy4_vvcELzeBdjJnZuULbtIsh7xWySgfrXoT8g
 Host: localhost</code></pre>
 </div>
 </div>
@@ -1055,11 +1029,6 @@ Content-Length: 21
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Error description</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>transactionStoring</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Error description</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -1085,7 +1054,7 @@ Content-Length: 21
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/buy/VM1 HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzAsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjI1OGYxNjgwLTY4Y2MtNDhkYy05Y2Q4LWJlNDFlYmIzZmRhZiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.C_MC9lezO0klQqat9B0pP_Gye9ga5hIDIPquyrb37y681LHGF6PrIdjTSrmZAgTmlMjHltvCrp5-wXN4N1djiJ2oRrmb9LPQwYHUwh4o69unczZdAPis1YrcD3WQkBG3v4RPyh9tiavzwYQb64ZCvM0_2PE9bQi-2chsyFYjlnKVPAgkbc_yenkKPfm56MtzfvX20GFNffu_JmmJuD0uqtmVBDcoh4iQvmQ_AwbMC8pHOyzLZsczc18HZFIVr0lVkb4eDL4-A31X_d5ITT4O-wGcgW8tbEGXFapxDatL2lvkZeC1IuUxf7aAXaHeTZ34-QmboioOIYXwu1pku-Qiow
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MjgsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjBiMGVkYjVjLTM5NGUtNGEwOS1iM2FkLTVjZmQ3YjhlYTk3MiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.WFTAABSolmnKM3REgFiIj1ngfhUbUNiQZ_Hy185TTIq7RRv6n30u2cvOEG_BD8Mrl0ir32-gAr1Lwxqvrm6wQAE6tjo7vUeBRAnsWupysSeWlOuSav7t7emRqw75JdxQLfPQ83BkkTO-b4tYbiy4VKl2V1Ul6BOpqK8zMo6ko2iY11blV9FaXhwaKrmhqiJcQ3geAGptltql44BmV6VQ0IQakf17r0AJHJQvfuoWZ7KA3ahfyItBcy9RpGxLiJmpyZmeheFCA0QbrRf436_aTuz4KyGZZ6aUy2TmBR1UdbMFC7as9d84uvjDRWpNEclJpMyKhtTSE_N0GSBtq37ytw
 Content-Type: application/json;charset=UTF-8
 Host: localhost
 Content-Length: 47
@@ -1131,7 +1100,7 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 434
+Content-Length: 220
 
 {
   "id" : 1,
@@ -1139,20 +1108,10 @@ Content-Length: 434
   "destination" : "account1",
   "amount" : 10,
   "comment" : "Some comment",
-  "created" : "2017-02-16T13:08:44.127Z",
+  "created" : "2017-02-13T18:07:06.423Z",
   "status" : "SUCCESS",
   "remain" : null,
-  "error" : null,
-  "transactionStoring" : {
-    "id" : null,
-    "blockNumber" : null,
-    "time" : null,
-    "functionName" : null,
-    "chainId" : null,
-    "txId" : null,
-    "transaction" : null,
-    "callingValue" : null
-  }
+  "error" : null
 }</code></pre>
 </div>
 </div>
@@ -1224,11 +1183,6 @@ Content-Length: 434
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Error description</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>transactionStoring</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Error description</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -1254,7 +1208,7 @@ Content-Length: 434
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/move/account2 HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzAsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6ImJlYzBjZmM3LTRiNWMtNDBmMS1iZjAwLTNmYmE0MDlhOTg2MCIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.MxIWd5mskwTf3Xjo__2n6b3Cqb5ktd8vLPY7OcMWhbBcNEwqzrjaB26KPkqeqWeqg9IiB0YveSl07hQ1Qdw8lpNysnMhgZZXuv1_d7bFhhx5plwr3s9D8HEosjPAMhRKlLoEiCBUprxFrtnL18gelXEtPVlosfHAAQL_hCO1shnwJ0kNyNx9oa-ZzqPHN4ACN_rLPJ4cwE7ICuvSaeA3xbxoP_08eB6tqa2cOSUbi3USBhx1Ne-XowvwVYvc4oCaKMoKpkPtAynXDZl435EUZT_3WrvYi_65BiN5HN0i7GRcYWDcTDkVLziznaVJencnRtu1YRny2jz47FR-r2-f2A
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MjgsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjYxZjRiZDMyLTg4MGItNDU5OC1hMmY4LWExZWIwYWM4NmM5NiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.VyrJ4XAm9FNjcAko5cJWB_bUw4uFwKIINkXZ3FIdU7fG_XMzhlYO3Z-sKjZcyhU5lOJSm1gm1DpRXT5SOFHXdJdFaVx-RIaEYFhUmO2CMWSAC5Q5qQG0jJkWm7D88an9ZDAcyzz0iIdtcP3z0q4Iw88Zs7kNwL7figHYckZVZniZjTbzcJMkAeXuRrv0wNDT3G5vSvASe8xGbLcJaNcuYg1sVtz9a_khvug0xEaoIjR5P8uAKF7hSYuTGzQr7ckY-UTSQ5vXqvhka-MsSRA7pwvC_syVQCtcC0I1tcJBh7tQOAzbLsaCbAZNukFkVwJMlDPK9hAdReJWIPAMXJ8Cpg
 Content-Type: application/json;charset=UTF-8
 Host: localhost
 Content-Length: 54
@@ -1300,7 +1254,7 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 434
+Content-Length: 220
 
 {
   "id" : 1,
@@ -1308,20 +1262,10 @@ Content-Length: 434
   "destination" : "account2",
   "amount" : 10,
   "comment" : "Some comment",
-  "created" : "2017-02-16T13:08:44.138Z",
+  "created" : "2017-02-13T18:07:06.423Z",
   "status" : "SUCCESS",
   "remain" : null,
-  "error" : null,
-  "transactionStoring" : {
-    "id" : null,
-    "blockNumber" : null,
-    "time" : null,
-    "functionName" : null,
-    "chainId" : null,
-    "txId" : null,
-    "transaction" : null,
-    "callingValue" : null
-  }
+  "error" : null
 }</code></pre>
 </div>
 </div>
@@ -1393,16 +1337,6 @@ Content-Length: 434
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Error description</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>transactionStoring</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Error description</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>transactionStoring</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Error description</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -1428,7 +1362,7 @@ Content-Length: 434
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/add/account1 HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzEsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjE2YzliZTQxLTczNmYtNDIyMy1iZDU0LWJkMzU0OTE4N2FlMyIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.DxeRWTxqek2bsXkEsdJA9SmQs4bM19dJyy_IOrPeK6geLvlnpyAQZ2Bssf8qWngk5k_ULzs-5URxeSQL6B7VAFlfrChkatoge7K9OkESsktV9Nu0IYpTkvZVKdmrv6_kwWSUk8dyX97gpmKz44JuvhGVg4V-WERkdfLRVr700ihn6Kp9sQeAiyBYdtFAPyVVldFSPUTYhV6U3aJM6XJfXd9-Gdd3JRH59zZLeasPEkPAlPqBJCRxNH9s-weOI4Y8bSZmIO0lwYFAdfaLDZLNQsTy4QXgSJIPI4iDyGs7lH1bCq9I_Kwb2rEJHwZMNg8Nc6Dq8TQofAaAPVt0-OYR_Q
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MjgsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjJhNzBhOTMzLWRmZGYtNDA2YS1hYTA0LTBlZjc3NjNjMmI3ZSIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.VY1CQjDIJwcERGmZBflrN5qwrhKOcALpgsUXy_20dT-S3VDRUriIxScoTLbqJoAPfejUsFV48j4SSRaPPn650JRl5YqhuCKciFtcjh_g0Y2RfDTEauQKH5Dgb45co1iHfBonFhQJ-dnELmeWtMwkHotjvaoM8AjgApjOXFl3Xmy37DiL9S_feWmEzM6BHzXbzhGybWGsSbkdFRBvN4Vx1PhWy5-VO3XcqcFjkx0Oo4YTr-Hm31vZ-2J_EvejKemtjhNCFPw5fW80lKjkmgoVpGDmrh4qNQxC3qEGqm_q35L5qwM5siRGYrDs85aqT2AoFpU9Z87bLvMhqArKUkT7VA
 Content-Type: application/json;charset=UTF-8
 Host: localhost
 Content-Length: 54
@@ -1474,7 +1408,7 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 434
+Content-Length: 220
 
 {
   "id" : 1,
@@ -1482,20 +1416,10 @@ Content-Length: 434
   "destination" : "account1",
   "amount" : 10,
   "comment" : "Some comment",
-  "created" : "2017-02-16T13:08:44.127Z",
+  "created" : "2017-02-13T18:07:06.423Z",
   "status" : "SUCCESS",
   "remain" : null,
-  "error" : null,
-  "transactionStoring" : {
-    "id" : null,
-    "blockNumber" : null,
-    "time" : null,
-    "functionName" : null,
-    "chainId" : null,
-    "txId" : null,
-    "transaction" : null,
-    "callingValue" : null
-  }
+  "error" : null
 }</code></pre>
 </div>
 </div>
@@ -1567,7 +1491,7 @@ Content-Length: 434
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/account HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3NDMsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6ImIyNjU3MzZjLTYxZjYtNGU5ZS1hNmE5LTNiMTY5ZDQ5Mjc0MiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.L0fMxhnbTIo7GO_fvIzuDFb6GiD4pKCn2RzKDQUEDc5yxrtJ65yOGfbVSlOT9rL2RhBDUQuKmVaivN5M3QhfkxM4r3uwXRv0ZjTPI3wsPjYecSn4_P9BogE0i33p0yatiGAnL343Dg1PQV9d5TKFexWPFHsjcM514nfmCVVMjqoC7eQJP4Rm6TRwX2QdKKbRobFBj-nSaVyheYJL_RVwAS-iYfMcmqU3ybYgxWNrgZyMeenSeN0go0Vkj2n9PzN2WzaAhjW03fAJcQExeATwlu-UXkPll1B7sZZZ5VuKHtuYp_T9TtCZbWdeXzg1g-e8JX-aBRHRryYWAL7wXgDhJg
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MjQsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjQ2NmMwYzVkLTA0YTQtNGQ3Ni04OTExLTJiMzViOGU1NWJkOCIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.fo6p8f1lGIhbj9dRq-z2pGg9IClJLfuRWoqOgTg6iqd2da4MNQAEAHfeE0f74f07waYc4j70JW48hPRi2WieUgbtfrzhFgP_bGXwLvz2DbwsunYCxYnFFT9_Y3jwRYlokka_7c_Ic0wV3Qx3M644ufST08jCfsUVPT4yaYTU2vB6aDwW6bvNmgwKQL-yZ4dDOf1_ZdIWDV74ZfgxRY0HI7AtpJlO9-eU_31s425ZBxOrBZoveWQR8HfWrjtkWJxgltDP8cg_Ypd9RPQM89ySTm6UXGcgdDMgV83b-M7Gx1NL_Q41_QZrYqkaT7Yj6jqyvAAM1WfiZRi1XfOIEMjI-g
 Host: localhost</code></pre>
 </div>
 </div>
@@ -1682,7 +1606,7 @@ Content-Length: 97
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/accounts HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3NDQsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6ImFkOWY0YjVmLTQ3OTQtNDJmOS1iOWQzLTUyNzJhZTc0NGUyNSIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.k_Ly5W-P0pMxswd6TTwzx96qLKkNMHbWhFglQ7N8SfjPjOP1wqGcu9yf9FFz49FKku9m-9XMShN2pkYmFGbegWIRd2G6XXBHpdVp7QUm9YI19bRsQHozjlitSmJBw2iqA_ubuNXzbc2LG1AgAscqNYV2cimQPIHfj5RPd5GjU5sEL_rXl34ECBNNURQRH_AQuqafYo3Zw5k7MqFPc7GluxxJvJLgZvNZL0XOjvvdpG3TKyEJ2OrBGqSE3tpCarVrr8Et98F235u0aK-kPkGQWeB34CqV2sUXyKwZw6WFGTvZ2_a1zVR0kBn4fZfSCVPptZK5QB31qC7uYUeFDgDl0A
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MjUsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjBjN2Y1ZjYwLTgyNTEtNGRjNC1hOWE3LWJmMzRlZGEwYmNlZiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.Qd39AyYGphCPv_9avQZNk4ZV4nPAaEudvQ3nImb389ZSOOeLg2yHISN8ofbDxYH8gLg7WJKJPv-ZWRxKtagrg8RNkSZRt9lQt76yb4HS8QBvpaQaXbC4S1DA4oxCsH4v6tjkzPQmRgUcNdLObCLi8ya20wyYLfP6fkCJkb1skAIQICIPWaqVFuRTjEViLNxDkHLIE9kHi2DZnYqTU6bDADfUvxg0wmKFxVD603v7YDbyLFMsr4L1BpZhwOnJfEWZITLYJR47nX0CZnFwSQnonxWn_nnCeU3aD7lyIugapFQ1fadvBAE8pKHrzJGromg5zlWfJ71hY-QTdiVVSHjcQA
 Host: localhost</code></pre>
 </div>
 </div>
@@ -1782,7 +1706,7 @@ Content-Length: 186
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/accounts/merchant HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3NDQsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjAyYmMyMWMwLWM3ZWYtNDhhZS1iNWQyLWM4NDI0MTI3OTE0MSIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.aC5tj38C8MjAwqhD4XpKoV9undvU4IgXJjD7frbo80JUzSNc1gLQyibw_eeVIVOxaXE1mOoQwGYJzaGM2OILf9XQmwWvUfLBk3ILRLkiZN7QKLvnz7bxZiLdwfmf0QWy77TUMnA9iNLlHFAWtDxqZuk0f-1cy38W0yUbL73UODW9VnYemhyZfC69bilABhXVKofbScGMy-Z78-5lQlvSOV0jkWJWMpUfW8Ghn1UPh98kKxAgHSht71V3OyIWHOo1b72Zjot4EF2vGhf1_ZGH1_AnyjlGZKrhb85XUbJk1BAWLQtNID2lwk54uXlRvoy4FLa9OZ6lvE862R2LES3Lcg
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MjUsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjI1YmU3ZjU4LWZkNGQtNGM4Zi04YmIzLWM4NGI3MWNiZTkzMyIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.Plau4rUZxVxK_RMYsO-qPvGMyIlsyQAJNT8JbbF-mzOSHd-UFn7MM3pAnBY0c8jcAQ1PYSuodYrO8vt0aJS95f4a0k_BZJzs20VwzApnqjJiPkhv3x4myykdyVQkZcoKTQz7diji3rks3h8SM0lnuowBRggT9vMoyt0sX5pV4eqK-jdvi1UhaEOANQ-HRBNe73_vfylBluHz7KbahBILxo7moLckZ7qvEEOM47QJqDs-vBdcgAMVP3i33z_i2xtgnCqkzGm7DLpmyoqpAplfi0HKoGPmY6dOdwEd2Qu6eUPakH4eifOjeoxQ7qOKwgiGxMJG9J4I_FBh9bR092Fjkg
 Host: localhost</code></pre>
 </div>
 </div>
@@ -1884,7 +1808,7 @@ Content-Length: 102
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/account/merchant HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3NDQsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6ImQzZDJhNGY0LTY2MDYtNDg1NS1hMTUwLWZmY2JhNDFjYzc4NSIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.QUA4fII5beBejlPp1H3QmRtF8jYNu3nb_lKk8ibFnk-LWfKXNjLtJizEiPnuRjenNkhHNYhgpy5SKki4zjgFWFaaFGSwSjKY5XNzHPUHev0lUPDaxv5B2_RFAJcftpTEpZmfD3vNLf5xNWDjnoCPd1Uaq1_Rf5a9o3OXefNcmkNqNeC-_NppEuGmLBDYzkEAbnWgj521GktXBZwb8z2zlirOhHnHN2VZHvW1D4SuBGKKQALgSn0Jq66HyO2OcT-9xi3mFhlWDhJAx8JCtUYnEtNgyaL1zTiSQwiB5lrbC8W5KOLDZOFHmJDFsaZygN31QVoWSAoxcAiRUIxFmVW3Ww
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MjUsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6IjYxYTIzOTM2LTQzOGQtNGEwNS1iYmNmLWEwMTEwZmFlODFlNiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.quRTyrXmQozfiR2zi1uG63XFfdgDBV1zWHuezJCH2-bjorLdgADz3VXmsGEPX8TsMPYjnaMQV6kunWDyupDfe6bTRX_65mur97tGyKCMAviIRfwiC5PEVQybM7HH21E_pLxOJVwHtcNKVoXNs9PFtmdXOnBf_oJ6oNqWDW2QL6rQFEWOYgkrcK0HGdBupvAM_uxCInKkHyy5DRPqYevbIi9zr1_UDz5JNGdj7ShHGcIzZSFfxwAsO0UqWJvbztswX8xRN9CvxfmAgPuguAAyJ05fN0AmFS64tlYpMU26-APJCLxdXZiDG13FcTrvWnCGW5SFRYwI3TW4ii63rPRnKw
 Content-Type: application/json
 Host: localhost
 Content-Length: 59
@@ -1974,7 +1898,7 @@ will distribute different to accounts</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/distribute HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzAsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6ImE5YWQxNzk4LTRjODUtNGU5Zi1hODI2LWVhYWQzODgxNDQzMiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.kjGxYZGbX1PQ9PX7hcWMd165ShQwaqSLYSgLTCqORCDZdnn4-kFqEewQqIODCZVEk6x4jJD1f1XEIwqD1jq_OwEjn_IqgKMcd-ETzpYrSJuzZs2-Vhc9WbR1AuD2Q8fzDJLBur9y9swfwryXz9gZl5m2rWEFOUatEFEDYwFd0YA0oDlJixdVPCoYV8dNjR36evjP0_bQgRBmJc5UmI-V2mP_KT6lJ6o4y3GKjxR6XAxB6d1nJ3pUxvcPXqEsOMp1q0kFz7y9kftatuXPMwHg164HnED5_S7NZqyzqQM54zd36CGWsrncyyeON30bCesssR446KmwTfVZ5oPDxdQ6IQ
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MjgsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX1NVUEVSX0FETUlOIl0sImp0aSI6ImJkZjhmNDY1LTdmNGEtNDZmMi1iNzQzLTExNTYzYmJjNjNkMyIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.VQdKVwE7ADVX4zKm4okxylS6PagSX2CfMtczdi7hiemPF55_xPxtnzl5VS_g4b8oS2wRBhvPoPe_hoAM_cR9X58ChIrpXJZsgQgowgp9aQAZElJBDngaoJ5_cRtdbZPoUm2iEwLB9pIg49dH_vmCo2S38xrITFzvWhwzMMUi4gWj02NC0rpsEaVtvBdA6qr9JT8YTyUrz1ecwEjbnAihME6tk6pI5QwRsgU39x59lP1QTmqv5xMsFfuQHkg_NtwpHvTuYE1USQaIWHJmT2x89TSmhVVo-BuKH5PZsPeMW-yxY9nO-kbcbUJnf5uF8Tz5rDeS5gg_A_ZWj10_nPMPWA
 Content-Type: application/json;charset=UTF-8
 Host: localhost
 Content-Length: 65
@@ -2080,7 +2004,7 @@ X-Frame-Options: DENY</code></pre>
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/contracts HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzYsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6ImJkODdlMzBiLWViNTAtNGQ4My1iNDBkLWFhYTFiZjA3YjllNiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.D5lrkxrk8pqrYodrr7_ea5cE1utMXUQIG-RyJfWk-ICQpRNNqJcB3sYcVEQ-nnvofU8JRLwqpjwnMkr6KOecbLdUMRQAuyoPK5yqpYFUj1pzSNxsWZph56kuGtL_JkcnsXbxTDDAaPHB1wdtFkh8aynp0vIoSo-5XRruh0zDjXzq5VpALTIbZ4igBl6v5Fhk4j08svcrZwPSk3A5pmGSUHl0b0u6WrlfHro3sThOd0Hb9gI7cZcvj7g7Hqqvz19WuJGjMjr04UrbbtFf7hFROxpe0r5Yqqenf_kj5LQDBPSVjSLonjP6UBxlwPP_X-XmCs9-oA1mwa1GN2C4Y7yz1g
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MzQsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6ImZjMGRkMDA4LWZhZTMtNDAzOS04YWY5LTkwNTVlYWNmZjhmMSIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.cZFwQSin4BvORPtr-RmIrkLVD4EZzWsJflTduGTDXlkJpo8AmFm68QCKWE2oWfkP-AcdbknUwhLeSiI_bO3cXvkkl833z9GxzNYWDZ5Z8YQe4urdKjzkHkZpoc4xRfeHPbsAu1BACYa5GJnwEORRjso17pycBpZvsmZApLrMxlXxIgv0vm6YeAnKX0yyStiochgyE4C-ProWXY-8qqGy1cT4tK4Gr6ibiOKLOODlCZQrVuTieZ0CtGZN61aP8cFNmd1JzXso3VBBcl8M7wyb2vQm0QG2PRF8MWLG1BMZQz21n6gVCVzHddLOhczxZGe55d78twLYeZKoE7omGI3gbw
 Host: localhost
 Content-Length: 121
 
@@ -2220,7 +2144,7 @@ Content-Length: 94
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/contracts/instances HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzUsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6ImI0NzMwMTg3LTNmY2YtNDM1NC04Mjg2LWJhNjNlNWM4YzdlYyIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.ME0agzRhhdiQBn3Vz5nzv1ji4n9Rwj5aNqp9yYpPwb5cS1OjGFEE7RVe42fteZl3ifGycNBEdo7hTAPZszDI9QoY-yBcwohwAEY0MGabrebCkj8ESedsQLeVOajpk63hekfC0MBlmiMX-UGcrtp3stc5epUtuWRLnx5D6LxbdmAamxZi0tx8N0Yvs_baGzJTYq91KHMEugVN153WpEv8LRqr8JWdztziWWew0IlDzFwBKoM0yv3vJDy26cvMSxRhn23Xho84OCXUtwX7ZZF5zXak3Z_nETbBE2sARtxar3hZ1A5EdWjW3ej20CTa8JnNITpda68BEIvhOz1Ct5k_eg
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MzQsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6ImU5ZjU2YWQxLWI4MGMtNGFkMy1hZmJmLTkyYjRhZWY0MzdjMSIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.b4XOt6y9aqq6wwyn5HnXJ5qIbyPYeQXm5Tuo9P97EROPoD8PoVeu_EfLKAU6eYp-nWFbgmagIa12zAvCJQutTCXf4KHENqfPrahxuHd1vDDI0gBWsssWEcT2aAY53up_-FXfMg2XXF031CASRYcwYDH9wTeE2ybNLbURYkrIsCeyS55P4VjLfVvu1U4XqldXYqE0_eaVtlmyXQTZ9E3jtZoHJoGuyaqg9Yv4kiSMyWxpwx7XK9n2FZvy-EJG1BvESbZuB1cLSjj4i4t96irxT4N2sJerrrkwikMcLDuGe0Q3OaB_ldJvJMiK702yH0BbQfjFXVP4mG_U-uGKkH9drA
 Host: localhost
 Content-Length: 63
 
@@ -2375,6 +2299,11 @@ Host: localhost</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Contract&#8217;s name.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>active</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Contract&#8217;s status.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Contract&#8217;s bytecode.</p></td>
@@ -2419,11 +2348,12 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 215
+Content-Length: 234
 
 {
   "id" : 1,
   "name" : "some name",
+  "active" : true,
   "code" : "some code",
   "abi" : "some abi",
   "type" : {
@@ -2466,7 +2396,7 @@ Content-Length: 215
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/contracts/types HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzYsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6IjU4OTc2OGFmLTgxNGYtNGI4MC04OGYxLTg1YTg3NWJiNjY0NiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.c8g1wB2mhaP7uJKy55z2rjk4YqDe0A3XfWuoavMMZY5ftgAW2E_CV9pLQZWeiFRnzXQFkx4MteGRh-ZEPLFbq7Wr5XqELVs2TkVwCtMOi35kFB_QWx5bkxPb-tsw3u5S2TlGMNfeTsHwI9hI9h_PzQ8ivdpDZQYMosooUAA5vx7w1oYuDj9YYo2ExwuN5wZOyxQ2TLqUV9QK6qDFnIRfJkV7roMaEa159I5Kec-v42jmoXIHxHPviD48j9ci3etr118dxjRi8wOVCVU84P04o6sG8uu24IMnGYOZgM5oauwCVBs01VCTPX1K27AI9KwZEXvghxvpTu8maWn_MzBqdw
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MzQsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6ImE3YTUzYmNjLTBjN2UtNDEyNS1iY2Y1LWQwYTA3MGNjMzA0MSIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.MWAG2iOM5HAyLbZon-BdpJsmgxuCxMzRqt_jvnWXJfKrHXJR45HuyHdk_lns4tf4CemAJFDXZ2R9IIb_QHR5XNYZoJ0aH2y48ylG_k-ULT0a5nDcQGiHiM79yZ_z3hQg8FSzAYF3DmHwiZTUKjPpem9o4cSRVDcFLNV3xv2Boj4ityEbsnS9cEDjVPr3-b17Mg2OH3m4AZrBpbAnJPLyRmxFJ9bfKkKHpvqCgGFdY9UF4WNofB9P9Ze56ErmDN83wEek6es1WNEq1DoKYRlAsIbFAFMBFWICQcVwD1qBR_9POsqQAG-c87UYrZZoOWt6Fm94_6cRdCPKcFMnbqa3vg
 Host: localhost</code></pre>
 </div>
 </div>
@@ -2596,6 +2526,11 @@ Host: localhost</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Contract&#8217;s name.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[0].active</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Contract&#8217;s status.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[0].code</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Contract&#8217;s bytecode.</p></td>
@@ -2640,11 +2575,12 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 219
+Content-Length: 238
 
 [ {
   "id" : 1,
   "name" : "some name",
+  "active" : true,
   "code" : "some code",
   "abi" : "some abi",
   "type" : {
@@ -2709,7 +2645,7 @@ Content-Length: 219
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/contracts/info/1 HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzYsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6IjcxNzMwMWE4LWRlM2YtNDM2NS04M2E5LTk1ZWEwY2ZmODQ5MSIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.BlD8RPfzcoAldkhDovdsjYfLiZixlq4EWjw5EJu_potCBbTKXodj-CvoToIOuq4P9gcosKXotcOn4EUAK9uxVpWaIab7rZnBdFNtbChAszIMscIn6p4XeXGkXESuAh-6mPDv8_f4mpyRwYPI59AYWipc2kx_aCvLVjBXAGIbTWA47ME5pPUzW-YDRLfpebCnHXZCdlTbJTexby2CeifFPjFdC0gZ-zWydEQVxMx38mLr57JYpIjN5YIwDh9a8smHLi_iiBmoKgpfuJfJsOoZc7kWxKORay593tazM44VooeXSqNiPQ8YAKdxXcveR1Tj6di-CIQg5DuSA8VToyrOmQ
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MzQsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6ImZhNmNlNTRjLThiNDItNDc1MC04Yjc5LWMxMTQ0ZmQ4ZmY5NiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.b7c7nBWw-hVnn2ZuUzZx9-nk2GKcmOdco1y8dm0SfM9BL0h0_742fz_EZ9xGMkSMTA8E9yFznApNCzH5wbIQJnoEKgAGxcT56_90kmF5ePe4_SL4_pkX4hE-iWQ11XY9_1WxKmT_qqLQhH5fhi4DmXUeM3nqSq7koWjAbVvC0_DNDUpGuZL7kBL05u-MuuN0vSZ93JyGieecObSEpV86nGKoLHex6CszQ4tjc7XqSxcYLOOFpazArwoH6zC12phwtExiJVzRVOvOG6N6yuigdo9WdLJHIt4QL67_JxgBkoMlL-6dGXy6khXgNap7LdRakD6EZbMPqTR5q8IMwF7yRQ
 Host: localhost</code></pre>
 </div>
 </div>
@@ -2792,7 +2728,7 @@ Content-Length: 54
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/contracts HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzYsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6IjU3NTViYmY2LTEzMTAtNDhhYy04ZDE4LWU4ZmM1NjFjZDFhYSIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.Agw8Ezy4o2vOTOqR-tEoES7CIsagYjnZTo7XBaBAUTEnACZMZCRh1KO1UqHg1mdNECqSb0PXiLj5Si1zuFhZXHsFNCjOQu8nwf2D3grevClwKdIaLSu7oatX4EXfMIEhMpNrjWDkz7zCe_v84SlVxlVTiImC7yc1FY4_s1oe47mXWMte4NeHuNwA5a83ApchJcpPDASU1KxlsdY3LH48YmpaanKWIUg2Bwyxfg_mUV3V5b6f8mefPCVvA0rTh4HAHcqSpcNiLYymiC_Hk1-aIGQk6tDmzGssT9hsprlCJ9qhFjuHFDM9zysOpmwdbuznhSBigfuiJGju-ttPvYnlvA
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MzQsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6IjhhNTM4YTZiLWZmNzEtNDJmNi1iN2RmLTNlYjhkNWJmZTllZSIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.QDBvffyFflT7u2VuuiYTfniYZwprzJJ14LiPg74ajfAUz85ZhfVjR-qdi2JYhtItvBpKb41VOwboA2I6Ag688aZ5z_iLsr4g4dVvUJS09rgt9M3WMeclZhrdImf6bJWiY-Or4jwglWQCbomX9IPELE7x3Knl_yGxBbiOV6F6Yf8YgMI7KwUq46Nr8L-grkuTaBWsTMOOHXD06l428tvl0v5U70unCKW4JTDC4xNFLSU05JGnWCXc4znFbLtXNbcrP2zTbm_HVmbwUaNB41GTOZjBiV_IVU2Go9r1OgkmaccO3SuhAGv_BhiShFQM6c8GgP2ikQF4_jjaZ3NawXhXTg
 Host: localhost</code></pre>
 </div>
 </div>
@@ -2822,6 +2758,11 @@ Host: localhost</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[0].name</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Contract&#8217;s name.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[0].active</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Contract&#8217;s status.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[0].code</code></p></td>
@@ -2868,11 +2809,12 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 219
+Content-Length: 238
 
 [ {
   "id" : 1,
   "name" : "some name",
+  "active" : true,
   "code" : "some code",
   "abi" : "some abi",
   "type" : {
@@ -2937,7 +2879,7 @@ Content-Length: 219
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/contracts/instances/1 HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzYsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6IjQxNGJkOWVmLTZjYTUtNDg5Ny05MDMyLTczZjE4N2YwM2M0OCIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.kVjdkqsXmXcW1F7R3jur_re_IpOfH-MAhyVgXx1DH9SbFt6GcMkG_hgqF2eqSRLySKfWPKNjUW0WCnv4Z7d2zEItLD2X7M1wDZ6Axoiv_Yo2b-xUoUZhR3OeYUEuvl6DWelTulXwWGqeIbHnBxqah0zcDXE__B_FUXyruUvo4gphV3ts80E5qqaL6ioDTkGQpSnsMZITTXq2gRjAypgu9G1zMuB-G1FrcFF8xPcYyn1xzc34jBQR3awgKAtIGGQULcddduyqzdMlwYTMdHT7UBMGk4E5dLr4tX37Qp0W0NedtGAPCMiCccKgLy06EpSKkGlNAPFSzdDHEEpWkoe6Cw
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MzQsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6IjY5OTRhYjkyLTgyNTMtNDA0OS1hMDlkLTg3ZTM3NmFlOWYxNiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.nohyrhx7hCNT69PsV64mnqtvCeiSs3sT-_eo4PiOI21R-SD597cB7_y93Lh7q_yeNzH6cwEFaYshJ0QW2fJAuCbOqmroKb70U1FIDLRZjEih3VcTJ8UNvdhwAzcqDR2nmBaIR0pjFBTtDZ6ck5V7oxW1Pk-DEuDEnGTahcLUxJl-y-zjqQPghCGUD-qtsSVQpw_gFuP8_kk25K_qfXxGp6W2aChNpxwaTUQi-y-mCzC7LDsO_HMKp1YTe8L0jKCg0R9bsuyPbxo6gG23amQXIAGanPVT96AGiEdp-8wuP7Bh4k_SmbPi0gNu2BeMkdLC7V4MUwElP73nbVhvLICgdA
 Host: localhost</code></pre>
 </div>
 </div>
@@ -3072,7 +3014,7 @@ Content-Length: 98
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/contracts HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3MzYsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6ImJkODdlMzBiLWViNTAtNGQ4My1iNDBkLWFhYTFiZjA3YjllNiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.D5lrkxrk8pqrYodrr7_ea5cE1utMXUQIG-RyJfWk-ICQpRNNqJcB3sYcVEQ-nnvofU8JRLwqpjwnMkr6KOecbLdUMRQAuyoPK5yqpYFUj1pzSNxsWZph56kuGtL_JkcnsXbxTDDAaPHB1wdtFkh8aynp0vIoSo-5XRruh0zDjXzq5VpALTIbZ4igBl6v5Fhk4j08svcrZwPSk3A5pmGSUHl0b0u6WrlfHro3sThOd0Hb9gI7cZcvj7g7Hqqvz19WuJGjMjr04UrbbtFf7hFROxpe0r5Yqqenf_kj5LQDBPSVjSLonjP6UBxlwPP_X-XmCs9-oA1mwa1GN2C4Y7yz1g
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MzQsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6ImZjMGRkMDA4LWZhZTMtNDAzOS04YWY5LTkwNTVlYWNmZjhmMSIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.cZFwQSin4BvORPtr-RmIrkLVD4EZzWsJflTduGTDXlkJpo8AmFm68QCKWE2oWfkP-AcdbknUwhLeSiI_bO3cXvkkl833z9GxzNYWDZ5Z8YQe4urdKjzkHkZpoc4xRfeHPbsAu1BACYa5GJnwEORRjso17pycBpZvsmZApLrMxlXxIgv0vm6YeAnKX0yyStiochgyE4C-ProWXY-8qqGy1cT4tK4Gr6ibiOKLOODlCZQrVuTieZ0CtGZN61aP8cFNmd1JzXso3VBBcl8M7wyb2vQm0QG2PRF8MWLG1BMZQz21n6gVCVzHddLOhczxZGe55d78twLYeZKoE7omGI3gbw
 Host: localhost
 Content-Length: 121
 
@@ -3180,7 +3122,7 @@ Content-Length: 32
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/crowdsale/withdraw/some%20address(project) HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3NDAsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6IjI0YTlmMTg5LWEzYTItNDZiNS1hNDYzLTVhOGE0N2FhYjg5NCIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.UAljmahSYIQEHB_vZOn-qBvmOa05R2UjK7LrEcPoCIxE6FP5Cf1MuB1XWRjpuj_RqqUSWWqDAiUBN4uWZNidbdXxFanD4OQpIRQmmqwmgrmpf-mFomCfOcvpPy3hyhs6_PKmHqyuAPbr2uhOLsKvagpjGV6BQjyKmXicV1a0BZrjSsgassFwmUC5bkGmJZywZD0E_cBOG7fks5371YePZ8h_iExfIqInGjN68mpvYNh51yrqT9b73p12HaniVLbPeFVtjYFRKO1xB5iCLRgxk818KkppOVlyDuvin3g8yy_RkBrzU7a8TX8o4gtHszjdIl_dnk3Gw-6hJwJ3zTjDoQ
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MzEsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6IjFjNzNhN2FlLTE1ZmEtNGY0Zi05MjczLWE3OWUwZjBiMWQ2NiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.ZGfisXn7gOWjDnqE3jrMtoAMgrlNzW5P4bic0X6Ucw7oXN4uCcx49HFyaspreJlSOt390d3046yxjb2WZ-uZY2a_ma8-O6x-FS1OfJmkfcDd6EXvMZSthzNa-m3XIxDmD-_T30fx2egXVxmmFFdo9zddK68vo9YHPoepOQQ6diR5Xm395g2F8o-0xZMCmZyNSpSRt-048b6BhUAiWk4puyED1uewNIRxUf4GvgnkHwVVIi92Z02cOQMsGhnxw3vnVhwQ3fjxAVwp3w7fwcO_KXpgMIqZ8Pq9ZDaiLXqaWWVdFIqxh40G-ZFZelvP1TO8aCyjw0pEUd-2zGu-1nKJbw
 Content-Type: application/json
 Host: localhost</code></pre>
 </div>
@@ -3258,7 +3200,7 @@ Content-Length: 32
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/crowdsale/some%20address(project) HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3NDAsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6ImNhZTAxYThjLWQyNWUtNGJiYi05OTc1LTRmYTI2ZDAzNDU5ZiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.cNORhyvb7iG3fZ98e4_AGaramdxTTEs0__tPLKTLWF0iEusCR5G4AN9dkM-zvyF6MHx5Fpnw0egTVtNrxu7rFS2NNXJWovcrQZCJpiv1Zpl28RLJM5H0eIBS_2ag-ycXZGuSiBJrS2GqvaJE8OihlXW6K7MQJ1xL2qOOeAqJ73zXf5xOmhi3QcGeOd-gOMMY2awmMOiOv5Doj4aOufxBs-wFNVBA8OgNbo2R8ydbSXMl7mPFq0XmvmKLvsD9FZWL2GpQWfzJkXN32lYvjeaHKXDpmcHTdHG2k-KW7whZpatUCxL7GU03ItcHoX_gffE7V093JJOyovKbPhpoDrjjjQ
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcwNTI0MzEsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJVU0VSIl0sImp0aSI6ImZjMTIxYTQzLTM1NWUtNGRmYy04ZGNhLWIwMDI1NzUwYzZjYiIsImNsaWVudF9pZCI6InRlc3QiLCJzY29wZSI6W119.HUhfF53nMzI6naKQrA7jboG6283ONgJg5HoTyF7mOwXWhF4-R0smyVC6Yd9W3Q3UtqPdECy58LgpwpOLqYFWNrOICODBxk8WfJu4E5v0RVOLXONjl8ugdpjXLwTttsfg8iOjpnaML9QCEkrsXaAQwMsASWaolAYk4dJdQFcoa6dQGoApwE5qH08y6Eooe4ooXwYj_bZx5wiQliI35WuEY09qWe2uav4ES6_RmmjRN3pibpfuOWEszOkA_FDwKrSVz1rBC3_g7RCKMmNCQMGfNgbYg2zQwydwMQ9Z-qxZlHo0twiHdVfJN7ZGbuKK7txK9-kjGAx2oBPHQR6QQu_8mw
 Host: localhost</code></pre>
 </div>
 </div>
@@ -3332,631 +3274,10 @@ Content-Length: 153
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_transactions_api"><a class="link" href="#_transactions_api">Transactions API</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_get_all_transactions"><a class="link" href="#_get_all_transactions">Get all transactions</a></h3>
-<div class="paragraph">
-<p>A <code>POST</code> request with filter and pageable object will return Page with transactions that corresponds to this filter</p>
-</div>
-<div class="sect3">
-<h4 id="resources-tx-api-response"><a class="link" href="#resources-tx-api-response">Example request</a></h4>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Don&#8217;t forget to add authorization headers to the request</p>
-</div>
-<div class="paragraph">
-<p>"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/transactions HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3NDcsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX0JJTExJTkciXSwianRpIjoiNWFlMzQwZGMtYTMzMC00MzRlLTg3OTEtZWNlZWFjYTRjYjM4IiwiY2xpZW50X2lkIjoidGVzdCIsInNjb3BlIjpbXX0.m31zXhZ0yBOowa_5BNNAkoXoj0YUEjlnPsbkWLijpQ8kfi39-gMaPcE4wOGCbULSK6HDLX9uD4zihVCiV1QoGefz_B4KaWOQD4t0fvEhSydSEwCuXDIOltJRtIjNDuoIIFQ2HzLrw_kPZttNAGvDsVnS99hQa5jwT1h8Lw5aJU4hjy-5GPm5ny0IGLf6vu-SIdS3wQ9kDlIY3sXdQght-yb2gvxc1NqWepqj-Y_W8hLsrSTNeM54Cu7mklqhhFpaKLRsiz48UI2bP826CvrNgJAvG4LpmAxvYNlCa_9QoC2vlUskewW2ByOnCCWhQ__-E-ToWoYVmyhlZJkiNOVQdg
-Content-Type: application/json;charset=UTF-8
-Host: localhost
-Content-Length: 506
-
-{
-  "conditions" : [ {
-    "field" : "amount",
-    "value" : 100,
-    "comparison" : "eq"
-  }, {
-    "field" : "created",
-    "value" : "2017-02-10T10:12:45",
-    "comparison" : "gt"
-  }, {
-    "field" : "created",
-    "value" : "2017-02-14T10:12:45",
-    "comparison" : "lt"
-  }, {
-    "field" : "account",
-    "value" : [ "vdanyliuk", "ovovchuk" ],
-    "comparison" : "in"
-  } ],
-  "pageable" : {
-    "size" : 50,
-    "page" : 0,
-    "direction" : "ASC",
-    "sortFields" : [ "account", "created" ]
-  }
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_request_fields_2"><a class="link" href="#_request_fields_2">Request fields</a></h4>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 33%;">
-<col style="width: 33%;">
-<col style="width: 33%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>conditions</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">All conditions</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>conditions[0].field</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Field name for this condition</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>conditions[0].value</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Varies</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Field value</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>conditions[0].comparison</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Name of comparing method (eq, gt, lt, in)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageable</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Page information</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageable.size</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Required page size</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageable.page</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Page number</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageable.direction</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sort direction (ASC, DESC)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageable.sortFields</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Fields to sort by</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="resources-tx-api-response"><a class="link" href="#resources-tx-api-response">Response fields</a></h4>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 33%;">
-<col style="width: 33%;">
-<col style="width: 33%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">All transactions in this page</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].id</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Transaction id</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].account</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Account that created tx (can be ldap name or any merchant name)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].destination</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Account that received funds (can be ldap name or any merchant name, empty for treasury)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].comment</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Comment on transaction</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].created</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Time when tx was created</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].amount</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Transaction funds amount</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].status</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">transaction status (SUCCESSFUL or FAILED)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].error</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Error description if tx fas failed</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>last</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Is page last</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>totalPages</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Pages quantity</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>totalElements</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Elements quantity</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sort</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sorting</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>first</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Is page first</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>numberOfElements</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The number of elements currently on this page</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The size of the page</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The number of the current page</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_example_response_23"><a class="link" href="#_example_response_23">Example response</a></h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
-X-Content-Type-Options: nosniff
-X-XSS-Protection: 1; mode=block
-Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-Pragma: no-cache
-Expires: 0
-X-Frame-Options: DENY
-Content-Length: 1045
-
-{
-  "totalElements" : 4,
-  "last" : true,
-  "first" : true,
-  "totalPages" : 1,
-  "numberOfElements" : 4,
-  "size" : 4,
-  "number" : 0,
-  "sort" : null,
-  "content" : [ {
-    "id" : 1,
-    "account" : "account2",
-    "destination" : "account1",
-    "amount" : 10,
-    "comment" : "Some comment",
-    "created" : "2017-02-16T13:09:05.621Z",
-    "status" : "SUCCESS",
-    "error" : null
-  }, {
-    "id" : 1,
-    "account" : "account1",
-    "destination" : "account2",
-    "amount" : 10,
-    "comment" : "Some comment",
-    "created" : "2017-02-16T13:09:05.621Z",
-    "status" : "SUCCESS",
-    "error" : null
-  }, {
-    "id" : 1,
-    "account" : "VM1",
-    "destination" : "Treasury",
-    "amount" : 10,
-    "comment" : "Some comment",
-    "created" : "2017-02-16T13:09:05.621Z",
-    "status" : "SUCCESS",
-    "error" : null
-  }, {
-    "id" : 1,
-    "account" : "account2",
-    "destination" : "VM1",
-    "amount" : 10,
-    "comment" : "Some comment",
-    "created" : "2017-02-16T13:09:05.621Z",
-    "status" : "SUCCESS",
-    "error" : null
-  } ]
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_get_concrete_transaction"><a class="link" href="#_get_concrete_transaction">Get concrete transaction</a></h3>
-<div class="paragraph">
-<p>A <code>GET</code> request  will return transaction with additional info</p>
-</div>
-<div class="sect3">
-<h4 id="resources-tx-response"><a class="link" href="#resources-tx-response">Example request</a></h4>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Don&#8217;t forget to add authorization headers to the request</p>
-</div>
-<div class="paragraph">
-<p>"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/v1/transactions/10 HTTP/1.1
-Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0ODcyOTM3NDcsInVzZXJfbmFtZSI6InRlc3QiLCJhdXRob3JpdGllcyI6WyJST0xFX0JJTExJTkciXSwianRpIjoiMWI0MTYxYzYtYjQ4NC00YzFkLWE0OGUtNzc3NzA2ODM2NTNkIiwiY2xpZW50X2lkIjoidGVzdCIsInNjb3BlIjpbXX0.RlGHNf8kcXPWdueQoeva9hYnQD4RD-E-Bj3PUgsaJ9RDPmA56D6SJ-ltXqIMYdrDdSquaPyReuw7VwegdePWVUpA3RkllCpWby5DDhoELtMz-e5DJ-QgqNQDMpqbXX5Y0MpHF002-zQXH4L-Ts_-b0Em0rKttPOnYbhytHyTFVeUdXpg57eUgH642GTqn3CPyRwuRDhXb4MAODczCjNnuiVP4kH0CNI7znumlAUMsPZ5HXlY3R0nxEP5uVHaGCbi_UiTJb9UAp48b3koh6FhwwbbtUKbILxmnMqED75ut8W3RfDAV-6zW1LB0IlBBZUO_vaAO7UwdM_JaxqmK8-jHQ
-Content-Type: application/json;charset=UTF-8
-Host: localhost</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="resources-tx-response"><a class="link" href="#resources-tx-response">Response fields</a></h4>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 33%;">
-<col style="width: 33%;">
-<col style="width: 33%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Transaction id</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>account</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Account that created tx (can be ldap name or any merchant name)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>destination</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Account that received funds (can be ldap name or any merchant name, empty for treasury)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>comment</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Comment on transaction</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>created</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Time when tx was created</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>amount</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Transaction funds amount</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">transaction status (SUCCESSFUL or FAILED)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>error</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Error description if tx fas failed</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>transactionStoring</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Additional information about transaction from blockchain</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_example_response_24"><a class="link" href="#_example_response_24">Example response</a></h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
-X-Content-Type-Options: nosniff
-X-XSS-Protection: 1; mode=block
-Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-Pragma: no-cache
-Expires: 0
-X-Frame-Options: DENY
-Content-Length: 231
-
-{
-  "id" : 1,
-  "account" : "account2",
-  "destination" : "account1",
-  "amount" : 10,
-  "comment" : "Some comment",
-  "created" : "2017-02-16T13:09:05.621Z",
-  "status" : "SUCCESS",
-  "error" : null,
-  "transactionStoring" : { }
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_get_user_s_transactions"><a class="link" href="#_get_user_s_transactions">Get user&#8217;s transactions</a></h3>
-<div class="paragraph">
-<p>A <code>GET</code> request  will return transactions for current user</p>
-</div>
-<div class="sect3">
-<h4 id="resources-users-tx-response"><a class="link" href="#resources-users-tx-response">Example request</a></h4>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Don&#8217;t forget to add authorization headers to the request</p>
-</div>
-<div class="paragraph">
-<p>"Authorization: Bearer &lt;ACCESS_TOKEN&gt;"</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>Unresolved directive in coin-api.adoc - include::/projects/sj_coins/sj_coins_server/target/generated-snippets/txs-my-responsee/http-request.adoc[]</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="resources-users-tx-response"><a class="link" href="#resources-users-tx-response">Response fields</a></h4>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 33%;">
-<col style="width: 33%;">
-<col style="width: 33%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">All transactions in this page</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].id</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Transaction id</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].account</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Account that created tx (can be ldap name or any merchant name)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].destination</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Account that received funds (can be ldap name or any merchant name, empty for treasury)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].comment</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Comment on transaction</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].created</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Time when tx was created</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].amount</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Transaction funds amount</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].status</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">transaction status (SUCCESSFUL or FAILED)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content[0].error</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Error description if tx fas failed</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>last</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Is page last</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>totalPages</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Pages quantity</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>totalElements</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Elements quantity</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sort</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sorting</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>first</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Is page first</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>numberOfElements</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The number of elements currently on this page</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The size of the page</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The number of the current page</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_example_response_25"><a class="link" href="#_example_response_25">Example response</a></h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
-X-Content-Type-Options: nosniff
-X-XSS-Protection: 1; mode=block
-Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-Pragma: no-cache
-Expires: 0
-X-Frame-Options: DENY
-Content-Length: 1045
-
-{
-  "totalElements" : 4,
-  "last" : true,
-  "first" : true,
-  "totalPages" : 1,
-  "numberOfElements" : 4,
-  "size" : 4,
-  "number" : 0,
-  "sort" : null,
-  "content" : [ {
-    "id" : 1,
-    "account" : "account2",
-    "destination" : "account1",
-    "amount" : 10,
-    "comment" : "Some comment",
-    "created" : "2017-02-16T13:09:05.621Z",
-    "status" : "SUCCESS",
-    "error" : null
-  }, {
-    "id" : 1,
-    "account" : "account1",
-    "destination" : "account2",
-    "amount" : 10,
-    "comment" : "Some comment",
-    "created" : "2017-02-16T13:09:05.621Z",
-    "status" : "SUCCESS",
-    "error" : null
-  }, {
-    "id" : 1,
-    "account" : "VM1",
-    "destination" : "Treasury",
-    "amount" : 10,
-    "comment" : "Some comment",
-    "created" : "2017-02-16T13:09:05.621Z",
-    "status" : "SUCCESS",
-    "error" : null
-  }, {
-    "id" : 1,
-    "account" : "account2",
-    "destination" : "VM1",
-    "amount" : 10,
-    "comment" : "Some comment",
-    "created" : "2017-02-16T13:09:05.621Z",
-    "status" : "SUCCESS",
-    "error" : null
-  } ]
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-02-16 15:08:19 EET
+Last updated 2017-01-12 13:05:45 EET
 </div>
 </div>
 </body>
