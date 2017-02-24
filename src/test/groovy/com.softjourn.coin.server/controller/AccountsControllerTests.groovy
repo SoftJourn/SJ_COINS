@@ -176,7 +176,10 @@ class AccountsControllerTests {
                                 .description('Account full name'),
                         fieldWithPath('[0].isNew')
                                 .type(JsonFieldType.BOOLEAN)
-                                .description('Is new ?')
+                                .description('Is new ?'),
+                        fieldWithPath('[0].address')
+                                .type(JsonFieldType.STRING)
+                                .description('Eris account address')
                 )
         ))
     }
@@ -208,7 +211,10 @@ class AccountsControllerTests {
                                 .description('Account full name'),
                         fieldWithPath('[0].isNew')
                                 .type(JsonFieldType.BOOLEAN)
-                                .description('Is new ?')
+                                .description('Is new ?'),
+                        fieldWithPath('[0].address')
+                                .type(JsonFieldType.STRING)
+                                .description('Eris account address')
                 )
         ))
     }
