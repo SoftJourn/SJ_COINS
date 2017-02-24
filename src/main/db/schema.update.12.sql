@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX instances_address_uindex ON sj_coins.instances (address);
