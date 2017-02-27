@@ -102,6 +102,7 @@ CREATE TABLE contracts
   code CLOB,
   name VARCHAR(255),
   type VARCHAR(255),
+  active bit(1) NOT NULL,
   CONSTRAINT FK9hxn5k55mpp0j3yqt1ej4of5y FOREIGN KEY (type) REFERENCES contract_type (type)
 );
 
