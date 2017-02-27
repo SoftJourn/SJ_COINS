@@ -320,7 +320,7 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <copy file="${project.build.directory}/generated-docs/coin-api.html" tofile="src/main/docs/coin-api.html" overwrite="true"/>
+                                <copy file="${project.build.directory}/generated-docs/coin-api.html" tofile="src/main/docs/coins.html" overwrite="true"/>
                             </target>
                         </configuration>
                         <goals>
