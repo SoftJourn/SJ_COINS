@@ -220,7 +220,11 @@ public class GenericFilter<T> implements Specification<T> {
         private String[] sortFields;
 
         public Pageable toPageable() {
-            return new PageRequest(page, size, direction, sortFields);
+            if (direction == null || sortFields == null || sortFields.length == 0) {
+                return new PageRequest(page, size);
+            } else {
+                return new PageRequest(page, size, direction, sortFields);
+            }
         }
     }
 }

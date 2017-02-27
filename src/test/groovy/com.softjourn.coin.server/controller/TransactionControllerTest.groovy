@@ -71,6 +71,8 @@ class TransactionControllerTest {
 
     private GenericFilter<Transaction> filter
 
+    private GenericFilter<Transaction> filterWithoutOrdering;
+
     private GenericFilter.PageRequestImpl myTxsPageRequest;
 
     @Before
@@ -90,6 +92,11 @@ class TransactionControllerTest {
         GenericFilter.PageRequestImpl pageRequest = new GenericFilter.PageRequestImpl(50, 0, Sort.Direction.ASC, ordering)
 
         filter = new GenericFilter<>([eqCondition, gtCondition, ltCondition, inCondition], pageRequest)
+
+        GenericFilter.PageRequestImpl pageRequestWithoutOrdering = new GenericFilter.PageRequestImpl();
+        pageRequestWithoutOrdering.page = 0
+        pageRequestWithoutOrdering.size = 50
+        filterWithoutOrdering = new GenericFilter<>([eqCondition], pageRequestWithoutOrdering)
 
         myTxsPageRequest = new GenericFilter.PageRequestImpl(50, 0, Sort.Direction.ASC, ordering)
     }
@@ -135,6 +142,15 @@ class TransactionControllerTest {
                         fieldWithPath("size").description("The size of the page"),
                         fieldWithPath("number").description("The number of the current page")
                 )))
+    }
+
+    @Test
+    void 'test of GET request to /api/v1/transactions endpoint without ordering'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/transactions')
+                .content(json(filterWithoutOrdering))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
     }
 
     @Test
