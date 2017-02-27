@@ -71,7 +71,8 @@ class TransactionControllerTest {
 
     private GenericFilter<Transaction> filter
 
-    private String requestFilterJson
+    private GenericFilter.PageRequestImpl myTxsPageRequest;
+
     @Before
     synchronized void setUp() {
         mockMvc = MockMvcBuilders
@@ -90,6 +91,7 @@ class TransactionControllerTest {
 
         filter = new GenericFilter<>([eqCondition, gtCondition, ltCondition, inCondition], pageRequest)
 
+        myTxsPageRequest = new GenericFilter.PageRequestImpl(50, 0, Sort.Direction.ASC, ordering)
     }
 
     @Test
@@ -178,8 +180,16 @@ class TransactionControllerTest {
     void 'test of GET request to /api/v1/transactions/my endpoint'() {
         mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/my')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_USER"))
+                .content(json(myTxsPageRequest))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
+                .andDo(document("txs-my-request", preprocessRequest(prettyPrint()),
+                requestFields(
+                        fieldWithPath("size").description("Required page size").type(JsonFieldType.NUMBER),
+                        fieldWithPath("page").description("Page number").type(JsonFieldType.NUMBER),
+                        fieldWithPath("direction").description("Sort direction (ASC, DESC)").type(JsonFieldType.STRING),
+                        fieldWithPath("sortFields").description("Fields to sort by").type(JsonFieldType.ARRAY)
+                )))
                 .andDo(document('txs-my-response',
                 preprocessResponse(prettyPrint()),
                 responseFields(

@@ -732,7 +732,7 @@ include::{snippets}/txs-get-one/http-response.adoc[]
 
 A `GET` request  will return transactions for current user
 
-[[resources-users-tx-response]]
+[[resources-users-tx-request]]
 ==== Example request
 
 [NOTE]
@@ -742,7 +742,7 @@ Don't forget to add authorization headers to the request
 "Authorization: Bearer <ACCESS_TOKEN>"
 ====
 
-include::{snippets}/txs-my-responsee/http-request.adoc[]
+include::{snippets}/txs-my-request/http-request.adoc[]
 
 [[resources-users-tx-response]]
 ==== Response fields
