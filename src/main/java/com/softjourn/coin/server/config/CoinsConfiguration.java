@@ -1,5 +1,10 @@
 package com.softjourn.coin.server.config;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.common.auth.OAuthHelper;
 import com.softjourn.eris.accounts.AccountsService;
@@ -10,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
@@ -37,6 +43,27 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
 
     @Value("${eris.treasury.account.key.private}")
     private String treasuryAccountPrivKey;
+
+    @Bean
+    public Module springDataPageModule() {
+        return new SimpleModule().addSerializer(Page.class, new JsonSerializer<Page>() {
+            @Override
+            public void serialize(Page value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+                gen.writeStartObject();
+                gen.writeNumberField("totalElements",value.getTotalElements());
+                gen.writeBooleanField("last",value.isLast());
+                gen.writeBooleanField("first",value.isFirst());
+                gen.writeNumberField("totalPages",value.getTotalPages());
+                gen.writeNumberField("numberOfElements",value.getNumberOfElements());
+                gen.writeNumberField("size",value.getSize());
+                gen.writeNumberField("number",value.getNumber());
+                gen.writeObjectField("sort", value.getSort());
+                gen.writeFieldName("content");
+                serializers.defaultSerializeValue(value.getContent(),gen);
+                gen.writeEndObject();
+            }
+        });
+    }
 
     @Bean
     public TokenStore tokenStore() {

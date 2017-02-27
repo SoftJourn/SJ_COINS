@@ -669,3 +669,86 @@ include::{snippets}/crowdsale-info-response/response-fields.adoc[]
 ==== Example response
 
 include::{snippets}/crowdsale-info-response/http-response.adoc[]
+
+== Transactions API
+
+=== Get all transactions
+
+A `POST` request with filter and pageable object will return Page with transactions that corresponds to this filter
+
+[[resources-tx-api-response]]
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/txs-filter-request/http-request.adoc[]
+
+==== Request fields
+
+include::{snippets}/txs-filter-request/request-fields.adoc[]
+
+[[resources-tx-api-response]]
+==== Response fields
+
+include::{snippets}/txs-filter-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/txs-filter-response/http-response.adoc[]
+
+
+=== Get concrete transaction
+
+A `GET` request  will return transaction with additional info
+
+[[resources-tx-response]]
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/txs-get-one/http-request.adoc[]
+
+[[resources-tx-response]]
+==== Response fields
+
+include::{snippets}/txs-get-one/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/txs-get-one/http-response.adoc[]
+
+
+=== Get user's transactions
+
+A `GET` request  will return transactions for current user
+
+[[resources-users-tx-request]]
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/txs-my-request/http-request.adoc[]
+
+[[resources-users-tx-response]]
+==== Response fields
+
+include::{snippets}/txs-my-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/txs-my-response/http-response.adoc[]

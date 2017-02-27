@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -21,7 +22,7 @@ import java.util.Map;
 @Entity
 @Table(name = "transaction_history")
 @NoArgsConstructor
-public class TransactionStoring {
+public class TransactionStoring implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
