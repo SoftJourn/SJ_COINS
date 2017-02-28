@@ -16,9 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -96,8 +94,8 @@ public class TransactionsRepositoryFilterTest {
         GenericFilter.Condition after_16_11_2016 = new GenericFilter.Condition();
         after_16_11_2016.setComparison(GenericFilter.Comparison.gt);
         after_16_11_2016.setField("created");
-        Instant lowerThresholdTime = LocalDate.of(2016, 11, 16).atStartOfDay().toInstant(ZoneOffset.UTC);
-        after_16_11_2016.setValue(lowerThresholdTime);
+        Instant lowerThresholdTime = ZonedDateTime.parse("2016-11-16T09:00:00+04:00").toInstant();
+        after_16_11_2016.setValue("2016-11-16T05:00:00Z");
 
         GenericFilter.Condition before_18_11_2016 = new GenericFilter.Condition();
         before_18_11_2016.setComparison(GenericFilter.Comparison.lt);
@@ -202,7 +200,7 @@ public class TransactionsRepositoryFilterTest {
         GenericFilter.Condition eqAccountCondition = new GenericFilter.Condition();
         eqAccountCondition.setComparison(GenericFilter.Comparison.eq);
         eqAccountCondition.setField("amount");
-        eqAccountCondition.setValue("1000000");
+        eqAccountCondition.setValue(1000000);
 
         conditions.add(eqAccountCondition);
 
@@ -229,9 +227,25 @@ public class TransactionsRepositoryFilterTest {
         filter.setConditions(conditions);
         filter.setInnerPageable(defaultPageable);
 
+        repository.findAll(filter, filter.getInnerPageable()).getContent();
+    }
 
-        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
-        assertEquals(2, result.size());
+    @Test(expected = InvalidDataAccessApiUsageException.class)
+    public void filteringTest_nonExistingField() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        List<GenericFilter.Condition> conditions = new ArrayList<>();
+
+        GenericFilter.Condition eqAccountCondition = new GenericFilter.Condition();
+        eqAccountCondition.setComparison(GenericFilter.Comparison.eq);
+        eqAccountCondition.setField("nonExistingField");
+        eqAccountCondition.setValue("value");
+
+        conditions.add(eqAccountCondition);
+
+        filter.setConditions(conditions);
+        filter.setInnerPageable(defaultPageable);
+
+        repository.findAll(filter, filter.getInnerPageable()).getContent();
     }
 
     @Test

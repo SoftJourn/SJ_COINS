@@ -41,6 +41,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*
 import static org.springframework.restdocs.payload.PayloadDocumentation.*
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -71,9 +72,11 @@ class TransactionControllerTest {
 
     private GenericFilter<Transaction> filter
 
-    private GenericFilter<Transaction> filterWithoutOrdering;
+    private GenericFilter<Transaction> filterWithoutOrdering
 
-    private GenericFilter.PageRequestImpl myTxsPageRequest;
+    private GenericFilter<Transaction> filterWithWrongType
+
+    private GenericFilter.PageRequestImpl myTxsPageRequest
 
     @Before
     synchronized void setUp() {
@@ -84,21 +87,24 @@ class TransactionControllerTest {
                 .build()
 
         GenericFilter.Condition eqCondition = new GenericFilter.Condition("amount", 100, GenericFilter.Comparison.eq)
-        GenericFilter.Condition gtCondition = new GenericFilter.Condition("created", "2017-02-10T10:12:45", GenericFilter.Comparison.gt)
-        GenericFilter.Condition ltCondition = new GenericFilter.Condition("created", "2017-02-14T10:12:45", GenericFilter.Comparison.lt)
+        GenericFilter.Condition gtCondition = new GenericFilter.Condition("created", "2017-02-10T10:12:45Z", GenericFilter.Comparison.gt)
+        GenericFilter.Condition ltCondition = new GenericFilter.Condition("created", "2017-02-14T10:12:45Z", GenericFilter.Comparison.lt)
         GenericFilter.Condition inCondition = new GenericFilter.Condition("account", ["vdanyliuk", "ovovchuk"], GenericFilter.Comparison.in)
-
-        String[] ordering = ["account", "created"];
-        GenericFilter.PageRequestImpl pageRequest = new GenericFilter.PageRequestImpl(50, 0, Sort.Direction.ASC, ordering)
+        
+        GenericFilter.PageRequestImpl pageRequest = new GenericFilter.PageRequestImpl(50, 0, new Sort(new Sort.Order(Sort.Direction.ASC, "amount")))
 
         filter = new GenericFilter<>([eqCondition, gtCondition, ltCondition, inCondition], pageRequest)
 
-        GenericFilter.PageRequestImpl pageRequestWithoutOrdering = new GenericFilter.PageRequestImpl();
+        GenericFilter.PageRequestImpl pageRequestWithoutOrdering = new GenericFilter.PageRequestImpl()
         pageRequestWithoutOrdering.page = 0
         pageRequestWithoutOrdering.size = 50
         filterWithoutOrdering = new GenericFilter<>([eqCondition], pageRequestWithoutOrdering)
 
-        myTxsPageRequest = new GenericFilter.PageRequestImpl(50, 0, Sort.Direction.ASC, ordering)
+        myTxsPageRequest = new GenericFilter.PageRequestImpl(50, 0, new Sort(new Sort.Order(Sort.Direction.ASC, "amount")))
+
+        GenericFilter.Condition wrongCondition = new GenericFilter.Condition("amount", "notNumericValue", GenericFilter.Comparison.eq)
+
+        filterWithWrongType = new GenericFilter([wrongCondition], pageRequestWithoutOrdering)
     }
 
     @Test
@@ -118,8 +124,12 @@ class TransactionControllerTest {
                         fieldWithPath("pageable").description("Page information").type(JsonFieldType.OBJECT),
                         fieldWithPath("pageable.size").description("Required page size").type(JsonFieldType.NUMBER),
                         fieldWithPath("pageable.page").description("Page number").type(JsonFieldType.NUMBER),
-                        fieldWithPath("pageable.direction").description("Sort direction (ASC, DESC)").type(JsonFieldType.STRING),
-                        fieldWithPath("pageable.sortFields").description("Fields to sort by").type(JsonFieldType.ARRAY)
+                        fieldWithPath("pageable.sort").description("Sorting options").type(JsonFieldType.ARRAY),
+                        fieldWithPath("pageable.sort[0].direction").description("Sort direction (ASC, DESC)").type(JsonFieldType.STRING),
+                        fieldWithPath("pageable.sort[0].property").description("Field to sort by").type(JsonFieldType.STRING),
+                        fieldWithPath("pageable.sort[0].ignoreCase").description("Field to sort by").type(JsonFieldType.BOOLEAN).optional(),
+                        fieldWithPath("pageable.sort[0].nullHandling").description("What to do with null values (NATIVE, NULLS_FIRST, NULLS_LAST)").type(JsonFieldType.STRING).optional(),
+                        fieldWithPath("pageable.sort[0].ascending").type(JsonFieldType.STRING).ignored()
                 )))
                 .andDo(document('txs-filter-response',
                 preprocessResponse(prettyPrint()),
@@ -151,6 +161,15 @@ class TransactionControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
+    }
+
+    @Test
+    void 'test of GET request to /api/v1/transactions endpoint wrong request and expect resonable message'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/transactions')
+                .content(json(filterWithWrongType))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().json("{\"title\":\"Error\",\"detail\":\"Can't create instance of class BigDecimal from value notNumericValue.\",\"code\":40003,\"developerMessage\":\"java.lang.IllegalArgumentException\"}"))
     }
 
     @Test
@@ -203,8 +222,12 @@ class TransactionControllerTest {
                 requestFields(
                         fieldWithPath("size").description("Required page size").type(JsonFieldType.NUMBER),
                         fieldWithPath("page").description("Page number").type(JsonFieldType.NUMBER),
-                        fieldWithPath("direction").description("Sort direction (ASC, DESC)").type(JsonFieldType.STRING),
-                        fieldWithPath("sortFields").description("Fields to sort by").type(JsonFieldType.ARRAY)
+                        fieldWithPath("sort").description("Sorting options").type(JsonFieldType.ARRAY).optional(),
+                        fieldWithPath("sort[0].direction").description("Sort direction (ASC, DESC)").type(JsonFieldType.STRING),
+                        fieldWithPath("sort[0].property").description("Field to sort by").type(JsonFieldType.STRING),
+                        fieldWithPath("sort[0].ignoreCase").description("Field to sort by").type(JsonFieldType.BOOLEAN).optional(),
+                        fieldWithPath("sort[0].nullHandling").description("What to do with null values (NATIVE, NULLS_FIRST, NULLS_LAST)").type(JsonFieldType.STRING).optional(),
+                        fieldWithPath("sort[0].ascending").type(JsonFieldType.STRING).ignored()
                 )))
                 .andDo(document('txs-my-response',
                 preprocessResponse(prettyPrint()),

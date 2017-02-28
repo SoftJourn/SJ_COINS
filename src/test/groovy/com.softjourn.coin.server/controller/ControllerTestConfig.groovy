@@ -4,6 +4,8 @@ import com.softjourn.coin.server.dto.*
 import com.softjourn.coin.server.entity.*
 import com.softjourn.coin.server.service.*
 import org.mockito.Mockito
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -163,6 +165,16 @@ class ControllerTestConfig {
         def transactionsService = Mockito.mock(TransactionsService.class)
         when(transactionsService.get(anyLong())).thenReturn(transaction)
         when(transactionsService.getFiltered(any(GenericFilter.class), any(Pageable.class))).thenReturn(page)
+        when(transactionsService.getFiltered(any(GenericFilter.class), any(Pageable.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            Object answer(InvocationOnMock invocation) throws Throwable {
+                GenericFilter filter = invocation.arguments[0]
+                filter.getConditions().forEach({cond -> if (cond.value.equals("notNumericValue")) {
+                    throw new IllegalArgumentException("Can't create instance of class BigDecimal from value notNumericValue.")
+                }})
+                return page
+            }
+        })
         when(transactionsService.getForUser(anyString(), any(Pageable.class))).thenReturn(page)
 
         transactionsService
