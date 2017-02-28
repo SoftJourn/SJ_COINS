@@ -2,9 +2,10 @@ package com.softjourn.coin.server.dao;
 
 import com.softjourn.eris.block.pojo.BlockHeader;
 import com.softjourn.eris.transaction.pojo.ErisCallTransaction;
-import com.softjourn.eris.transaction.pojo.ErisTransaction;
 import com.softjourn.eris.transaction.pojo.ErisTransactionType;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Delegate;
 
 import javax.persistence.*;
@@ -17,17 +18,12 @@ import java.util.Map;
 @Embeddable
 @Access(AccessType.PROPERTY)
 @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class ErisTransactionDAO {
 
     @Delegate(excludes = ICallingData.class)
     private ErisCallTransaction transaction = ErisCallTransaction.builder().build();
-
-    public ErisTransactionDAO(ErisCallTransaction transaction) {
-        this.transaction = transaction;
-    }
-
-    public ErisTransactionDAO() {
-    }
 
     @Transient
     public void setTransaction(ErisCallTransaction transaction) {
@@ -44,11 +40,28 @@ public class ErisTransactionDAO {
         return transaction.getCallingData();
     }
 
+    @Transient
+    public String getTxId() {
+        return transaction.getTxId();
+    }
+
+    @Transient
+    public BlockHeader getBlockHeader(){
+        return transaction.getBlockHeader();
+    }
+
+    @Transient
+    public Map<String, String> getFunctionArguments() {
+        return transaction.getFunctionArguments();
+    }
+
     @SuppressWarnings("unused")
     interface ICallingData {
         String getCallingData();
-        BlockHeader getBlockHeader();
-        Map getFunctionArguments();
         ErisTransactionType getTransactionType();
+        String getTxId();
+        Map getFunctionArguments();
+        BlockHeader getBlockHeader();
     }
 }
+

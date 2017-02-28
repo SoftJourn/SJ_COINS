@@ -37,7 +37,7 @@ CREATE TABLE transactions
   status VARCHAR(32) NOT NULL,
   error VARCHAR(255),
   remain DECIMAL(19,2),
-  eris_transaction_id VARCHAR(255),
+  eris_transaction_id VARCHAR(255) ,
   CONSTRAINT account_fk FOREIGN KEY (account_ldap_id) REFERENCES accounts (ldap_id),
   CONSTRAINT destination_fk FOREIGN KEY (destination_ldap_id) REFERENCES accounts (ldap_id)
 );
@@ -72,13 +72,11 @@ CREATE TABLE transaction_history (
   calling_data          VARCHAR(2500),
   contract_address      VARCHAR(255) DEFAULT NULL,
   fee                   BIGINT DEFAULT NULL,
-  function_name_hash    VARCHAR(255) DEFAULT NULL,
   gas_limit             BIGINT DEFAULT NULL,
   is_deploy             BIT(1)       DEFAULT NULL,
   sequence              BIGINT DEFAULT NULL,
-  transaction_signature VARCHAR(255) DEFAULT NULL,
-  tx_id                 VARCHAR(255) DEFAULT NULL,
-  tx_type_call          TINYINT      DEFAULT NULL
+  signature VARCHAR(255) DEFAULT NULL,
+  tx_id                 VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE tx_calling_data

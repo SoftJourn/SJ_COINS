@@ -69,8 +69,7 @@ public class BlockChainConfig {
 
     private TransactionStoring mapTransaction(ErisCallTransaction transaction){
         ErisTransactionDAO transactionDAO = new ErisTransactionDAO(transaction);
-        return new TransactionStoring(transaction.getBlockHeader(),transaction.getFunctionName()
-                ,transactionDAO,transaction.getFunctionArguments(),transaction.getTxId());
+        return new TransactionStoring(transactionDAO);
     }
 
     @Bean

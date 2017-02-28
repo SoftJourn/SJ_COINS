@@ -32,6 +32,7 @@ public class TransactionStoring implements Serializable {
     private Long blockNumber;
     private LocalDateTime time;
     private String chainId;
+    private String txId;
 
     @Embedded
     private ErisTransactionDAO transaction;
@@ -41,15 +42,15 @@ public class TransactionStoring implements Serializable {
     @MapKeyColumn(name = "function_name")
     private Map<String, String> callingValue;
 
-    public TransactionStoring(BlockHeader blockHeader, String functionName, @NonNull ErisTransactionDAO transaction,
-                              Map<String, String> callingValue, String txId) {
-        if(blockHeader != null) {
-            this.blockNumber = blockHeader.getBlockNumber();
-            this.time = blockHeader.getTimeCreated();
-            this.chainId = blockHeader.getChainName();
+    public TransactionStoring(@NonNull ErisTransactionDAO transaction) {
+        if(transaction.getBlockHeader() != null) {
+            this.blockNumber = transaction.getBlockHeader().getBlockNumber();
+            this.time = transaction.getBlockHeader().getTimeCreated();
+            this.chainId = transaction.getBlockHeader().getChainName();
         }
         this.transaction = transaction;
-        this.callingValue = callingValue;
+        this.callingValue = transaction.getFunctionArguments();
+        this.txId = this.transaction.getTxId();
     }
 
     public void setTransaction(ErisCallTransaction transaction) {

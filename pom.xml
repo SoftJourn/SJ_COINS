@@ -36,13 +36,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${spring.boot.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.softjourn</groupId>
             <artifactId>eris-java-client</artifactId>
-            <version>0.10.0</version>
+            <version>0.10.1</version>
         </dependency>
 
         <dependency>

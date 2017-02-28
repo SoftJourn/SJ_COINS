@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.when;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-@Sql({"classpath:transactions-data.sql"})
+@AutoConfigureTestDatabase
 public class TransactionsRepositoryFilterTest {
 
     @Autowired
