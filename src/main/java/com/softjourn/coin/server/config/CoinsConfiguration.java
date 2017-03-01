@@ -14,7 +14,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -99,7 +99,7 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
     }
 
     private String readPublicKey(String authPublicKeyFile) {
-        try (InputStream inputStream = new ClassPathResource(authPublicKeyFile).getInputStream()) {
+        try (InputStream inputStream = new UrlResource("file:" + authPublicKeyFile).getInputStream()) {
             return IOUtils.toString(inputStream);
         } catch (IOException e) {
             throw new RuntimeException("Can't read auth public key from file " + authPublicKeyFile);
