@@ -63,7 +63,7 @@ public class TransactionsRepositoryFilterTest {
 
 
         List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
-        assertEquals(5, result.size());
+        assertEquals(9, result.size());
         assertTrue(result.stream().allMatch(transaction -> transaction.getCreated().isAfter(thresholdTime)));
     }
 
@@ -256,7 +256,7 @@ public class TransactionsRepositoryFilterTest {
         GenericFilter<Transaction> filter = new GenericFilter<>();
 
         List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
-        assertEquals(10, result.size());
+        assertEquals(14, result.size());
     }
 
     @Test
