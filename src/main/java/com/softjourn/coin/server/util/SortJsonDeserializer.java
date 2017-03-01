@@ -20,8 +20,10 @@ public class SortJsonDeserializer extends JsonDeserializer<Sort> {
             orders[i] =  new Sort.Order(Sort.Direction.valueOf(obj.get("direction").asText()), obj.get("property").asText());
             i++;
         }
-        Sort sort = new Sort(orders);
-        return sort;
+        if (orders.length == 0) {
+            return null;
+        }
+        return new Sort(orders);
     }
 
 }
