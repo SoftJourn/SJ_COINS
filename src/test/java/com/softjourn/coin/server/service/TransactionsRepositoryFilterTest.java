@@ -13,14 +13,17 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestData
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.softjourn.coin.server.service.GenericFilter.Condition.eq;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -263,5 +266,13 @@ public class TransactionsRepositoryFilterTest {
 
         List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
         assertEquals(5, result.size());
+    }
+
+    @Test
+    public void getForUserTest() throws Exception {
+        GenericFilter<Transaction> fromFilter = GenericFilter.or(eq("account", "omartynets"), eq("destination", "omartynets"));
+
+        List<Transaction> result = repository.findAll(fromFilter, fromFilter.getInnerPageable()).getContent();
+        assertEquals(4, result.size());
     }
 }

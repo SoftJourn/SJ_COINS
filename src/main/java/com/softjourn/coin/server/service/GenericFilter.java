@@ -238,7 +238,7 @@ public class GenericFilter<T> implements Specification<T> {
         Join path = root.join(fieldsPath[0], JoinType.INNER);
         for (int i = 1; i < fieldsPath.length - 1; i++) {
             String field = fieldsPath[i];
-            path = path.join(field, JoinType.INNER);
+            path = path.join(field, JoinType.LEFT);
         }
         return path.get(fieldsPath[fieldsPath.length - 1]);
     }
@@ -248,7 +248,7 @@ public class GenericFilter<T> implements Specification<T> {
         if (fieldType.isAnnotationPresent(Entity.class)) {
             Class fieldIdType = getIdFieldType(fieldType);
             if (fieldIdType.isInstance(value)) {
-                return root.join(fieldName, JoinType.INNER).get(getIdFieldName(fieldType));
+                return root.join(fieldName, JoinType.LEFT).get(getIdFieldName(fieldType));
             } else {
                 throw new IllegalArgumentException("Can't create criteria based on field " + fieldName + " with value " + value + ".");
             }

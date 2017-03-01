@@ -6,6 +6,8 @@ INSERT INTO accounts (ldap_id, full_name, image, is_new, account_type, deleted)
 VALUES ('oyevchuk', 'Olga Yevchuk', 'images/default.png', false, 'REGULAR', false);
 INSERT INTO accounts (ldap_id, full_name, amount, image, is_new, account_type, deleted)
 VALUES ('vdanyliuk', 'Vasyl Danyliuk', 200, 'images/default.png', false, 'REGULAR', false);
+INSERT INTO accounts (ldap_id, full_name, image, is_new, account_type, deleted)
+VALUES ('omartynets', 'Oleksandr Martynets', 'images/default.png', false, 'REGULAR', false);
 
 INSERT INTO accounts (ldap_id, amount, account_type) VALUES ('account1', 100, 'REGULAR');
 INSERT INTO accounts (ldap_id, amount, account_type) VALUES ('VM1', 100, 'MERCHANT');
@@ -55,6 +57,10 @@ INSERT INTO transactions (account_ldap_id, destination_ldap_id, amount, comment,
 INSERT INTO transactions (account_ldap_id, destination_ldap_id, amount, comment, created, status, error, remain, eris_transaction_id) VALUES ('vdanyliuk','ovovchuk',100000,'Filling account vdanyliuk by 100000 coins',   '2016-11-18 08:29:05','SUCCESS',NULL,NULL,   '2A6A14CB249BB7FEFF8494BAA82244D20A1EF684');
 INSERT INTO transactions (account_ldap_id, destination_ldap_id, amount, comment, created, status, error, remain, eris_transaction_id) VALUES ('oyevchuk','vdanyliuk',1000000,'Filling account vdanyliuk by 1000000 coins', '2016-11-19 09:28:20','SUCCESS',NULL,NULL, '5437675ECFADF13DF7ECA8165FE278AB264655D9');
 INSERT INTO transactions (account_ldap_id, destination_ldap_id, amount, comment, created, status, error, remain, eris_transaction_id) VALUES ('oyevchuk','ovovchuk',1000000,'Filling account vdanyliuk by 1000000 coins', '2016-11-20 09:29:05','SUCCESS',NULL,NULL, '2A3333CB249BB7FE0D8494BAA82244D1234EF684');
+INSERT INTO transactions (account_ldap_id, destination_ldap_id, amount, comment, created, status, error, remain, eris_transaction_id) VALUES ('omartynets','ovovchuk',1000000000,'Filling account ovovchuk by 100000 coins',   '2016-11-18 08:29:05','SUCCESS',NULL,NULL,   '2A6A14CB249BB7FEFF8494BAA82244D20A1EF684');
+INSERT INTO transactions (account_ldap_id, destination_ldap_id, amount, comment, created, status, error, remain, eris_transaction_id) VALUES ('oyevchuk','omartynets',1000000000,'Return money', '2016-11-19 09:28:20','SUCCESS',NULL,NULL, '5437675ECFADF13DF7ECA8165FE278AB264655D9');
+INSERT INTO transactions (account_ldap_id, destination_ldap_id, amount, comment, created, status, error, remain, eris_transaction_id) VALUES ('omartynets',null,1000000000,'Withdrow', '2016-11-20 09:29:05','SUCCESS',NULL,NULL, '2A3333CB249BB7FE0D8494BAA82244D1234EF684');
+INSERT INTO transactions (account_ldap_id, destination_ldap_id, amount, comment, created, status, error, remain, eris_transaction_id) VALUES (null,'omartynets',1000000000,'Deposit', '2016-11-20 09:29:05','SUCCESS',NULL,NULL, '2A3333CB249BB7FE0D8494BAA82244D1234EF684');
 
 INSERT INTO transaction_history VALUES (270, 3688719, 'SJTestChain', 'transfer', '2016-11-11 05:28:20', 1, '2C76A03ADA83E4F0A9DD9D8FBFC54E5EE4026C3F', '', 'A9059CBB000000000000000000000000558E41DD4FE5656E7961BD3D8639CB071F7EA3170000000000000000000000000000000000000000000000000000000000000000','FC7A363EE4BDDF8E83389A157D95FD12AE3A1EFB', 0, 2147483647, 0, 674, '1EFB4D8970F2F0E3A5F11FB78A23E49C04100A744D5FBE47B6F48A2F1DDB7950B9D3CEB9EA5E284EA995B8D1DA40826D34A43E1D028E0EC5D1FA7F8887565A06','5C37675ECFADF13DF7ECA8165FE278AB264655D9');
 INSERT INTO transaction_history VALUES (271, 3688767, 'SJTestChain', 'transfer', '2016-11-12 05:29:05', 1, '2C76A03ADA83E4F0A9DD9D8FBFC54E5EE4026C3F', '', 'A9059CBB000000000000000000000000558E41DD4FE5656E7961BD3D8639CB071F7EA3170000000000000000000000000000000000000000000000000000000000000000','FC7A363EE4BDDF8E83389A157D95FD12AE3A1EFB', 0, 2147483647, 0, 674, '1EFB4D8970F2F0E3A5F11FB78A23E49C04100A744D5FBE47B6F48A2F1DDB7950B9D3CEB9EA5E284EA995B8D1DA40826D34A43E1D028E0EC5D1FA7F8887565A06','2A6A14CB249BB7FE0D8494BAA82244D20A1EF684');
