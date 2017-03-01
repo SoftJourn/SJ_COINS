@@ -1,9 +1,7 @@
 package com.softjourn.coin.server.entity;
 
 import com.softjourn.coin.server.dao.ErisTransactionDAO;
-import com.softjourn.eris.block.pojo.BlockHeader;
 import com.softjourn.eris.transaction.pojo.ErisCallTransaction;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -20,7 +18,8 @@ import java.util.Map;
  */
 @Data
 @Entity
-@Table(name = "transaction_history")
+@Table(name = "transaction_history",
+        uniqueConstraints = @UniqueConstraint(name = "eris_tx_id_unique_index", columnNames = {"tx_id"}))
 @NoArgsConstructor
 public class TransactionStoring implements Serializable {
 

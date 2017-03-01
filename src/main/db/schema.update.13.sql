@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX eris_tx_id_unique_index ON sj_coins.transaction_history (tx_id);
