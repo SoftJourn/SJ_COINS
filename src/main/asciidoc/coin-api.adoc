@@ -744,9 +744,9 @@ Don't forget to add authorization headers to the request
 
 include::{snippets}/txs-my-request/http-request.adoc[]
 
-==== Request fields
+==== Request parameters
 
-include::{snippets}/txs-my-request/request-fields.adoc[]
+include::{snippets}/txs-my-request/request-parameters.adoc[]
 
 [[resources-users-tx-response]]
 ==== Response fields

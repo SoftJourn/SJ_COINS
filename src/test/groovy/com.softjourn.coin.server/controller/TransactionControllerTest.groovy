@@ -40,6 +40,8 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*
 import static org.springframework.restdocs.payload.PayloadDocumentation.*
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -214,20 +216,17 @@ class TransactionControllerTest {
     @Test
     void 'test of GET request to /api/v1/transactions/my endpoint'() {
         mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/my')
+                .param("page", "0")
+                .param("size", "25")
+                .param("sort", "created,asc", "remain,desc")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_USER"))
-                .content(json(myTxsPageRequest))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
                 .andDo(document("txs-my-request", preprocessRequest(prettyPrint()),
-                requestFields(
-                        fieldWithPath("size").description("Required page size").type(JsonFieldType.NUMBER),
-                        fieldWithPath("page").description("Page number").type(JsonFieldType.NUMBER),
-                        fieldWithPath("sort").description("Sorting options").type(JsonFieldType.ARRAY).optional(),
-                        fieldWithPath("sort[0].direction").description("Sort direction (ASC, DESC)").type(JsonFieldType.STRING),
-                        fieldWithPath("sort[0].property").description("Field to sort by").type(JsonFieldType.STRING),
-                        fieldWithPath("sort[0].ignoreCase").description("Field to sort by").type(JsonFieldType.BOOLEAN).optional(),
-                        fieldWithPath("sort[0].nullHandling").description("What to do with null values (NATIVE, NULLS_FIRST, NULLS_LAST)").type(JsonFieldType.STRING).optional(),
-                        fieldWithPath("sort[0].ascending").type(JsonFieldType.STRING).ignored()
+                requestParameters(
+                        parameterWithName("size").description("Required page size").optional(),
+                        parameterWithName("page").description("Page number").optional(),
+                        parameterWithName("sort").description("Sorting options").optional(),
                 )))
                 .andDo(document('txs-my-response',
                 preprocessResponse(prettyPrint()),
