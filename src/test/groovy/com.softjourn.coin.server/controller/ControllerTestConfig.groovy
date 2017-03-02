@@ -175,7 +175,7 @@ class ControllerTestConfig {
                 return page
             }
         })
-        when(transactionsService.getForUser(anyString(), any(Pageable.class))).thenReturn(page)
+        when(transactionsService.getForUser(anyString(), any(Pageable.class), any(TransactionsController.Direction))).thenReturn(page.map({tx -> new MobileTransactionDTO(tx)}))
 
         transactionsService
     }

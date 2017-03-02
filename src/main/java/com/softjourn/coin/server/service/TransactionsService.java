@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.service;
 
+import com.softjourn.coin.server.controller.TransactionsController;
 import com.softjourn.coin.server.dto.MobileTransactionDTO;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.repository.TransactionRepository;
@@ -28,9 +29,17 @@ public class TransactionsService {
         return repository.findOne(id);
     }
 
-    public Page<MobileTransactionDTO> getForUser(String user, Pageable pageable) {
-        GenericFilter<Transaction> fromFilter = GenericFilter.or(eq("account", user), eq("destination", user));
+    public Page<MobileTransactionDTO> getForUser(String user, Pageable pageable, TransactionsController.Direction direction) {
+        GenericFilter<Transaction> fromFilter = getFilter(direction, user);
         Page<Transaction> transactions = repository.findAll(fromFilter, pageable);
         return transactions.map(MobileTransactionDTO::new);
+    }
+
+    private GenericFilter<Transaction> getFilter(TransactionsController.Direction direction, String user) {
+        switch (direction) {
+            case IN: return GenericFilter.or(eq("destination", user));
+            case OUT: return GenericFilter.or(eq("account", user));
+            default: return GenericFilter.or(eq("account", user), eq("destination", user));
+        }
     }
 }

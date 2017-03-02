@@ -225,6 +225,7 @@ class TransactionControllerTest {
                 .param("page", "0")
                 .param("size", "25")
                 .param("sort", "created,asc", "remain,desc")
+                .param("direction", "IN")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_USER"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
@@ -233,6 +234,7 @@ class TransactionControllerTest {
                         parameterWithName("size").description("Required page size").optional(),
                         parameterWithName("page").description("Page number").optional(),
                         parameterWithName("sort").description("Sorting options").optional(),
+                        parameterWithName("direction").description("Select incoming, outgoing or all transactions. (IN, OUT, ALL)").optional()
                 )))
                 .andDo(document('txs-my-response',
                 preprocessResponse(prettyPrint()),

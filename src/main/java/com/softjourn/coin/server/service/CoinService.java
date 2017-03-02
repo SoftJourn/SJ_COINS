@@ -270,9 +270,9 @@ public class CoinService {
     }
 
     @SaveTransaction
-    public Transaction deposit(CashDTO cashDTO, String accountName, String comment) {
+    public Transaction deposit(CashDTO cashDTO, String destinationName, String comment, BigInteger amount) {
         try {
-            ErisAccount account = getErisAccount(accountName);
+            ErisAccount account = getErisAccount(destinationName);
 
             byte[] hash = Hex.decodeHex(cashDTO.getChequeHash().toCharArray());
 

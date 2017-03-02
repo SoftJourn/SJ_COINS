@@ -15,8 +15,6 @@ public class InstantJsonSerializer extends JsonSerializer<Instant> {
 
     @Override
     public void serialize(Instant value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-
-
         gen.writeString(DateTimeFormatter
                 .ISO_DATE_TIME
                 .withLocale(Locale.getDefault())
