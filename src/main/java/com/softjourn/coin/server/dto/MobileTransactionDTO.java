@@ -37,7 +37,7 @@ public class MobileTransactionDTO {
     public MobileTransactionDTO(Transaction transaction) {
         id = transaction.getId();
         account = Optional.ofNullable(transaction.getAccount()).map(Account::getFullName).orElse("Replenishing.");
-        destination = Optional.ofNullable(transaction.getAccount()).map(Account::getFullName).orElse("Withdrawing.");
+        destination = Optional.ofNullable(transaction.getDestination()).map(Account::getFullName).orElse("Withdrawing.");
         amount = transaction.getAmount();
         comment = transaction.getComment();
         created = transaction.getCreated();
