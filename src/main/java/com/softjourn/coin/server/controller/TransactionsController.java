@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.softjourn.coin.server.dto.MobileTransactionDTO;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.service.GenericFilter;
 import com.softjourn.coin.server.service.TransactionsService;
@@ -41,7 +42,7 @@ public class TransactionsController {
     @JsonView(JsonViews.REGULAR.class)
     @PreAuthorize("isAuthenticated() ")
     @RequestMapping(value = "/my", method = RequestMethod.GET)
-    public Page<Transaction> getForUser(Principal principal, Pageable pageable) {
+    public Page<MobileTransactionDTO> getForUser(Principal principal, Pageable pageable) {
         return service.getForUser(principal.getName(), pageable);
     }
 

@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.service;
 
+import com.softjourn.coin.server.dto.MobileTransactionDTO;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,9 @@ public class TransactionsService {
         return repository.findOne(id);
     }
 
-    public Page<Transaction> getForUser(String user, Pageable pageable) {
+    public Page<MobileTransactionDTO> getForUser(String user, Pageable pageable) {
         GenericFilter<Transaction> fromFilter = GenericFilter.or(eq("account", user), eq("destination", user));
-        return repository.findAll(fromFilter, pageable);
+        Page<Transaction> transactions = repository.findAll(fromFilter, pageable);
+        return transactions.map(MobileTransactionDTO::new);
     }
 }
