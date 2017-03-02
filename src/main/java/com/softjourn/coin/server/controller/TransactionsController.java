@@ -39,7 +39,6 @@ public class TransactionsController {
         return service.get(id);
     }
 
-    @JsonView(JsonViews.REGULAR.class)
     @PreAuthorize("isAuthenticated() ")
     @RequestMapping(value = "/my", method = RequestMethod.GET)
     public Page<MobileTransactionDTO> getForUser(Principal principal, Pageable pageable) {
