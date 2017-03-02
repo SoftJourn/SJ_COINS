@@ -260,6 +260,17 @@ class TransactionControllerTest {
     }
 
     @Test
+    void 'test of GET request to /api/v1/transactions/my endpoint without direction param'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/my')
+                .param("page", "0")
+                .param("size", "25")
+                .param("sort", "created,asc", "remain,desc")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_USER"))
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+    }
+
+    @Test
     void 'test of GET request to /api/v1/transactions/my endpoint without auth'() {
         mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/my')
                 .contentType(MediaType.APPLICATION_JSON_UTF8))

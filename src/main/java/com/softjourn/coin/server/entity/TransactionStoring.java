@@ -1,6 +1,8 @@
 package com.softjourn.coin.server.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.softjourn.coin.server.dao.ErisTransactionDAO;
+import com.softjourn.coin.server.util.InstantJsonSerializer;
 import com.softjourn.eris.transaction.pojo.ErisCallTransaction;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +10,8 @@ import lombok.NonNull;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Map;
 
 /**
@@ -29,7 +32,8 @@ public class TransactionStoring implements Serializable {
 
     @Column(columnDefinition = "BIGINT")
     private Long blockNumber;
-    private LocalDateTime time;
+    @JsonSerialize(using = InstantJsonSerializer.class)
+    private Instant time;
     private String chainId;
     private String txId;
 
@@ -44,7 +48,7 @@ public class TransactionStoring implements Serializable {
     public TransactionStoring(@NonNull ErisTransactionDAO transaction) {
         if(transaction.getBlockHeader() != null) {
             this.blockNumber = transaction.getBlockHeader().getBlockNumber();
-            this.time = transaction.getBlockHeader().getTimeCreated();
+            this.time = transaction.getBlockHeader().getTimeCreated().toInstant(ZoneOffset.UTC);
             this.chainId = transaction.getBlockHeader().getChainName();
         }
         this.transaction = transaction;

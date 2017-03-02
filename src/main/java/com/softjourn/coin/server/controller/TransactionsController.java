@@ -40,7 +40,7 @@ public class TransactionsController {
 
     @PreAuthorize("isAuthenticated() ")
     @RequestMapping(value = "/my", method = RequestMethod.GET)
-    public Page<MobileTransactionDTO> getForUser(Principal principal, Pageable pageable, Direction direction) {
+    public Page<MobileTransactionDTO> getForUser(Principal principal, Pageable pageable, @RequestParam(required = false, defaultValue = "ALL") Direction direction) {
         return service.getForUser(principal.getName(), pageable, direction);
     }
 

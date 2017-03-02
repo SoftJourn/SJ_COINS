@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.softjourn.eris.block.pojo.BlockHeader;
 import com.softjourn.eris.transaction.pojo.ErisCallTransaction;
 import com.softjourn.eris.transaction.pojo.ErisTransactionType;
@@ -26,6 +27,7 @@ public class ErisTransactionDAO {
     private ErisCallTransaction transaction = ErisCallTransaction.builder().build();
 
     @Transient
+    @JsonIgnore
     public void setTransaction(ErisCallTransaction transaction) {
         this.transaction = transaction;
     }
@@ -41,16 +43,19 @@ public class ErisTransactionDAO {
     }
 
     @Transient
+    @JsonIgnore
     public String getTxId() {
         return transaction.getTxId();
     }
 
     @Transient
+    @JsonIgnore
     public BlockHeader getBlockHeader(){
         return transaction.getBlockHeader();
     }
 
     @Transient
+    @JsonIgnore
     public Map<String, String> getFunctionArguments() {
         return transaction.getFunctionArguments();
     }
