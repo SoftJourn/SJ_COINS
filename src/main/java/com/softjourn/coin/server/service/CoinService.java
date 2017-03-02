@@ -236,6 +236,7 @@ public class CoinService {
     }
 
     @SuppressWarnings("unused")
+    @SaveTransaction
     public byte[] withdraw(@NonNull String accountName, @NonNull BigDecimal amount, String comment, boolean image) {
         try {
             checkEnoughAmount(accountName, amount);

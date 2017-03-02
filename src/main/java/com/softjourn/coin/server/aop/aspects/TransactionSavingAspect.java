@@ -37,14 +37,17 @@ public class TransactionSavingAspect {
     private CoinService coinService;
 
     @Around("@annotation(com.softjourn.coin.server.aop.annotations.SaveTransaction)")
-    public Transaction saveTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object saveTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
         Transaction transaction = new Transaction();
         try {
-            transaction = (Transaction) joinPoint.proceed();
+            Object callingResult = joinPoint.proceed();
+            if (callingResult instanceof Transaction) {
+                transaction = (Transaction) callingResult;
+            }
             prepareTransaction(transaction, joinPoint);
             transaction.setStatus(TransactionStatus.SUCCESS);
             setRemainAmount((MethodSignature) joinPoint.getSignature(), joinPoint.getArgs(), transaction);
-            return transactionRepository.save(transaction);
+            return callingResult instanceof Transaction ? transactionRepository.save(transaction) : callingResult;
         } catch (Throwable e) {
             transaction.setStatus(TransactionStatus.FAILED);
             transaction.setError(e.getLocalizedMessage());
