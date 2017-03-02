@@ -201,7 +201,13 @@ class TransactionControllerTest {
                         fieldWithPath("amount").description("Transaction funds amount"),
                         fieldWithPath("status").description("transaction status (SUCCESSFUL or FAILED)"),
                         fieldWithPath("error").description("Error description if tx fas failed"),
-                        fieldWithPath("transactionStoring").description("Additional information about transaction from blockchain")
+                        fieldWithPath("remain").description("Error description if tx fas failed").ignored(),
+                        fieldWithPath("transactionStoring").description("Additional information about transaction from blockchain"),
+                        fieldWithPath("transactionStoring.chainId").description("Name of the Eris chain"),
+                        fieldWithPath("transactionStoring.time").description("Time when tx was created in the chain"),
+                        fieldWithPath("transactionStoring.txId").description("Transaction id in the chain"),
+                        fieldWithPath("transactionStoring.transaction").description("Additional transaction data"),
+                        fieldWithPath("transactionStoring.callingValue").description("Values that was used to make call to the smart contract")
                 )))
     }
 

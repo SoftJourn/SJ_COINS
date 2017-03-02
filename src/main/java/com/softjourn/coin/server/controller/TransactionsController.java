@@ -32,7 +32,6 @@ public class TransactionsController {
         return service.getFiltered(filter, filter.getPageable().toPageable());
     }
 
-    @JsonView(JsonViews.DETAILED.class)
     @PreAuthorize("hasRole('BILLING')")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public Transaction get(@PathVariable Long id) {
