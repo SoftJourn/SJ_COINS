@@ -19,7 +19,7 @@ import java.util.Map;
 @Data
 @Entity
 @Table(name = "transaction_history",
-        uniqueConstraints = @UniqueConstraint(name = "eris_tx_id_unique_index", columnNames = {"tx_id"}))
+        uniqueConstraints = @UniqueConstraint(name = "eris_tx_id_unique_index", columnNames = {"txId"}))
 @NoArgsConstructor
 public class TransactionStoring implements Serializable {
 
