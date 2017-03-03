@@ -20,7 +20,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @EnableJpaRepositories(basePackages = "com.softjourn.coin.server.repository")
 @EntityScan(basePackages = "com.softjourn.coin.server.entity")
 @PropertySources(
-		@PropertySource("file:${user.home}/.coins/application.properties")
+		@PropertySource(value = "file:${user.home}/.coins/application.properties", ignoreResourceNotFound = true)
 )
 public class Coins  {
 
