@@ -270,7 +270,7 @@ public class CoinService {
     }
 
     @SaveTransaction
-    public Transaction deposit(CashDTO cashDTO, String destinationName, String comment, BigInteger amount) {
+    public Transaction deposit(CashDTO cashDTO, String destinationName, String comment, BigDecimal amount) {
         try {
             ErisAccount account = getErisAccount(destinationName);
 
