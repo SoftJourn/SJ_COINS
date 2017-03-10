@@ -86,7 +86,7 @@ public class GlobalExceptionHandler {
                 .body(buildErrorDetails(e, 40905, e.getMessage()));
     }
 
-    @ExceptionHandler(NotEnoughAmountInTreasuryException.class)
+    @ExceptionHandler(ChequeIsUsedException.class)
     public ResponseEntity<ErrorDetail> handleChequeIsUsedException(ChequeIsUsedException e) {
         log.warn(e.getLocalizedMessage());
         return ResponseEntity
