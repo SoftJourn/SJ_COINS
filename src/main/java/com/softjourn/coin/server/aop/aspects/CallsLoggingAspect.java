@@ -22,6 +22,14 @@ public class CallsLoggingAspect {
 
     @Around(value = "execution(* com.softjourn.coin.server.service.*.*(..))")
     public Object logCall(ProceedingJoinPoint joinPoint) throws Throwable {
+        if (log.isDebugEnabled()) {
+            return logIfNessasery(joinPoint);
+        } else {
+            return joinPoint.proceed();
+        }
+    }
+
+    private Object logIfNessasery(ProceedingJoinPoint joinPoint) throws Throwable {
         try {
             log.debug(prepareBeforeLogMessage(joinPoint));
             Object retVal = joinPoint.proceed();
@@ -51,15 +59,16 @@ public class CallsLoggingAspect {
         return "Call of method " + callingMethod + " with args " + argsString;
     }
 
-    private String matchNamesWithArgs(String[] paramNames, Object[] args) {
+    String matchNamesWithArgs(String[] paramNames, Object[] args) {
         if (paramNames == null || paramNames.length == 0) {
+            if (args == null) return "[]";
             return Arrays.toString(args);
         } else if (paramNames.length != args.length) {
             //should never happens
             throw new IllegalStateException("Param names count " + paramNames.length + " don't matches actual args count " + args.length);
         } else {
             return IntStream.range(0, args.length)
-                    .mapToObj(i -> paramNames[i] + "=" + args[i].toString())
+                    .mapToObj(i -> paramNames[i] + "=" + args[i])
                     .collect(Collectors.joining(", ", "[", "]"));
         }
     }
