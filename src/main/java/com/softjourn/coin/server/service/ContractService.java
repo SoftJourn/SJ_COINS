@@ -4,6 +4,7 @@ import com.softjourn.coin.server.dto.NewContractDTO;
 import com.softjourn.coin.server.dto.ContractCreateResponseDTO;
 import com.softjourn.coin.server.dto.NewContractInstanceDTO;
 import com.softjourn.coin.server.entity.Contract;
+import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.Type;
 
 import java.io.IOException;
@@ -12,11 +13,13 @@ import java.util.Map;
 
 public interface ContractService {
 
-    ContractCreateResponseDTO newContract(NewContractDTO dto);
+    Transaction newContract(NewContractDTO dto);
 
     List<Contract> getContracts();
 
     Contract getContractById(Long id);
+
+    Contract changeActive(Long id);
 
     List<Type> getTypes();
 
@@ -26,7 +29,7 @@ public interface ContractService {
 
     List<ContractCreateResponseDTO> getInstances(Long id);
 
-    ContractCreateResponseDTO newInstance(NewContractInstanceDTO dto);
+    Transaction newInstance(NewContractInstanceDTO dto);
 
     List<Map<String, String>> getContractConstructorInfo(Long id) throws IOException;
 

@@ -89,14 +89,21 @@ class ControllerTestConfig {
     @Bean
     ContractService contractService() {
         def contractService = Mockito.mock(ContractService.class)
+        def account1 = new Account("user1", 1000)
+        account1.fullName = "Bruce Wayne"
+        account1.image = "images/default.png"
+        def instance = new Instance("SomeAddress")
+        instance.setAccount(account1)
         def contract = new Contract(1L, "some name", true, "some code", "some abi", new Type("type"), new ArrayList<Instance>() {
             {
-                add(new Instance("SomeAddress"))
+                add(instance)
             }
         })
-        when(contractService.newContract(any() as NewContractDTO)).thenReturn(new ContractCreateResponseDTO(1, "contract", "type", "some address"))
+        def transaction = new Transaction("id");
+        transaction.setValue(new ContractCreateResponseDTO(1, "contract", "type", "some address"))
+        when(contractService.newContract(any() as NewContractDTO)).thenReturn(transaction)
         when(contractService.getContracts()).thenReturn([contract])
-        when(contractService.newInstance(any() as NewContractInstanceDTO)).thenReturn(new ContractCreateResponseDTO(1, "contract", "type", "some address"))
+        when(contractService.newInstance(any() as NewContractInstanceDTO)).thenReturn(transaction)
         when(contractService.getInstances(anyLong())).thenReturn([new ContractCreateResponseDTO(1, "contract", "type", "some address")])
         when(contractService.getContractsByAddress(anyString())).thenReturn(contract)
         when(contractService.getTypes()).thenReturn([new Type("some type")])
@@ -118,8 +125,10 @@ class ControllerTestConfig {
     @Bean
     CrowdsaleService crowdsaleService() {
         def crowdsaleService = Mockito.mock(CrowdsaleService.class)
-        when(crowdsaleService.donate(any() as DonateDTO, any() as Principal)).thenReturn(new CrowdsaleTransactionResultDTO(true))
-        when(crowdsaleService.withDraw(anyString())).thenReturn(new CrowdsaleTransactionResultDTO(true))
+        def transaction = new Transaction("id")
+        transaction.setValue(new CrowdsaleTransactionResultDTO(true))
+        when(crowdsaleService.donate(any() as DonateDTO, any() as Principal)).thenReturn(transaction)
+        when(crowdsaleService.withDraw(anyString())).thenReturn(transaction)
         when(crowdsaleService.getInfo(anyString())).thenReturn(new CrowdsaleInfoDTO(
                 new ArrayList<Map<String, Object>>() {
                     {
@@ -169,13 +178,15 @@ class ControllerTestConfig {
             @Override
             Object answer(InvocationOnMock invocation) throws Throwable {
                 GenericFilter filter = invocation.arguments[0]
-                filter.getConditions().forEach({cond -> if (cond.value.equals("notNumericValue")) {
-                    throw new IllegalArgumentException("Can't create instance of class BigDecimal from value notNumericValue.")
-                }})
+                filter.getConditions().forEach({ cond ->
+                    if (cond.value.equals("notNumericValue")) {
+                        throw new IllegalArgumentException("Can't create instance of class BigDecimal from value notNumericValue.")
+                    }
+                })
                 return page
             }
         })
-        when(transactionsService.getForUser(anyString(), any(Pageable.class), any(TransactionsController.Direction))).thenReturn(page.map({tx -> new MobileTransactionDTO(tx)}))
+        when(transactionsService.getForUser(anyString(), any(Pageable.class), any(TransactionsController.Direction))).thenReturn(page.map({ tx -> new MobileTransactionDTO(tx) }))
 
         transactionsService
     }

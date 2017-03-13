@@ -1,10 +1,12 @@
 package com.softjourn.coin.server.service;
 
+import com.softjourn.coin.server.aop.annotations.SaveTransaction;
 import com.softjourn.coin.server.dto.CrowdsaleInfoDTO;
 import com.softjourn.coin.server.dto.CrowdsaleTransactionResultDTO;
 import com.softjourn.coin.server.dto.DonateDTO;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.Instance;
+import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
 import com.softjourn.coin.server.exceptions.ErisContractInstanceNotFound;
 import com.softjourn.coin.server.exceptions.ErisProcessingException;
@@ -43,7 +45,8 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
     private ErisAccountsService erisAccountsService;
 
     @Override
-    public CrowdsaleTransactionResultDTO donate(DonateDTO dto, Principal principal) throws IOException {
+    @SaveTransaction
+    public Transaction donate(DonateDTO dto, Principal principal) throws IOException {
         // look for instance address and eris account
         Instance instance = instanceRepository.findByAddress(dto.getContractAddress());
         ErisAccount erisAccount = erisAccountsService.getByName(principal.getName());
@@ -61,13 +64,19 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
                 log.error(response.getError().toString());
                 throw new ErisProcessingException(response.getError().getMessage());
             } else {
-                return new CrowdsaleTransactionResultDTO((Boolean) response.getReturnValues().get(0));
+                Transaction transaction = TransactionsService.prepareTransaction(new CrowdsaleTransactionResultDTO((Boolean) response.getReturnValues().get(0)),
+                        response.getTxParams().getTxId(), String.format("Donate coins %d", dto.getAmount()));
+
+                transaction.setAccount(erisAccount.getAccount());
+                transaction.setDestination(instance.getAccount());
+                return transaction;
             }
         }
     }
 
     @Override
-    public CrowdsaleTransactionResultDTO withDraw(String address) throws IOException {
+    @SaveTransaction
+    public Transaction withDraw(String address) throws IOException {
         // look for instance address
         Instance instance = instanceRepository.findByAddress(address);
         if (instance == null) {
@@ -82,7 +91,12 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
                 log.error(response.getError().toString());
                 throw new ErisProcessingException(response.getError().getMessage());
             } else {
-                return new CrowdsaleTransactionResultDTO((Boolean) response.getReturnValues().get(0));
+
+                Transaction transaction = TransactionsService.prepareTransaction(new CrowdsaleTransactionResultDTO((Boolean) response.getReturnValues().get(0)),
+                        response.getTxParams().getTxId(), "Withdraw coins");
+
+                transaction.setAccount(instance.getAccount());
+                return transaction;
             }
         }
     }
