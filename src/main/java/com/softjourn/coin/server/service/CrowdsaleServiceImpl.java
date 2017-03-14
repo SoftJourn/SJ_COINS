@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -68,6 +69,7 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
                         response.getTxParams().getTxId(), String.format("Donate coins %d", dto.getAmount()));
 
                 transaction.setAccount(erisAccount.getAccount());
+                transaction.setAmount(new BigDecimal(dto.getAmount()));
                 transaction.setDestination(instance.getAccount());
                 return transaction;
             }
