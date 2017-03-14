@@ -61,6 +61,7 @@ public class ContractServiceImpl implements ContractService {
             contract.setType(type);
             contract.setAbi(dto.getAbi());
             contract.setCode(dto.getCode());
+            contract.setActive(true);
             Contract newContract = contractRepository.save(contract);
             // save data about new contact instance
             Instance instance = new Instance();
