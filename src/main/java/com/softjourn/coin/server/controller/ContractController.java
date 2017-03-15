@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.controller;
 
+import com.softjourn.coin.server.config.CoinsConfiguration;
 import com.softjourn.coin.server.dto.ContractCreateResponseDTO;
 import com.softjourn.coin.server.dto.NewContractDTO;
 import com.softjourn.coin.server.dto.NewContractInstanceDTO;
@@ -26,10 +27,12 @@ public class ContractController {
 
     private final ContractService contractService;
 
+    private final CoinsConfiguration coinsConfiguration;
 
     @Autowired
-    public ContractController(ContractService contractService) {
+    public ContractController(ContractService contractService, CoinsConfiguration coinsConfiguration) {
         this.contractService = contractService;
+        this.coinsConfiguration = coinsConfiguration;
     }
 
     @PreAuthorize("authenticated")
@@ -45,10 +48,10 @@ public class ContractController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "/compile",method = RequestMethod.POST)
-    public String  compile(@RequestBody String json) {
+    @RequestMapping(value = "/compile", method = RequestMethod.POST)
+    public String compile(@RequestBody String json) {
         RestTemplate template = new RestTemplate();
-        return template.postForObject("http://46.101.203.71/compile",json, String.class);
+        return template.postForObject(this.coinsConfiguration.getCompilerUrl(), json, String.class);
     }
 
     @PreAuthorize("authenticated")
