@@ -1,6 +1,5 @@
 package com.softjourn.coin.server.controller;
 
-import com.softjourn.coin.server.config.CoinsConfiguration;
 import com.softjourn.coin.server.dto.ContractCreateResponseDTO;
 import com.softjourn.coin.server.dto.NewContractDTO;
 import com.softjourn.coin.server.dto.NewContractInstanceDTO;
@@ -8,6 +7,7 @@ import com.softjourn.coin.server.entity.Contract;
 import com.softjourn.coin.server.entity.Type;
 import com.softjourn.coin.server.service.ContractService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,12 +27,12 @@ public class ContractController {
 
     private final ContractService contractService;
 
-    private final CoinsConfiguration coinsConfiguration;
+    private final String compilerUrl;
 
     @Autowired
-    public ContractController(ContractService contractService, CoinsConfiguration coinsConfiguration) {
+    public ContractController(ContractService contractService, @Value("${eris.compiler.url}") String compilerUrl) {
         this.contractService = contractService;
-        this.coinsConfiguration = coinsConfiguration;
+        this.compilerUrl = compilerUrl;
     }
 
     @PreAuthorize("authenticated")
@@ -51,7 +51,7 @@ public class ContractController {
     @RequestMapping(value = "/compile", method = RequestMethod.POST)
     public String compile(@RequestBody String json) {
         RestTemplate template = new RestTemplate();
-        return template.postForObject(this.coinsConfiguration.getCompilerUrl(), json, String.class);
+        return template.postForObject(compilerUrl, json, String.class);
     }
 
     @PreAuthorize("authenticated")

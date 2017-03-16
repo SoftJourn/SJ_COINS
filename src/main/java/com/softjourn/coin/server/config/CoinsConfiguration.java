@@ -41,9 +41,6 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
     @Value("${eris.chain.url}")
     private String erisChainUrl;
 
-    @Value("${eris.compiler.url}")
-    private String compilerUrl;
-
     @Value("${eris.treasury.account.key.private}")
     private String treasuryAccountPrivKey;
 
@@ -129,9 +126,5 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 .and()
                 .csrf().disable();
-    }
-
-    public String getCompilerUrl() {
-        return compilerUrl;
     }
 }
