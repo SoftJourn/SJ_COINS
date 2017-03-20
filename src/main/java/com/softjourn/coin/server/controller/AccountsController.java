@@ -67,7 +67,7 @@ public class AccountsController {
     @RequestMapping(value = "/account/crowdsale", method = RequestMethod.POST)
     @JsonView(JsonViews.ADMIN.class)
     public Account addCrowdSaleAccount(@RequestBody MerchantDTO merchantDTO) {
-        return accountsService.addMerchant(merchantDTO, AccountType.CROWDSALE);
+        return accountsService.addMerchant(merchantDTO, AccountType.PROJECT);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','INVENTORY')")

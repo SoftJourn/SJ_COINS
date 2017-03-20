@@ -17,7 +17,7 @@ import java.time.Instant;
 @Data
 @Entity
 @Table(name = "transactions")
-public class Transaction implements Serializable {
+public class Transaction<T> implements Serializable {
 
     @JsonView({JsonViews.DETAILED.class, JsonViews.REGULAR.class})
     @Id
@@ -54,6 +54,9 @@ public class Transaction implements Serializable {
     @JsonView({JsonViews.DETAILED.class, JsonViews.REGULAR.class})
     @Column(columnDefinition = "text")
     private String error;
+
+    @JsonIgnore
+    private transient T value;
 
     @JsonIgnore
     private String erisTransactionId;

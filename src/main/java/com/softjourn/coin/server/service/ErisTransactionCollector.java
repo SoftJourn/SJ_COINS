@@ -39,7 +39,6 @@ public class ErisTransactionCollector implements Runnable {
         this.blockChainService = blockChainService;
         this.transactionService = transactionService;
         scheduledExecutorService.scheduleWithFixedDelay(this, 20, interval, TimeUnit.SECONDS);
-        lastCheckedBlockNumber = new AtomicLong(transactionService.getHeightLastStored());
     }
 
     @Override
