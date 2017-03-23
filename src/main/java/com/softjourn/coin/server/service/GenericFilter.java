@@ -96,8 +96,12 @@ public class GenericFilter<T> implements Specification<T> {
 
     private Predicate buildEqualPredicate(CriteriaBuilder criteriaBuilder, Root<T> root, Condition condition) {
         Path fieldPath = getFieldPath(root, condition);
-        Object value = getCastedValue(fieldPath, condition.value);
-        return criteriaBuilder.equal(fieldPath, value);
+        if (condition.value == null) {
+            return criteriaBuilder.isNull(fieldPath);
+        } else {
+            Object value = getCastedValue(fieldPath, condition.value);
+            return criteriaBuilder.equal(fieldPath, value);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -252,7 +256,7 @@ public class GenericFilter<T> implements Specification<T> {
         Class fieldType = root.getModel().getAttribute(fieldName).getJavaType();
         if (fieldType.isAnnotationPresent(Entity.class)) {
             Class fieldIdType = getIdFieldType(fieldType);
-            if (fieldIdType.isInstance(value)) {
+            if (fieldIdType.isInstance(value) || value == null) {
                 return root.join(fieldName, JoinType.LEFT).get(getIdFieldName(fieldType));
             } else {
                 throw new IllegalArgumentException("Can't create criteria based on field " + fieldName + " with value " + value + ".");

@@ -90,6 +90,26 @@ public class TransactionsRepositoryFilterTest {
     }
 
     @Test
+    public void filteringTest_byNullValue() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        List<GenericFilter.Condition> conditions = new ArrayList<>();
+
+        GenericFilter.Condition nullCondition = new GenericFilter.Condition();
+        nullCondition.setComparison(GenericFilter.Comparison.eq);
+        nullCondition.setField("destination");
+        nullCondition.setValue(null);
+
+        conditions.add(nullCondition);
+
+        filter.setConditions(conditions);
+        filter.setInnerPageable(defaultPageable);
+
+
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
+        assertEquals(1, result.size());
+    }
+
+    @Test
     public void filteringTest_timeCondition_between() {
         GenericFilter<Transaction> filter = new GenericFilter<>();
         List<GenericFilter.Condition> conditions = new ArrayList<>();
