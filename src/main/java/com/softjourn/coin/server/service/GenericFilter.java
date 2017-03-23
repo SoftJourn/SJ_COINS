@@ -13,15 +13,19 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.ClassUtils;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.criteria.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Stream;
+
+import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldName;
+import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldType;
 
 
 @Data
@@ -128,7 +132,7 @@ public class GenericFilter<T> implements Specification<T> {
     private Object tryToCastValue(Class valueClass, Object value) {
         if (valueClass.isInstance(value)) return value;
         if (hasAppropriateConstructor(valueClass, value)) {
-            return getInstanceByConstructor(valueClass ,value);
+            return getInstanceByConstructor(valueClass, value);
         }
         if (hasValueOfFactoryMethod(valueClass, value)) {
             return getInstanceByValueOf(valueClass, value);
@@ -178,7 +182,7 @@ public class GenericFilter<T> implements Specification<T> {
                     .filter(method -> method.getName().equals(methodName))
                     .map(method -> invokeFactoryMethod(method, value))
                     .findAny()
-                    .get();
+                    .orElseThrow(() -> new IllegalArgumentException("Class " + valueClass + " doesn't contain method " + methodName));
     }
 
     private Object invokeFactoryMethod(Method method, Object value) {
@@ -235,6 +239,7 @@ public class GenericFilter<T> implements Specification<T> {
 
     private Path getPathByCompositeField(Root<T> root, String fieldName) {
         String[] fieldsPath = fieldsPath(fieldName);
+        if (fieldsPath.length == 1) return root.get(fieldName);
         Join path = root.join(fieldsPath[0], JoinType.INNER);
         for (int i = 1; i < fieldsPath.length - 1; i++) {
             String field = fieldsPath[i];
@@ -255,23 +260,6 @@ public class GenericFilter<T> implements Specification<T> {
         } else {
             return root.get(fieldName);
         }
-    }
-
-    private String getIdFieldName(Class entityClass) {
-        return getIdFieldProperty(entityClass, Field::getName);
-
-    }
-
-    private Class getIdFieldType(Class entityClass) {
-        return getIdFieldProperty(entityClass, Field::getType);
-    }
-
-    private <P> P getIdFieldProperty(Class entityClass, Function<Field, P> propertyMapper) {
-        return Stream.of(entityClass.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(Id.class))
-                .map(propertyMapper)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Can't get ID field of entity " + entityClass));
     }
 
     private boolean isCompositeField(String fielsName) {

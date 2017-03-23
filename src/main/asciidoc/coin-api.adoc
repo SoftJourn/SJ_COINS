@@ -756,3 +756,53 @@ include::{snippets}/txs-my-response/response-fields.adoc[]
 ==== Example response
 
 include::{snippets}/txs-my-response/http-response.adoc[]
+
+=== Get list of fields that can be used for filtering
+
+A `GET` request  will return list of fields that can be used for filtering
+
+[[resources-users-tx-paths-request]]
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/txs-filter-paths-response/http-request.adoc[]
+
+[[resources-txs-filter-paths-response]]
+==== Response fields
+
+include::{snippets}/txs-filter-paths-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/txs-filter-paths-response/http-response.adoc[]
+
+=== Get list of values that can be used for filtering
+
+A `GET` request  will return list of values that can be used for filtering
+
+[[resources-users-tx-autocomplete-request]]
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/txs-filter-autocomplete-response/http-request.adoc[]
+
+[[resources-txs-filter-paths-response]]
+==== Response fields
+
+include::{snippets}/txs-filter-autocomplete-response/response-fields.adoc[]
+
+==== Example response
+
+include::{snippets}/txs-filter-autocomplete-response/http-response.adoc[]

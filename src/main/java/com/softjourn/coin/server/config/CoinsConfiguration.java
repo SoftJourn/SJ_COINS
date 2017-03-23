@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.softjourn.coin.server.entity.Transaction;
+import com.softjourn.coin.server.service.AutocompleteService;
 import com.softjourn.common.auth.OAuthHelper;
 import com.softjourn.eris.accounts.AccountsService;
 import com.softjourn.eris.accounts.KeyService;
 import com.softjourn.eris.rpc.HTTPRPCClient;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +27,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.web.client.RestTemplate;
 
+import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -115,6 +118,12 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
     @Bean(name = "transactionResultMap")
     public Map<String, List<Future<Transaction>>> map() {
         return new HashMap<>();
+    }
+
+    @Bean
+    @Autowired
+    public AutocompleteService<Transaction> autocompleteService(EntityManager entityManager) {
+        return new AutocompleteService<>(Transaction.class, entityManager);
     }
 
     @Override

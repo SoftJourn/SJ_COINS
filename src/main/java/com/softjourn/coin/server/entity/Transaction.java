@@ -4,6 +4,7 @@ package com.softjourn.coin.server.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.softjourn.coin.server.service.FilterIgnore;
 import com.softjourn.coin.server.util.InstantJsonSerializer;
 import com.softjourn.coin.server.util.JsonViews;
 import com.softjourn.coin.server.util.TransactionAccountJSONSerializer;
@@ -19,6 +20,7 @@ import java.time.Instant;
 @Table(name = "transactions")
 public class Transaction<T> implements Serializable {
 
+    @FilterIgnore
     @JsonView({JsonViews.DETAILED.class, JsonViews.REGULAR.class})
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +51,7 @@ public class Transaction<T> implements Serializable {
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
+    @FilterIgnore
     private BigDecimal remain;
 
     @JsonView({JsonViews.DETAILED.class, JsonViews.REGULAR.class})
@@ -56,12 +59,14 @@ public class Transaction<T> implements Serializable {
     private String error;
 
     @JsonIgnore
+    @FilterIgnore
     private transient T value;
 
     @JsonIgnore
     private String erisTransactionId;
 
     @JsonView(JsonViews.DETAILED.class)
+    @FilterIgnore
     @OneToOne
     @JoinColumn(name = "erisTransactionId", referencedColumnName = "txId", insertable = false, updatable = false)
     private TransactionStoring transactionStoring;
