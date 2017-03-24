@@ -7,7 +7,7 @@ VALUES ('oyevchuk', 'Olga Yevchuk', 'images/default.png', false, 'REGULAR', fals
 INSERT INTO accounts (ldap_id, full_name, amount, image, is_new, account_type, deleted)
 VALUES ('vdanyliuk', 'Vasyl Danyliuk', 200, 'images/default.png', false, 'REGULAR', false);
 INSERT INTO accounts (ldap_id, full_name, image, is_new, account_type, deleted)
-VALUES ('omartynets', 'Oleksandr Martynets', 'images/default.png', false, 'REGULAR', false);
+VALUES ('omartynets', 'Oleksandr Martynets', 'images/default.png', true, 'REGULAR', false);
 
 INSERT INTO accounts (ldap_id, amount, account_type) VALUES ('account1', 100, 'REGULAR');
 INSERT INTO accounts (ldap_id, amount, account_type) VALUES ('VM1', 100, 'MERCHANT');

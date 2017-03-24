@@ -18,10 +18,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldName;
@@ -31,6 +28,16 @@ import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldType;
 @Data
 @NoArgsConstructor
 public class GenericFilter<T> implements Specification<T> {
+
+
+    private static final Map<Class, Class> WRAPPERS = Collections.unmodifiableMap(new HashMap<Class, Class>(){{
+        put(byte.class, Byte.class);
+        put(char.class, Character.class);
+        put(short.class, Short.class);
+        put(int.class, Integer.class);
+        put(long.class, Long.class);
+        put(boolean.class, Boolean.class);
+    }});
 
     private List<Condition> conditions = new ArrayList<>();
 
@@ -134,17 +141,24 @@ public class GenericFilter<T> implements Specification<T> {
     }
 
     private Object tryToCastValue(Class valueClass, Object value) {
-        if (valueClass.isInstance(value)) return value;
-        if (hasAppropriateConstructor(valueClass, value)) {
+        if (valueClass.isInstance(value) || isWrapperFor(valueClass, value)) {
+            return value;
+        } else if (hasAppropriateConstructor(valueClass, value)) {
             return getInstanceByConstructor(valueClass, value);
-        }
-        if (hasValueOfFactoryMethod(valueClass, value)) {
+        } else if (hasValueOfFactoryMethod(valueClass, value)) {
             return getInstanceByValueOf(valueClass, value);
-        }
-        if (value instanceof String && hasParseFactoryMethod(valueClass)) {
+        } else if (value instanceof String && hasParseFactoryMethod(valueClass)) {
             return getInstanceByParse(valueClass, value);
         }
         throw new IllegalArgumentException("Can't create value of class " + valueClass.getName() + " from value " + value.toString());
+    }
+
+    private boolean isWrapperFor(Class valueClass, Object value) {
+        return valueClass.isPrimitive() && getWrapperClass(valueClass).isInstance(value);
+    }
+
+    private Class getWrapperClass(Class valueClass) {
+        return WRAPPERS.get(valueClass);
     }
 
     @SuppressWarnings("unchecked")

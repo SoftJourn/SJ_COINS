@@ -68,6 +68,26 @@ public class TransactionsRepositoryFilterTest {
     }
 
     @Test
+    public void filteringTest_booleanCondition() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        List<GenericFilter.Condition> conditions = new ArrayList<>();
+
+        GenericFilter.Condition boolCondition = new GenericFilter.Condition();
+        boolCondition.setComparison(GenericFilter.Comparison.eq);
+        boolCondition.setField("account.isNew");
+        boolCondition.setValue(true);
+
+        conditions.add(boolCondition);
+
+        filter.setConditions(conditions);
+        filter.setInnerPageable(defaultPageable);
+
+
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
+        assertEquals(2, result.size());
+    }
+
+    @Test
     public void filteringTest_timeCondition_before() {
         GenericFilter<Transaction> filter = new GenericFilter<>();
         List<GenericFilter.Condition> conditions = new ArrayList<>();
