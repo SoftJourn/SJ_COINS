@@ -11,7 +11,7 @@ public interface CrowdsaleService {
 
     Transaction donate(DonateDTO dto, Principal principal) throws IOException;
 
-    Transaction withDraw(String address) throws IOException;
+    Transaction withdraw(String address) throws IOException;
 
     CrowdsaleInfoDTO getInfo(String address) throws IOException;
 

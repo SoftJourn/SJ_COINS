@@ -29,8 +29,6 @@ public @interface SaveTransaction {
 
     String destinationName() default "";
 
-    int amount() default 0;
-
-    String comment()default "";
+    String comment();
 
 }

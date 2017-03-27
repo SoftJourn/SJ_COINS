@@ -132,7 +132,7 @@ public class CoinService {
     }
 
     @SuppressWarnings("unused")
-    @SaveTransaction
+    @SaveTransaction(comment = "Transfer money")
     public synchronized Transaction move(@NonNull String accountName,
                                          @NonNull String destinationName,
                                          @NonNull BigDecimal amount,
@@ -196,7 +196,7 @@ public class CoinService {
     }
 
     @SuppressWarnings("unused")
-    @SaveTransaction
+    @SaveTransaction(comment = "Buying")
     public Transaction buy(@NonNull String destinationName, @NonNull String accountName, @NonNull BigDecimal amount, String comment) {
         synchronized (getMonitor(accountName)) {
             checkEnoughAmount(accountName, amount);
@@ -213,7 +213,7 @@ public class CoinService {
         }
     }
 
-    @SaveTransaction
+    @SaveTransaction(comment = "Rollback previous transaction.")
     public Transaction rollback(Long txId) {
         Transaction transaction = transactionRepository.findOne(txId);
         Account user = transaction.getAccount();
@@ -228,9 +228,9 @@ public class CoinService {
         return rollbackTx;
     }
 
-    @SuppressWarnings("unused")
-    @SaveTransaction
-    public byte[] withdraw(@NonNull String accountName, @NonNull BigDecimal amount, String comment, boolean image) {
+    @SuppressWarnings({"unused", "unchecked"})
+    @SaveTransaction(comment = "Withdrawing money")
+    public Transaction<byte[]> withdraw(@NonNull String accountName, @NonNull BigDecimal amount, String comment, boolean image) {
         try {
             checkEnoughAmount(accountName, amount);
 
@@ -248,7 +248,7 @@ public class CoinService {
 
             processResponseError(response);
 
-            return Optional.ofNullable(response)
+            byte[] resultData = Optional.ofNullable(response)
                     .flatMap(r -> Optional.ofNullable(r.getReturnValues()))
                     .flatMap(l -> Optional.ofNullable(l.get(0)))
                     .map(v -> (byte[]) v)
@@ -256,13 +256,18 @@ public class CoinService {
                     .map(v -> image ? QRCodeUtil.genQRCode(v) : v.getBytes())
                     .orElseThrow(() -> new ErisProcessingException("Wrong server response."));
 
+            Transaction<byte[]> transaction = mapToTransaction(response);
+            transaction.setValue(resultData);
+
+            return transaction;
+
         } catch (Exception e) {
             throw new ErisProcessingException("Can't withdraw money.", e);
         }
 
     }
 
-    @SaveTransaction
+    @SaveTransaction(comment = "Deposit money")
     public Transaction deposit(CashDTO cashDTO, String destinationName, String comment, BigDecimal amount) {
         try {
             ErisAccount account = getErisAccount(destinationName);
@@ -374,8 +379,8 @@ public class CoinService {
                         .orElseThrow(() -> new AccountNotFoundException(ldapId)));
     }
 
-    private List<Account> removeIsNewStatus(List<Account> inAccounts) {
-        return Optional
+    private void removeIsNewStatus(List<Account> inAccounts) {
+        Optional
                 .ofNullable(inAccounts)
                 .map(accounts -> accountsService.changeIsNewStatus(false, accounts))
                 .orElseThrow(() -> new AccountNotFoundException(""));
