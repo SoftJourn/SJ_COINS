@@ -2,15 +2,7 @@ package com.softjourn.coin.server.controller;
 
 
 import com.softjourn.coin.server.dto.ErrorDetail;
-import com.softjourn.coin.server.exceptions.AccountNotFoundException;
-import com.softjourn.coin.server.exceptions.CouldNotReadFileException;
-import com.softjourn.coin.server.exceptions.ContractNotFoundException;
-import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
-import com.softjourn.coin.server.exceptions.ErisContractInstanceNotFound;
-import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
-import com.softjourn.coin.server.exceptions.NotEnoughAmountInTreasuryException;
-import com.softjourn.coin.server.exceptions.WrongMimeTypeException;
-import com.softjourn.coin.server.exceptions.TypeNotFoundException;
+import com.softjourn.coin.server.exceptions.*;
 import com.softjourn.eris.contract.ContractDeploymentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -92,6 +84,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(buildErrorDetails(e, 40905, e.getMessage()));
+    }
+
+    @ExceptionHandler(ChequeIsUsedException.class)
+    public ResponseEntity<ErrorDetail> handleChequeIsUsedException(ChequeIsUsedException e) {
+        log.warn(e.getLocalizedMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(buildErrorDetails(e, 40906, e.getMessage()));
     }
 
     @ExceptionHandler(CouldNotReadFileException.class)

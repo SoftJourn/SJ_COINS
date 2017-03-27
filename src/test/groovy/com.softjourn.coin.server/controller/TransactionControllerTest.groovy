@@ -277,6 +277,51 @@ class TransactionControllerTest {
                 .andExpect(status().isUnauthorized())
     }
 
+    @Test
+    void 'test of GET request to /api/v1/transactions/filter endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/filter')
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").doesNotExist())
+                .andExpect(jsonPath("remain").doesNotExist())
+                .andExpect(jsonPath("value").doesNotExist())
+                .andExpect(jsonPath("transactionStoring").doesNotExist())
+                .andDo(document('txs-filter-paths-response',
+                preprocessResponse(prettyPrint()),
+                responseFields(
+                        fieldWithPath("account").description("Transaction account").type(JsonFieldType.OBJECT),
+                        fieldWithPath("destination").description("Transaction destination").type(JsonFieldType.OBJECT),
+                        fieldWithPath("amount").description("Transaction amount").type(JsonFieldType.STRING),
+                        fieldWithPath("comment").description("Transaction comment").type(JsonFieldType.STRING),
+                        fieldWithPath("created").description("Transaction created").type(JsonFieldType.STRING),
+                        fieldWithPath("status").description("Transaction status").type(JsonFieldType.STRING),
+                        fieldWithPath("error").description("Transaction error").type(JsonFieldType.STRING),
+                        fieldWithPath("erisTransactionId").description("Transaction erisTransactionId").type(JsonFieldType.STRING),
+
+                )))
+    }
+
+    @Test
+    void 'test of GET request to /api/v1/transactions/filter endpoint without auth'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/filter')
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_USER"))
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isForbidden())
+    }
+
+    @Test
+    void 'test of GET request to /api/v1/transactions/filter/autocomplete endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/filter/autocomplete')
+                .param("field", "account.ldapId")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("[0]").isNotEmpty())
+                .andDo(document('txs-filter-autocomplete-response',
+                preprocessResponse(prettyPrint())))
+    }
+
 
     private static String json(Object o) throws IOException {
         return new ObjectMapper().writeValueAsString(o)

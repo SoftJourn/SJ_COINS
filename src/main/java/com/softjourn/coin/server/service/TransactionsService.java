@@ -3,11 +3,14 @@ package com.softjourn.coin.server.service;
 import com.softjourn.coin.server.controller.TransactionsController;
 import com.softjourn.coin.server.dto.MobileTransactionDTO;
 import com.softjourn.coin.server.entity.Transaction;
+import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 
 import static com.softjourn.coin.server.service.GenericFilter.Condition.eq;
 
@@ -42,4 +45,22 @@ public class TransactionsService {
             default: return GenericFilter.or(eq("account", user), eq("destination", user));
         }
     }
+
+    /**
+     * Metrod prepares Transaction object
+     * @param o
+     * @param erisTransactionId
+     * @param comment
+     * @return Transaction
+     */
+    public static Transaction prepareTransaction(Object o, String erisTransactionId, String comment) {
+        Transaction<Object> transaction = new Transaction<>(erisTransactionId);
+        transaction.setComment(comment);
+        transaction.setAmount(null);
+        transaction.setStatus(TransactionStatus.SUCCESS);
+        transaction.setCreated(Instant.now());
+        transaction.setValue(o);
+        return transaction;
+    }
+
 }

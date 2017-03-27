@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.entity;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.softjourn.coin.server.service.FilterIgnore;
 import com.softjourn.coin.server.util.JsonViews;
 import com.softjourn.eris.ErisAccountData;
 import lombok.Data;
@@ -24,12 +25,14 @@ public class ErisAccount implements ErisAccountData {
     private String pubKey;
 
     @NotNull
+    @FilterIgnore
     private String privKey;
 
     @NotNull
     private ErisAccountType type;
 
     @OneToOne
+    @FilterIgnore
     private Account account;
 
     @Override

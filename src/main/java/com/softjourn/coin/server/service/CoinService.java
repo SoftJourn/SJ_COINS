@@ -9,10 +9,7 @@ import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.Transaction;
-import com.softjourn.coin.server.exceptions.AccountNotFoundException;
-import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
-import com.softjourn.coin.server.exceptions.ErisProcessingException;
-import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
+import com.softjourn.coin.server.exceptions.*;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.coin.server.util.QRCodeUtil;
@@ -28,11 +25,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -270,7 +263,7 @@ public class CoinService {
     }
 
     @SaveTransaction
-    public Transaction deposit(CashDTO cashDTO, String destinationName, String comment, BigInteger amount) {
+    public Transaction deposit(CashDTO cashDTO, String destinationName, String comment, BigDecimal amount) {
         try {
             ErisAccount account = getErisAccount(destinationName);
 
@@ -282,9 +275,13 @@ public class CoinService {
 
             processResponseError(response);
 
+            if (!(Boolean) response.getReturnValues().get(0)) {
+                throw new ChequeIsUsedException();
+            }
+
             return mapToTransaction(response);
         } catch (Exception e) {
-            throw new ErisProcessingException("Can't withdraw money.", e);
+            throw new ErisProcessingException("Can't deposite money." + e.getMessage(), e);
         }
     }
 

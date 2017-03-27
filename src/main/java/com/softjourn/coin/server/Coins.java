@@ -1,6 +1,7 @@
 package com.softjourn.coin.server;
 
 
+import com.softjourn.common.spring.aspects.logging.EnableLoggingAspect;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -17,6 +18,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @ComponentScan(basePackages = "com.softjourn.coin.server")
 @EnableResourceServer
 @EnableAspectJAutoProxy
+@EnableLoggingAspect
 @EnableJpaRepositories(basePackages = "com.softjourn.coin.server.repository")
 @EntityScan(basePackages = "com.softjourn.coin.server.entity")
 @PropertySources(

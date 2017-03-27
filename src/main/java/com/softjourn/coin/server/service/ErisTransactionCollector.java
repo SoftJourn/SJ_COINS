@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +39,6 @@ public class ErisTransactionCollector implements Runnable {
         this.blockChainService = blockChainService;
         this.transactionService = transactionService;
         scheduledExecutorService.scheduleWithFixedDelay(this, 20, interval, TimeUnit.SECONDS);
-        lastCheckedBlockNumber = new AtomicLong(transactionService.getHeightLastStored());
     }
 
     @Override
@@ -60,6 +60,11 @@ public class ErisTransactionCollector implements Runnable {
                 scheduledExecutorService.shutdown();
             }
         }
+    }
+
+    @PreDestroy
+    private void close() {
+        scheduledExecutorService.shutdownNow();
     }
 
 }

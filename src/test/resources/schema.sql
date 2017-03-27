@@ -112,3 +112,8 @@ CREATE TABLE instances
   name VARCHAR(255),
   CONSTRAINT FKhr2kxnlv3eb3x30dm2l9fpvkg FOREIGN KEY (contract_id) REFERENCES contracts (id)
 );
+
+ALTER TABLE instances ADD COLUMN account_ldap_id varchar(255) NOT NULL;
+
+ALTER TABLE instances
+  ADD CONSTRAINT FKhr2kxnlv3eb3x30dm2l9fpvdf FOREIGN KEY (account_ldap_id) REFERENCES accounts (ldap_id);

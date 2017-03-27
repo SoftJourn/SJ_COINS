@@ -8,7 +8,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -24,6 +26,11 @@ public class Instance {
     private String name;
 
     private String address;
+
+    @OneToOne
+    @JsonBackReference
+    @JoinColumn(name = "account_ldap_id", referencedColumnName = "ldapId")
+    private Account account;
 
     @ManyToOne
     @JsonBackReference

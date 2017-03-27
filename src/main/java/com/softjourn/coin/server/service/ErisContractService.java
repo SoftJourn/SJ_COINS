@@ -1,11 +1,11 @@
 package com.softjourn.coin.server.service;
 
-import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.eris.ErisAccountData;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.ContractDeploymentException;
 import com.softjourn.eris.contract.ContractManager;
 import com.softjourn.eris.contract.event.EventHandler;
+import com.softjourn.eris.contract.response.DeployResponse;
 import com.softjourn.eris.rpc.HTTPRPCClient;
 import com.softjourn.eris.rpc.RPCClient;
 import com.softjourn.eris.rpc.WebSocketRPCClient;
@@ -102,7 +102,7 @@ public class ErisContractService {
                 .build();
     }
 
-    public Contract deploy(String code, String abi, List<Object> parameters) {
+    public DeployResponse deploy(String code, String abi, List<Object> parameters) {
         try {
             parameters = convert(parameters);
             return manager.contractBuilder(abi)

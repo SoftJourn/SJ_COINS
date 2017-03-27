@@ -12,6 +12,6 @@ import java.io.IOException;
 public class TransactionAccountJSONSerializer extends JsonSerializer<Account> {
     @Override
     public void serialize(Account value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-        jgen.writeString(value.getLdapId());
+        jgen.writeString(value.getFullName());
     }
 }

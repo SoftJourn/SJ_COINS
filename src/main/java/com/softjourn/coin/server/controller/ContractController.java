@@ -7,6 +7,7 @@ import com.softjourn.coin.server.entity.Contract;
 import com.softjourn.coin.server.entity.Type;
 import com.softjourn.coin.server.service.ContractService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,16 +27,18 @@ public class ContractController {
 
     private final ContractService contractService;
 
+    private final String compilerUrl;
 
     @Autowired
-    public ContractController(ContractService contractService) {
+    public ContractController(ContractService contractService, @Value("${eris.compiler.url}") String compilerUrl) {
         this.contractService = contractService;
+        this.compilerUrl = compilerUrl;
     }
 
     @PreAuthorize("authenticated")
     @RequestMapping(method = RequestMethod.POST)
     public ContractCreateResponseDTO createNewContract(@Valid @RequestBody NewContractDTO dto) {
-        return this.contractService.newContract(dto);
+        return (ContractCreateResponseDTO) this.contractService.newContract(dto).getValue();
     }
 
     @PreAuthorize("authenticated")
@@ -45,16 +48,22 @@ public class ContractController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "/compile",method = RequestMethod.POST)
-    public String  compile(@RequestBody String json) {
+    @RequestMapping(value = "/compile", method = RequestMethod.POST)
+    public String compile(@RequestBody String json) {
         RestTemplate template = new RestTemplate();
-        return template.postForObject("http://46.101.203.71/compile",json, String.class);
+        return template.postForObject(compilerUrl, json, String.class);
     }
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public Contract getContract(@PathVariable Long id) {
         return this.contractService.getContractById(id);
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
+    public Contract changeActive(@PathVariable Long id) {
+        return this.contractService.changeActive(id);
     }
 
     @PreAuthorize("authenticated")
@@ -84,7 +93,7 @@ public class ContractController {
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/instances", method = RequestMethod.POST)
     public ContractCreateResponseDTO deployInstanceOfExistingContract(@Valid @RequestBody NewContractInstanceDTO dto) {
-        return this.contractService.newInstance(dto);
+        return (ContractCreateResponseDTO) this.contractService.newInstance(dto).getValue();
     }
 
     @PreAuthorize("authenticated")

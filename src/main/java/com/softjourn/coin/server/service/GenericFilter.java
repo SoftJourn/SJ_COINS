@@ -13,20 +13,31 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.ClassUtils;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.criteria.*;
-import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Function;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
 import java.util.stream.Stream;
+
+import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldName;
+import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldType;
 
 
 @Data
 @NoArgsConstructor
 public class GenericFilter<T> implements Specification<T> {
+
+
+    private static final Map<Class, Class> WRAPPERS = Collections.unmodifiableMap(new HashMap<Class, Class>(){{
+        put(byte.class, Byte.class);
+        put(char.class, Character.class);
+        put(short.class, Short.class);
+        put(int.class, Integer.class);
+        put(long.class, Long.class);
+        put(boolean.class, Boolean.class);
+    }});
 
     private List<Condition> conditions = new ArrayList<>();
 
@@ -92,8 +103,12 @@ public class GenericFilter<T> implements Specification<T> {
 
     private Predicate buildEqualPredicate(CriteriaBuilder criteriaBuilder, Root<T> root, Condition condition) {
         Path fieldPath = getFieldPath(root, condition);
-        Object value = getCastedValue(fieldPath, condition.value);
-        return criteriaBuilder.equal(fieldPath, value);
+        if (condition.value == null) {
+            return criteriaBuilder.isNull(fieldPath);
+        } else {
+            Object value = getCastedValue(fieldPath, condition.value);
+            return criteriaBuilder.equal(fieldPath, value);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -126,17 +141,24 @@ public class GenericFilter<T> implements Specification<T> {
     }
 
     private Object tryToCastValue(Class valueClass, Object value) {
-        if (valueClass.isInstance(value)) return value;
-        if (hasAppropriateConstructor(valueClass, value)) {
-            return getInstanceByConstructor(valueClass ,value);
-        }
-        if (hasValueOfFactoryMethod(valueClass, value)) {
+        if (valueClass.isInstance(value) || isWrapperFor(valueClass, value)) {
+            return value;
+        } else if (hasAppropriateConstructor(valueClass, value)) {
+            return getInstanceByConstructor(valueClass, value);
+        } else if (hasValueOfFactoryMethod(valueClass, value)) {
             return getInstanceByValueOf(valueClass, value);
-        }
-        if (value instanceof String && hasParseFactoryMethod(valueClass)) {
+        } else if (value instanceof String && hasParseFactoryMethod(valueClass)) {
             return getInstanceByParse(valueClass, value);
         }
         throw new IllegalArgumentException("Can't create value of class " + valueClass.getName() + " from value " + value.toString());
+    }
+
+    private boolean isWrapperFor(Class valueClass, Object value) {
+        return valueClass.isPrimitive() && getWrapperClass(valueClass).isInstance(value);
+    }
+
+    private Class getWrapperClass(Class valueClass) {
+        return WRAPPERS.get(valueClass);
     }
 
     @SuppressWarnings("unchecked")
@@ -178,7 +200,7 @@ public class GenericFilter<T> implements Specification<T> {
                     .filter(method -> method.getName().equals(methodName))
                     .map(method -> invokeFactoryMethod(method, value))
                     .findAny()
-                    .get();
+                    .orElseThrow(() -> new IllegalArgumentException("Class " + valueClass + " doesn't contain method " + methodName));
     }
 
     private Object invokeFactoryMethod(Method method, Object value) {
@@ -235,6 +257,7 @@ public class GenericFilter<T> implements Specification<T> {
 
     private Path getPathByCompositeField(Root<T> root, String fieldName) {
         String[] fieldsPath = fieldsPath(fieldName);
+        if (fieldsPath.length == 1) return root.get(fieldName);
         Join path = root.join(fieldsPath[0], JoinType.INNER);
         for (int i = 1; i < fieldsPath.length - 1; i++) {
             String field = fieldsPath[i];
@@ -247,7 +270,7 @@ public class GenericFilter<T> implements Specification<T> {
         Class fieldType = root.getModel().getAttribute(fieldName).getJavaType();
         if (fieldType.isAnnotationPresent(Entity.class)) {
             Class fieldIdType = getIdFieldType(fieldType);
-            if (fieldIdType.isInstance(value)) {
+            if (fieldIdType.isInstance(value) || value == null) {
                 return root.join(fieldName, JoinType.LEFT).get(getIdFieldName(fieldType));
             } else {
                 throw new IllegalArgumentException("Can't create criteria based on field " + fieldName + " with value " + value + ".");
@@ -255,23 +278,6 @@ public class GenericFilter<T> implements Specification<T> {
         } else {
             return root.get(fieldName);
         }
-    }
-
-    private String getIdFieldName(Class entityClass) {
-        return getIdFieldProperty(entityClass, Field::getName);
-
-    }
-
-    private Class getIdFieldType(Class entityClass) {
-        return getIdFieldProperty(entityClass, Field::getType);
-    }
-
-    private <P> P getIdFieldProperty(Class entityClass, Function<Field, P> propertyMapper) {
-        return Stream.of(entityClass.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(Id.class))
-                .map(propertyMapper)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Can't get ID field of entity " + entityClass));
     }
 
     private boolean isCompositeField(String fielsName) {

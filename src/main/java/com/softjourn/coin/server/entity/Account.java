@@ -3,6 +3,7 @@ package com.softjourn.coin.server.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.softjourn.coin.server.service.FilterIgnore;
 import com.softjourn.coin.server.util.JsonViews;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class Account {
     private ErisAccount erisAccount;
 
     @JsonView(JsonViews.REGULAR.class)
+    @FilterIgnore
     private String image;
 
     @Enumerated(EnumType.STRING)

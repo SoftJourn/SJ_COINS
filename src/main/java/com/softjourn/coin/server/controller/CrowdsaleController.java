@@ -25,13 +25,13 @@ public class CrowdsaleController {
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/donate", method = RequestMethod.POST)
     public CrowdsaleTransactionResultDTO donate(@RequestBody DonateDTO dto, Principal principal) throws IOException {
-        return crowdsaleService.donate(dto, principal);
+        return (CrowdsaleTransactionResultDTO) crowdsaleService.donate(dto, principal).getValue();
     }
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/withdraw/{address}", method = RequestMethod.POST)
     public CrowdsaleTransactionResultDTO withdraw(@PathVariable String address) throws IOException {
-        return crowdsaleService.withDraw(address);
+        return (CrowdsaleTransactionResultDTO) crowdsaleService.withDraw(address).getValue();
     }
 
     @PreAuthorize("authenticated")

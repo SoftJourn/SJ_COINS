@@ -68,6 +68,26 @@ public class TransactionsRepositoryFilterTest {
     }
 
     @Test
+    public void filteringTest_booleanCondition() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        List<GenericFilter.Condition> conditions = new ArrayList<>();
+
+        GenericFilter.Condition boolCondition = new GenericFilter.Condition();
+        boolCondition.setComparison(GenericFilter.Comparison.eq);
+        boolCondition.setField("account.isNew");
+        boolCondition.setValue(true);
+
+        conditions.add(boolCondition);
+
+        filter.setConditions(conditions);
+        filter.setInnerPageable(defaultPageable);
+
+
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
+        assertEquals(2, result.size());
+    }
+
+    @Test
     public void filteringTest_timeCondition_before() {
         GenericFilter<Transaction> filter = new GenericFilter<>();
         List<GenericFilter.Condition> conditions = new ArrayList<>();
@@ -87,6 +107,26 @@ public class TransactionsRepositoryFilterTest {
         List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
         assertEquals(5, result.size());
         assertTrue(result.stream().map(Transaction::getCreated).allMatch(time -> time.isBefore(thresholdTime)));
+    }
+
+    @Test
+    public void filteringTest_byNullValue() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        List<GenericFilter.Condition> conditions = new ArrayList<>();
+
+        GenericFilter.Condition nullCondition = new GenericFilter.Condition();
+        nullCondition.setComparison(GenericFilter.Comparison.eq);
+        nullCondition.setField("destination");
+        nullCondition.setValue(null);
+
+        conditions.add(nullCondition);
+
+        filter.setConditions(conditions);
+        filter.setInnerPageable(defaultPageable);
+
+
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
+        assertEquals(1, result.size());
     }
 
     @Test
