@@ -110,8 +110,8 @@ class TransactionControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/transactions')
+    void 'test of GET request to /v1/transactions endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/transactions')
                 .content(json(filter))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -157,8 +157,8 @@ class TransactionControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions endpoint without ordering'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/transactions')
+    void 'test of GET request to /v1/transactions endpoint without ordering'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/transactions')
                 .content(json(filterWithoutOrdering))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -166,8 +166,8 @@ class TransactionControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions endpoint wrong request and expect resonable message'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/transactions')
+    void 'test of GET request to /v1/transactions endpoint wrong request and expect resonable message'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/transactions')
                 .content(json(filterWithWrongType))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -175,8 +175,8 @@ class TransactionControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions endpoint with insufficient partitions'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/transactions')
+    void 'test of GET request to /v1/transactions endpoint with insufficient partitions'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/transactions')
                 .content(json(filter))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_USER"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -184,8 +184,8 @@ class TransactionControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions/{id} endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/{id}', "10")
+    void 'test of GET request to /v1/transactions/{id} endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/v1/transactions/{id}', "10")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
@@ -212,16 +212,16 @@ class TransactionControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions/{id} endpoint wrong role'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/{id}', "10")
+    void 'test of GET request to /v1/transactions/{id} endpoint wrong role'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/v1/transactions/{id}', "10")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_USER"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isForbidden())
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions/my endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/my')
+    void 'test of GET request to /v1/transactions/my endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/v1/transactions/my')
                 .param("page", "0")
                 .param("size", "25")
                 .param("sort", "created,asc", "remain,desc")
@@ -260,8 +260,8 @@ class TransactionControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions/my endpoint without direction param'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/my')
+    void 'test of GET request to /v1/transactions/my endpoint without direction param'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/v1/transactions/my')
                 .param("page", "0")
                 .param("size", "25")
                 .param("sort", "created,asc", "remain,desc")
@@ -271,8 +271,8 @@ class TransactionControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions/my endpoint without auth'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/my')
+    void 'test of GET request to /v1/transactions/my endpoint without auth'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/v1/transactions/my')
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isUnauthorized())
     }

@@ -24,7 +24,7 @@ echo "REFRESH_TOKEN: "${tokens[1]}
 declare data='{"comment": "Withdraw some money", "amount": 100}'
 
 curl --silent --silent -k -X  POST \
-  http://localhost:8080/api/v1/withdraw/ \
+  http://localhost:8080/v1/withdraw/ \
   -d "${data}" \
   -H "Authorization: Bearer "${tokens[0]} \
   -H "Accept: application/json" \

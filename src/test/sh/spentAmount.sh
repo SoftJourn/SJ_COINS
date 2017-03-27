@@ -23,7 +23,7 @@ echo "ACCESS_TOKEN: "${tokens[0]}
 echo "REFRESH_TOKEN: "${tokens[1]}
 
 curl --silent -i -k -X POST \
-  https://localhost:8080/api/v1/spent \
+  https://localhost:8080/v1/spent \
   -d '{"amount":'${AMOUNT}"}" \
   -H "Authorization: Bearer "${tokens[0]} \
   -H "Content-Type: application/json"

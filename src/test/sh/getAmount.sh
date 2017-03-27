@@ -22,6 +22,6 @@ echo "ACCESS_TOKEN: "${tokens[0]}
 echo "REFRESH_TOKEN: "${tokens[1]}
 
 curl --silent -i -k -X  GET \
-  http://localhost:8080/api/v1/amount \
+  http://localhost:8080/v1/amount \
   -H "Authorization: Bearer "${tokens[0]} \
 

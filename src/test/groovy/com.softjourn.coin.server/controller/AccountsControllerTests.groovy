@@ -81,8 +81,8 @@ class AccountsControllerTests {
     }
 
     @Test
-    void 'test of GET request to /api/v1/account endpoint'() {
-        mockMvc.perform(get('/api/v1/account')
+    void 'test of GET request to /v1/account endpoint'() {
+        mockMvc.perform(get('/v1/account')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
                 .andExpect(status().isOk())
                 .andDo(document('account',
@@ -105,14 +105,14 @@ class AccountsControllerTests {
     }
 
     @Test
-    void 'test of GET request to /api/v1/account endpoint without auth header'() {
-        mockMvc.perform(get('/api/v1/account'))
+    void 'test of GET request to /v1/account endpoint without auth header'() {
+        mockMvc.perform(get('/v1/account'))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of POST request to /api/v1/account/merchant endpoint'() {
-        mockMvc.perform(post('/api/v1/account/merchant')
+    void 'test of POST request to /v1/account/merchant endpoint'() {
+        mockMvc.perform(post('/v1/account/merchant')
                 .content('{\n  "name": "VM1",\n  "uniqueId": "123456-123456-123456"\n}')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -137,8 +137,8 @@ class AccountsControllerTests {
     }
 
     @Test
-    void 'test of POST request to /api/v1/account/merchant endpoint with wrong ROLE'() {
-        mockMvc.perform(post('/api/v1/account/merchant')
+    void 'test of POST request to /v1/account/merchant endpoint with wrong ROLE'() {
+        mockMvc.perform(post('/v1/account/merchant')
                 .content('{\n  "name": "VM1",\n  "uniqueId": "123456-123456-123456"\n}')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM"))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -146,8 +146,8 @@ class AccountsControllerTests {
     }
 
     @Test
-    void 'test of GET request to /api/v1/accounts endpoint'() {
-        mockMvc.perform(get('/api/v1/accounts')
+    void 'test of GET request to /v1/accounts endpoint'() {
+        mockMvc.perform(get('/v1/accounts')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
                 .andExpect(status().isOk())
                 .andDo(document('accounts',
@@ -185,15 +185,15 @@ class AccountsControllerTests {
     }
 
     @Test
-    void 'test of GET request to /api/v1/accounts endpoint wrong ROLE'() {
-        mockMvc.perform(get('/api/v1/accounts')
+    void 'test of GET request to /v1/accounts endpoint wrong ROLE'() {
+        mockMvc.perform(get('/v1/accounts')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADMIN")))
                 .andExpect(status().isForbidden())
     }
 
     @Test
-    void 'test of GET request to /api/v1/accounts/{accountType} endpoint'() {
-        mockMvc.perform(get('/api/v1/accounts/{accountType}', 'merchant')
+    void 'test of GET request to /v1/accounts/{accountType} endpoint'() {
+        mockMvc.perform(get('/v1/accounts/{accountType}', 'merchant')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
                 .andExpect(status().isOk())
                 .andDo(document('merchantAccounts',
@@ -220,14 +220,14 @@ class AccountsControllerTests {
     }
 
     @Test
-    void 'test of GET request to /api/v1/accounts/{accountType} endpoint without auth header'() {
-        mockMvc.perform(get('/api/v1/accounts/{accountType}', 'merchant'))
+    void 'test of GET request to /v1/accounts/{accountType} endpoint without auth header'() {
+        mockMvc.perform(get('/v1/accounts/{accountType}', 'merchant'))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of DELETE request to /api/v1/account/{accountName} endpoint'() {
-        mockMvc.perform(delete('/api/v1/account/{ldapId}', 'VM1')
+    void 'test of DELETE request to /v1/account/{accountName} endpoint'() {
+        mockMvc.perform(delete('/v1/account/{ldapId}', 'VM1')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
                 .andExpect(status().isOk())
                 .andDo(document('deleteAccount',
@@ -242,8 +242,8 @@ class AccountsControllerTests {
     }
 
     @Test
-    void 'test of DELETE request to /api/v1/account/{accountName} endpoint wrong role'() {
-        mockMvc.perform(delete('/api/v1/account/{ldapId}', 'VM1')
+    void 'test of DELETE request to /v1/account/{accountName} endpoint wrong role'() {
+        mockMvc.perform(delete('/v1/account/{ldapId}', 'VM1')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM")))
                 .andExpect(status().isForbidden())
     }

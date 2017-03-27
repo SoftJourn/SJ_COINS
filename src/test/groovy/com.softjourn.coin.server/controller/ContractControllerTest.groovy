@@ -94,8 +94,8 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of POST request to /api/v1/contracts endpoint'() {
-        mockMvc.perform(post('/api/v1/contracts')
+    void 'test of POST request to /v1/contracts endpoint'() {
+        mockMvc.perform(post('/v1/contracts')
                 .contentType(APPLICATION_JSON)
                 .content(json(new NewContractDTO("newContract", "type", "some code", "some interface", new ArrayList<>().toArray() as List<Object>)))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER")))
@@ -141,8 +141,8 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of POST request to /api/v1/contracts endpoint without security header'() {
-        mockMvc.perform(post('/api/v1/contracts')
+    void 'test of POST request to /v1/contracts endpoint without security header'() {
+        mockMvc.perform(post('/v1/contracts')
                 .contentType(APPLICATION_JSON)
                 .content(json(new NewContractDTO("newContract", "type", "some code", "some interface", new ArrayList<>().toArray() as List<Object>))))
                 .andExpect(status().isUnauthorized())
@@ -150,8 +150,8 @@ class ContractControllerTest {
 
 
     @Test
-    void 'test of POST request to /api/v1/contracts/instances endpoint'() {
-        mockMvc.perform(post('/api/v1/contracts/instances')
+    void 'test of POST request to /v1/contracts/instances endpoint'() {
+        mockMvc.perform(post('/v1/contracts/instances')
                 .contentType(APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER"))
                 .content(json(new NewContractInstanceDTO(1, "Name", new ArrayList<>().toArray() as List<Object>))))
@@ -191,16 +191,16 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of POST request to /api/v1/contracts/instances endpoint without security header'() {
-        mockMvc.perform(post('/api/v1/contracts/instances')
+    void 'test of POST request to /v1/contracts/instances endpoint without security header'() {
+        mockMvc.perform(post('/v1/contracts/instances')
                 .contentType(APPLICATION_JSON)
                 .content(json(new NewContractInstanceDTO(1, "Name", new ArrayList<>().toArray() as List<Object>))))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts/address/{address} endpoint'() {
-        mockMvc.perform(get('/api/v1/contracts/address/{address}', "some address")
+    void 'test of GET request to /v1/contracts/address/{address} endpoint'() {
+        mockMvc.perform(get('/v1/contracts/address/{address}', "some address")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER")))
                 .andDo(document("get-contract-by-address-request",
                 pathParameters(parameterWithName("address").description("Eris contract address"))
@@ -241,8 +241,8 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts/address/{address} endpoint without auth header'() {
-        mockMvc.perform(get('/api/v1/contracts/address/{address}', "some address"))
+    void 'test of GET request to /v1/contracts/address/{address} endpoint without auth header'() {
+        mockMvc.perform(get('/v1/contracts/address/{address}', "some address"))
                 .andDo(document("get-contract-by-address-request",
                 pathParameters(parameterWithName("address").description("Eris contract address"))
         ))
@@ -250,8 +250,8 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts/types endpoint'() {
-        mockMvc.perform(get('/api/v1/contracts/types')
+    void 'test of GET request to /v1/contracts/types endpoint'() {
+        mockMvc.perform(get('/v1/contracts/types')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER")))
                 .andExpect(status().isOk())
                 .andDo(document('get-contract-types-response',
@@ -265,14 +265,14 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts/types endpoint without auth header'() {
-        mockMvc.perform(get('/api/v1/contracts/types'))
+    void 'test of GET request to /v1/contracts/types endpoint without auth header'() {
+        mockMvc.perform(get('/v1/contracts/types'))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts/types/{type} endpoint'() {
-        mockMvc.perform(get('/api/v1/contracts/types/{type}', "some type")
+    void 'test of GET request to /v1/contracts/types/{type} endpoint'() {
+        mockMvc.perform(get('/v1/contracts/types/{type}', "some type")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER")))
                 .andDo(document("get-contract-by-type-request",
                 pathParameters(parameterWithName("type").description("Contract type"))
@@ -313,8 +313,8 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts/types/{type} endpoint without auth header'() {
-        mockMvc.perform(get('/api/v1/contracts/types/{type}', "some type"))
+    void 'test of GET request to /v1/contracts/types/{type} endpoint without auth header'() {
+        mockMvc.perform(get('/v1/contracts/types/{type}', "some type"))
                 .andDo(document("get-contract-by-type-request",
                 pathParameters(parameterWithName("type").description("Contract type"))
         ))
@@ -322,8 +322,8 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts/info/{id} endpoint'() {
-        mockMvc.perform(get('/api/v1/contracts/info/{id}', 1)
+    void 'test of GET request to /v1/contracts/info/{id} endpoint'() {
+        mockMvc.perform(get('/v1/contracts/info/{id}', 1)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER")))
                 .andDo(document("get-contract-info-request",
                 pathParameters(parameterWithName("id").description("Contract id"))
@@ -343,8 +343,8 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts/info/{id} endpoint without auth header'() {
-        mockMvc.perform(get('/api/v1/contracts/info/{id}', 1))
+    void 'test of GET request to /v1/contracts/info/{id} endpoint without auth header'() {
+        mockMvc.perform(get('/v1/contracts/info/{id}', 1))
                 .andDo(document("get-contract-info-request",
                 pathParameters(parameterWithName("id").description("Contract id"))
         ))
@@ -352,8 +352,8 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts endpoint'() {
-        mockMvc.perform(get('/api/v1/contracts')
+    void 'test of GET request to /v1/contracts endpoint'() {
+        mockMvc.perform(get('/v1/contracts')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER")))
                 .andExpect(status().isOk())
                 .andDo(document('get-contracts-response',
@@ -391,14 +391,14 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts endpoint without auth header'() {
-        mockMvc.perform(get('/api/v1/contracts'))
+    void 'test of GET request to /v1/contracts endpoint without auth header'() {
+        mockMvc.perform(get('/v1/contracts'))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts/instances endpoint'() {
-        mockMvc.perform(get('/api/v1/contracts/instances/{contractId}', 1)
+    void 'test of GET request to /v1/contracts/instances endpoint'() {
+        mockMvc.perform(get('/v1/contracts/instances/{contractId}', 1)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER")))
                 .andDo(document("get-instances-by-contract-id-request",
                 pathParameters(parameterWithName("contractId").description("Contract id"))
@@ -424,8 +424,8 @@ class ContractControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/contracts/instances endpoint without auth header'() {
-        mockMvc.perform(get('/api/v1/contracts/instances/{contractId}', 1))
+    void 'test of GET request to /v1/contracts/instances endpoint without auth header'() {
+        mockMvc.perform(get('/v1/contracts/instances/{contractId}', 1))
                 .andDo(document("get-instances-by-contract-id-request",
                 pathParameters(parameterWithName("contractId").description("Contract id"))
         ))

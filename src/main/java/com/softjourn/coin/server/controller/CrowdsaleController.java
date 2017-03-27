@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/v1/crowdsale/")
+@RequestMapping("/v1/crowdsale/")
 public class CrowdsaleController {
 
     @Autowired

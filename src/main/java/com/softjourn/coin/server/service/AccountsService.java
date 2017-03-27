@@ -64,7 +64,7 @@ public class AccountsService {
     Account getAccountIfExistInLdapBase(String ldapId) {
         try {
             return oAuthHelper
-                    .getForEntityWithToken(authServerUrl + "/api/v1/users/" + ldapId, Account.class).getBody();
+                    .getForEntityWithToken(authServerUrl + "/v1/users/" + ldapId, Account.class).getBody();
         } catch (RestClientException rce) {
             return null;
         }

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/contracts")
+@RequestMapping("/v1/contracts")
 public class ContractController {
 
     private final ContractService contractService;

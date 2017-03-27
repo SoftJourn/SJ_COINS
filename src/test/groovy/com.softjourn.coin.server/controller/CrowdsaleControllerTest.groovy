@@ -84,8 +84,8 @@ class CrowdsaleControllerTest {
     }
 
     @Test
-    void 'test of POST request to /api/v1/crowdsale/donate endpoint'() {
-        mockMvc.perform(post('/api/v1/crowdsale/donate')
+    void 'test of POST request to /v1/crowdsale/donate endpoint'() {
+        mockMvc.perform(post('/v1/crowdsale/donate')
                 .contentType(APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER"))
                 .content(json(new DonateDTO("some address", "some address", BigInteger.valueOf(1)))))
@@ -113,16 +113,16 @@ class CrowdsaleControllerTest {
     }
 
     @Test
-    void 'test of POST request to /api/v1/crowdsale/donate endpoint without auth header'() {
-        mockMvc.perform(post('/api/v1/crowdsale/donate')
+    void 'test of POST request to /v1/crowdsale/donate endpoint without auth header'() {
+        mockMvc.perform(post('/v1/crowdsale/donate')
                 .contentType(APPLICATION_JSON)
                 .content(json(new DonateDTO("some address", "some address", BigInteger.valueOf(1)))))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of POST request to /api/v1/crowdsale/withdraw/{address} endpoint'() {
-        mockMvc.perform(post('/api/v1/crowdsale/withdraw/{address}', "some address(project)")
+    void 'test of POST request to /v1/crowdsale/withdraw/{address} endpoint'() {
+        mockMvc.perform(post('/v1/crowdsale/withdraw/{address}', "some address(project)")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER"))
                 .contentType(APPLICATION_JSON))
                 .andDo(document("crowdsale-withdraw-request",
@@ -140,15 +140,15 @@ class CrowdsaleControllerTest {
     }
 
     @Test
-    void 'test of POST request to /api/v1/crowdsale/withdraw/{address} endpoint without auth header'() {
-        mockMvc.perform(post('/api/v1/crowdsale/withdraw/{address}', "some address(project)")
+    void 'test of POST request to /v1/crowdsale/withdraw/{address} endpoint without auth header'() {
+        mockMvc.perform(post('/v1/crowdsale/withdraw/{address}', "some address(project)")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of GET request to /api/v1/crowdsale/{address} endpoint'() {
-        mockMvc.perform(get('/api/v1/crowdsale/{address}', "some address(project)")
+    void 'test of GET request to /v1/crowdsale/{address} endpoint'() {
+        mockMvc.perform(get('/v1/crowdsale/{address}', "some address(project)")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER")))
                 .andExpect(status().isOk())
                 .andDo(document('crowdsale-info-response',
@@ -171,8 +171,8 @@ class CrowdsaleControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/crowdsale/{address} endpoint without auth header'() {
-        mockMvc.perform(get('/api/v1/crowdsale/{address}', "some address(project)"))
+    void 'test of GET request to /v1/crowdsale/{address} endpoint without auth header'() {
+        mockMvc.perform(get('/v1/crowdsale/{address}', "some address(project)"))
                 .andExpect(status().isUnauthorized())
     }
 

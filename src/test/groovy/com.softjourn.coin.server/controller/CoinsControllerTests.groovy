@@ -87,8 +87,8 @@ class CoinsControllerTests {
     }
 
     @Test
-    void 'test of GET request to /api/v1/amount endpoint'() {
-        mockMvc.perform(get('/api/v1/amount')
+    void 'test of GET request to /v1/amount endpoint'() {
+        mockMvc.perform(get('/v1/amount')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
                 .andExpect(status().isOk())
                 .andDo(document('amount',
@@ -102,14 +102,14 @@ class CoinsControllerTests {
     }
 
     @Test
-    void 'test of GET request to /api/v1/amount endpoint without auth'() {
-        mockMvc.perform(get('/api/v1/amount'))
+    void 'test of GET request to /v1/amount endpoint without auth'() {
+        mockMvc.perform(get('/v1/amount'))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of GET request to /api/v1/amount/treasury endpoint'() {
-        mockMvc.perform(get('/api/v1/amount/treasury')
+    void 'test of GET request to /v1/amount/treasury endpoint'() {
+        mockMvc.perform(get('/v1/amount/treasury')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
                 .andExpect(status().isOk())
                 .andDo(document('treasuryAmount',
@@ -123,15 +123,15 @@ class CoinsControllerTests {
     }
 
     @Test
-    void 'test of GET request to /api/v1/amount/treasury endpoint with wrong role'() {
-        mockMvc.perform(get('/api/v1/amount/treasury')
+    void 'test of GET request to /v1/amount/treasury endpoint with wrong role'() {
+        mockMvc.perform(get('/v1/amount/treasury')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_USER")))
                 .andExpect(status().isForbidden())
     }
 
     @Test
-    void 'test of GET request to /api/v1/amount/{accountType} endpoint'() {
-        mockMvc.perform(get('/api/v1/amount/{accountType}', 'merchant')
+    void 'test of GET request to /v1/amount/{accountType} endpoint'() {
+        mockMvc.perform(get('/v1/amount/{accountType}', 'merchant')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
                 .andExpect(status().isOk())
                 .andDo(document('merchantAmount',
@@ -146,15 +146,15 @@ class CoinsControllerTests {
     }
 
     @Test
-    void 'test of GET request to /api/v1/amount/{accountType} endpoint with wrong role'() {
-        mockMvc.perform(get('/api/v1/amount/{accountType}', 'merchant')
+    void 'test of GET request to /v1/amount/{accountType} endpoint with wrong role'() {
+        mockMvc.perform(get('/v1/amount/{accountType}', 'merchant')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_INVENTORY_ADMIN")))
                 .andExpect(status().isForbidden())
     }
 
     @Test
-    void 'test of POST request to /api/v1/buy/{vendingMachineName} endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/buy/{vendingMachineName}', "VM1")
+    void 'test of POST request to /v1/buy/{vendingMachineName} endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/buy/{vendingMachineName}', "VM1")
                 .content('{\n  "amount": 10,\n  "comment": "Buying Pepsi"\n}')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -203,15 +203,15 @@ class CoinsControllerTests {
     }
 
     @Test
-    void 'test of POST request to /api/v1/buy/{vendingMachineName} endpoint without token'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/buy/{vendingMachineName}', "VM1")
+    void 'test of POST request to /v1/buy/{vendingMachineName} endpoint without token'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/buy/{vendingMachineName}', "VM1")
                 .content('{\n  "amount": 10,\n  "comment": "Buying Pepsi"\n}'))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of POST request to /api/v1/rollback/{txId} endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/rollback/{txId}', "12")
+    void 'test of POST request to /v1/rollback/{txId} endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/rollback/{txId}', "12")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.singleton("rollback"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -258,21 +258,21 @@ class CoinsControllerTests {
     }
 
     @Test
-    void 'test of POST request to /api/v1/rollback/{txId} endpoint with wrong scope'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/rollback/{txId}', "12")
+    void 'test of POST request to /v1/rollback/{txId} endpoint with wrong scope'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/rollback/{txId}', "12")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.singleton("wrongScope"))))
                 .andExpect(status().isForbidden())
     }
 
     @Test
-    void 'test of POST request to /api/v1/rollback/{txId} endpoint without token'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/rollback/{txId}', "12"))
+    void 'test of POST request to /v1/rollback/{txId} endpoint without token'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/rollback/{txId}', "12"))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of POST request to /api/v1/distribute/ endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/distribute')
+    void 'test of POST request to /v1/distribute/ endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/distribute')
                 .content('{\n  "amount": 10,\n  "comment": "Loading goods into machine VM1"\n}')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -283,8 +283,8 @@ class CoinsControllerTests {
     }
 
     @Test
-    void 'test of POST request to /api/v1/move/{account} endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/move/{account}', "account2")
+    void 'test of POST request to /v1/move/{account} endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/move/{account}', "account2")
                 .content('{\n  "amount": 10,\n  "comment": "Bonus for hard work"\n}')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -332,8 +332,8 @@ class CoinsControllerTests {
     }
 
     @Test
-    void 'test of POST request to /api/v1/move/{account}/treasury endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/move/{account}/treasury', "account2")
+    void 'test of POST request to /v1/move/{account}/treasury endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/move/{account}/treasury', "account2")
                 .content('{\n  "amount": 10,\n  "comment": "Withdraw from machine 1"\n}')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -381,8 +381,8 @@ class CoinsControllerTests {
     }
 
     @Test
-    void 'test of POST request to /api/v1/move/{account}/treasury endpoint with wrong role'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/move/{account}/treasury', "account2")
+    void 'test of POST request to /v1/move/{account}/treasury endpoint with wrong role'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/move/{account}/treasury', "account2")
                 .content('{\n  "amount": 10,\n  "comment": "Withdraw from machine 1"\n}')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_USER"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -390,8 +390,8 @@ class CoinsControllerTests {
     }
 
     @Test
-    void 'test of POST request to /api/v1/add/{account} endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/add/{account}', "account1")
+    void 'test of POST request to /v1/add/{account} endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/add/{account}', "account1")
                 .content('{\n  "amount": 10,\n  "comment": "Bonus for hard work"\n}')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -442,8 +442,8 @@ class CoinsControllerTests {
     }
 
     @Test
-    void 'test of POST request to /api/v1/add/{account} endpoint wrong role'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.post('/api/v1/add/{account}', "account1")
+    void 'test of POST request to /v1/add/{account} endpoint wrong role'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/add/{account}', "account1")
                 .content('{\n  "amount": 10,\n  "comment": "Bonus for hard work"\n}')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_INVENTORY_ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))

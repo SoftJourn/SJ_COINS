@@ -27,7 +27,7 @@ echo "REFRESH_TOKEN: "${tokens[1]}
 declare data='{"comment": "Pass some money to '${DESTINATION}'", "amount":'${AMOUNT}"}"
 
 curl --silent -i -k -X POST \
-  https://localhost:8080/api/v1/move/${DESTINATION} \
+  https://localhost:8080/v1/move/${DESTINATION} \
   -d "${data}" \
   -H "Authorization: Bearer "${tokens[0]} \
   -H "Content-Type: application/json"
