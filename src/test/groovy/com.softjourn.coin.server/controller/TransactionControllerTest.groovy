@@ -278,8 +278,8 @@ class TransactionControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions/filter endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/filter')
+    void 'test of GET request to /v1/transactions/filter endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/v1/transactions/filter')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
@@ -303,16 +303,16 @@ class TransactionControllerTest {
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions/filter endpoint without auth'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/filter')
+    void 'test of GET request to /v1/transactions/filter endpoint without auth'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/v1/transactions/filter')
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_USER"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isForbidden())
     }
 
     @Test
-    void 'test of GET request to /api/v1/transactions/filter/autocomplete endpoint'() {
-        mockMvc.perform(RestDocumentationRequestBuilders.get('/api/v1/transactions/filter/autocomplete')
+    void 'test of GET request to /v1/transactions/filter/autocomplete endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/v1/transactions/filter/autocomplete')
                 .param("field", "account.ldapId")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
