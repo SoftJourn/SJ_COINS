@@ -80,7 +80,8 @@ public class CoinsController {
                                  HttpServletResponse response) {
         boolean produceImage = MediaType.IMAGE_PNG_VALUE.equals(accept);
         response.setHeader(HttpHeaders.CONTENT_TYPE, produceImage ? MediaType.IMAGE_PNG_VALUE : MediaType.APPLICATION_JSON_UTF8_VALUE);
-        return coinService.withdraw(principal.getName(), amountDTO.getAmount(), amountDTO.getComment(), produceImage);
+        Transaction<byte[]> transaction = coinService.withdraw(principal.getName(), amountDTO.getAmount(), amountDTO.getComment(), produceImage);
+        return transaction.getValue();
     }
 
     @PreAuthorize("authenticated")
@@ -124,7 +125,7 @@ public class CoinsController {
         response.setContentType("application/csv");
         response.setCharacterEncoding("UTF-8");
         this.fillAccountsService.getAccountDTOTemplate(response.getWriter());
-        return new ResponseEntity<Void>(headers, HttpStatus.OK);
+        return new ResponseEntity<>(headers, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")

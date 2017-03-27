@@ -99,7 +99,7 @@ class ControllerTestConfig {
                 add(instance)
             }
         })
-        def transaction = new Transaction("id");
+        def transaction = new Transaction("id")
         transaction.setValue(new ContractCreateResponseDTO(1, "contract", "type", "some address"))
         when(contractService.newContract(any() as NewContractDTO)).thenReturn(transaction)
         when(contractService.getContracts()).thenReturn([contract])
@@ -128,7 +128,7 @@ class ControllerTestConfig {
         def transaction = new Transaction("id")
         transaction.setValue(new CrowdsaleTransactionResultDTO(true))
         when(crowdsaleService.donate(any() as DonateDTO, any() as Principal)).thenReturn(transaction)
-        when(crowdsaleService.withDraw(anyString())).thenReturn(transaction)
+        when(crowdsaleService.withdraw(anyString())).thenReturn(transaction)
         when(crowdsaleService.getInfo(anyString())).thenReturn(new CrowdsaleInfoDTO(
                 new ArrayList<Map<String, Object>>() {
                     {
@@ -177,7 +177,7 @@ class ControllerTestConfig {
         when(transactionsService.getFiltered(any(GenericFilter.class), any(Pageable.class))).thenAnswer(new Answer<Object>() {
             @Override
             Object answer(InvocationOnMock invocation) throws Throwable {
-                GenericFilter filter = invocation.arguments[0]
+                GenericFilter filter = invocation.arguments[0] as GenericFilter
                 filter.getConditions().forEach({ cond ->
                     if (cond.value.equals("notNumericValue")) {
                         throw new IllegalArgumentException("Can't create instance of class BigDecimal from value notNumericValue.")
@@ -200,7 +200,7 @@ class ControllerTestConfig {
         transaction.destination = destinationAccount
         transaction.id = 1
         transaction.status = TransactionStatus.SUCCESS
-        transaction.transactionStoring = new TransactionStoring();
+        transaction.transactionStoring = new TransactionStoring()
         transaction
     }
 
