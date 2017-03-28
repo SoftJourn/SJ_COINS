@@ -126,8 +126,12 @@ public class GenericFilter<T> implements Specification<T> {
     }
 
     private Object getCastedValue(Path fieldPath, Object value) {
-        Class fieldClass = fieldPath.getJavaType();
-        return tryToCastValue(fieldClass, value);
+        try {
+            Class fieldClass = fieldPath.getJavaType();
+            return tryToCastValue(fieldClass, value);
+        } catch (ReflectiveOperationException roe) {
+            throw new IllegalArgumentException("Can't cast value " + value + " to " + fieldPath.getJavaType() + ".");
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -140,7 +144,8 @@ public class GenericFilter<T> implements Specification<T> {
         } else throw new IllegalArgumentException("Method buildInPredicate can be applied only for collections");
     }
 
-    private Object tryToCastValue(Class valueClass, Object value) {
+    @SuppressWarnings("unchecked")
+    private Object tryToCastValue(Class valueClass, Object value) throws ReflectiveOperationException {
         if (valueClass.isInstance(value) || isWrapperFor(valueClass, value)) {
             return value;
         } else if (hasAppropriateConstructor(valueClass, value)) {
@@ -149,8 +154,10 @@ public class GenericFilter<T> implements Specification<T> {
             return getInstanceByValueOf(valueClass, value);
         } else if (value instanceof String && hasParseFactoryMethod(valueClass)) {
             return getInstanceByParse(valueClass, value);
-        }
-        throw new IllegalArgumentException("Can't create value of class " + valueClass.getName() + " from value " + value.toString());
+        } else if (value instanceof Integer && Number.class.isAssignableFrom(valueClass)) {
+            return valueClass.getConstructor(long.class).newInstance(value);
+        } else
+            throw new IllegalArgumentException("Can't create value of class " + valueClass.getName() + " from value " + value.toString());
     }
 
     private boolean isWrapperFor(Class valueClass, Object value) {

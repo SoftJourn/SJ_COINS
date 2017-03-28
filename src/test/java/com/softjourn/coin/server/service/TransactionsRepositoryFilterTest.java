@@ -309,6 +309,26 @@ public class TransactionsRepositoryFilterTest {
     }
 
     @Test
+    public void filteringTest_filterByIntValue() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        List<GenericFilter.Condition> conditions = new ArrayList<>();
+
+        GenericFilter.Condition eqAccountCondition = new GenericFilter.Condition();
+        eqAccountCondition.setComparison(GenericFilter.Comparison.eq);
+        eqAccountCondition.setField("transactionStoring.blockNumber");
+        eqAccountCondition.setValue(3699719);
+
+        conditions.add(eqAccountCondition);
+
+        filter.setConditions(conditions);
+        filter.setInnerPageable(defaultPageable);
+
+        List<Transaction> content = repository.findAll(filter, filter.getInnerPageable()).getContent();
+        assertEquals(1, content.size());
+        assertEquals("5C37675ECFADF13DF7ECA8165FE27BBB264655D9", content.get(0).getErisTransactionId());
+    }
+
+    @Test
     public void filteringTest_emptyFilter() {
         GenericFilter<Transaction> filter = new GenericFilter<>();
 
