@@ -1,17 +1,17 @@
-INSERT INTO accounts (ldap_id, amount, account_type) VALUES ('vromanchuk', 100, 'REGULAR');
-INSERT INTO accounts (ldap_id, amount, account_type) VALUES ('vkraietskyi', 400, 'REGULAR');
-INSERT INTO accounts (ldap_id, full_name,amount, image, is_new, account_type, deleted)
-VALUES ('ovovchuk', 'Oleksandr Vovchuk', 300,'images/default.png', false, 'REGULAR', false);
+INSERT INTO accounts (ldap_id, account_type) VALUES ('vromanchuk', 'REGULAR');
+INSERT INTO accounts (ldap_id,  account_type) VALUES ('vkraietskyi', 'REGULAR');
+INSERT INTO accounts (ldap_id, full_name, image, is_new, account_type, deleted)
+VALUES ('ovovchuk', 'Oleksandr Vovchuk','images/default.png', false, 'REGULAR', false);
 INSERT INTO accounts (ldap_id, full_name, image, is_new, account_type, deleted)
 VALUES ('oyevchuk', 'Olga Yevchuk', 'images/default.png', false, 'REGULAR', false);
-INSERT INTO accounts (ldap_id, full_name, amount, image, is_new, account_type, deleted)
-VALUES ('vdanyliuk', 'Vasyl Danyliuk', 200, 'images/default.png', false, 'REGULAR', false);
+INSERT INTO accounts (ldap_id, full_name, image, is_new, account_type, deleted)
+VALUES ('vdanyliuk', 'Vasyl Danyliuk', 'images/default.png', false, 'REGULAR', false);
 INSERT INTO accounts (ldap_id, full_name, image, is_new, account_type, deleted)
 VALUES ('omartynets', 'Oleksandr Martynets', 'images/default.png', true, 'REGULAR', false);
 
-INSERT INTO accounts (ldap_id, amount, account_type) VALUES ('account1', 100, 'REGULAR');
-INSERT INTO accounts (ldap_id, amount, account_type) VALUES ('VM1', 100, 'MERCHANT');
-INSERT INTO accounts (ldap_id, amount, account_type) VALUES ('account2', 200, 'REGULAR');
+INSERT INTO accounts (ldap_id, account_type) VALUES ('account1', 'REGULAR');
+INSERT INTO accounts (ldap_id, account_type) VALUES ('VM1', 'MERCHANT');
+INSERT INTO accounts (ldap_id, account_type) VALUES ('account2', 'REGULAR');
 
 INSERT INTO eris VALUES ('7B5FC7B0DB19D7F73C4105424CB02A00EF290D3B',
                          '709757B52CDBAE5E3B60704E00D6BADEE41F1386EA073379D09E682ADB5C993D',

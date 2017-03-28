@@ -1,24 +1,15 @@
-DROP TABLE eris
-IF EXISTS CASCADE;
-DROP TABLE accounts
-IF EXISTS CASCADE;
-DROP TABLE transactions
-IF EXISTS;
-DROP TABLE tx_calling_data
-IF EXISTS;
-DROP TABLE transaction_history
-IF EXISTS;
-DROP TABLE instances
-IF EXISTS;
-DROP TABLE contracts
-IF EXISTS;
-DROP TABLE contract_type
-IF EXISTS;
+DROP TABLE eris IF EXISTS CASCADE;
+DROP TABLE accounts IF EXISTS CASCADE;
+DROP TABLE transactions IF EXISTS;
+DROP TABLE tx_calling_data IF EXISTS;
+DROP TABLE transaction_history IF EXISTS;
+DROP TABLE instances IF EXISTS;
+DROP TABLE contracts IF EXISTS;
+DROP TABLE contract_type IF EXISTS;
 
 CREATE TABLE accounts
 (
   ldap_id      VARCHAR(255) NOT NULL PRIMARY KEY,
-  amount       DECIMAL(10),
   full_name    VARCHAR(255),
   account_type VARCHAR(32) DEFAULT 'REGULAR',
   image        VARCHAR(255),
