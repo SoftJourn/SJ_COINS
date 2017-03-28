@@ -35,16 +35,16 @@ public class AutocompleteServiceTest {
 
     @Test
     public void getAutocomplete() throws Exception {
-        List<String> expected  = Arrays.asList("vdanyliuk", "ovovchuk", "omartynets", "oyevchuk");
+        List<String> expected = Arrays.asList("vdanyliuk", "ovovchuk", "omartynets", "oyevchuk");
 
-        Assert.assertThat((Iterable<String>)autocompleteService.getAutocomplete("account"), Matchers.containsInAnyOrder(expected.toArray(new String[0])));
+        Assert.assertThat((Iterable<String>) autocompleteService.getAutocomplete("account"), Matchers.containsInAnyOrder(expected.toArray(new String[0])));
     }
 
     @Test
     public void getAutocomplete_innerField() throws Exception {
-        List<String> expected  = Arrays.asList("00099DE18B254BBE424E0344ACE2762128159937", "00099DE18B254BBE424E0333ACE2762128159937", "00099DE18B254BBE42455544ACE2762128159937", "00099DE18B2511BE424E0344ACE2762128159937");
+        List<String> expected = Arrays.asList("00099DE18B254BBE424E0344ACE2762128159937", "00099DE18B254BBE424E0333ACE2762128159937", "00099DE18B254BBE42455544ACE2762128159937", "00099DE18B2511BE424E0344ACE2762128159937");
 
-        Assert.assertThat((Iterable<String>)autocompleteService.getAutocomplete("account.erisAccount.address"), Matchers.containsInAnyOrder(expected.toArray(new String[0])));
+        Assert.assertThat((Iterable<String>) autocompleteService.getAutocomplete("account.erisAccount.address"), Matchers.containsInAnyOrder(expected.toArray(new String[0])));
     }
 
     @Test
@@ -56,31 +56,23 @@ public class AutocompleteServiceTest {
             put("created", "date");
             put("status", "text");
             put("error", "text");
-            put("account", new TreeMap<String, Object>(){{
+            put("account", new TreeMap<String, Object>() {{
                 put("ldapId", "text");
-                put("amount", "number");
                 put("fullName", "text");
-                put("accountType", "text");
                 put("isNew", "bool");
                 put("deleted", "bool");
-                put("erisAccount", new TreeMap<String, Object>(){{
-                    put("address", "text");
-                    put("pubKey", "text");
-                    put("type", "text");
-                }});
             }});
-            put("destination", new TreeMap<String, Object>(){{
+            put("destination", new TreeMap<String, Object>() {{
                 put("ldapId", "text");
-                put("amount", "number");
                 put("fullName", "text");
-                put("accountType", "text");
                 put("isNew", "bool");
                 put("deleted", "bool");
-                put("erisAccount", new TreeMap<String, Object>(){{
-                    put("address", "text");
-                    put("pubKey", "text");
-                    put("type", "text");
-                }});
+            }});
+            put("transactionStoring", new TreeMap<String, Object>() {{
+                put("blockNumber", "number");
+                put("chainId", "text");
+                put("time", "date");
+                put("txId", "text");
             }});
 
         }};

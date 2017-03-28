@@ -24,12 +24,14 @@ public class Account {
 
     @Transient
     @JsonView({JsonViews.REGULAR.class, JsonViews.COINS_MANAGER.class})
+    @FilterIgnore
     private BigDecimal amount;
 
     @JsonView(JsonViews.COINS_MANAGER.class)
     private String fullName;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @FilterIgnore
     private ErisAccount erisAccount;
 
     @JsonView(JsonViews.REGULAR.class)
@@ -37,6 +39,7 @@ public class Account {
     private String image;
 
     @Enumerated(EnumType.STRING)
+    @FilterIgnore
     private AccountType accountType;
 
     @JsonView({JsonViews.COINS_MANAGER.class})

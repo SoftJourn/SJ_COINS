@@ -2,6 +2,7 @@ package com.softjourn.coin.server.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.softjourn.coin.server.dao.ErisTransactionDAO;
+import com.softjourn.coin.server.service.FilterIgnore;
 import com.softjourn.coin.server.util.InstantJsonSerializer;
 import com.softjourn.eris.transaction.pojo.ErisCallTransaction;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class TransactionStoring implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @FilterIgnore
     private Long id;
 
     @Column(columnDefinition = "BIGINT")
@@ -38,11 +40,13 @@ public class TransactionStoring implements Serializable {
     private String txId;
 
     @Embedded
+    @FilterIgnore
     private ErisTransactionDAO transaction;
 
     @ElementCollection
     @JoinTable(name = "tx_calling_data", joinColumns = @JoinColumn(name = "tx_id"))
     @MapKeyColumn(name = "function_name")
+    @FilterIgnore
     private Map<String, String> callingValue;
 
     public TransactionStoring(@NonNull ErisTransactionDAO transaction) {
