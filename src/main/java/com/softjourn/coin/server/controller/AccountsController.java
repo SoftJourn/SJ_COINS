@@ -11,6 +11,7 @@ import com.softjourn.coin.server.util.JsonViews;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.Collections;
@@ -31,6 +32,8 @@ public class AccountsController {
         this.coinService = coinService;
     }
 
+    // GET
+
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/account", method = RequestMethod.GET)
     @JsonView(JsonViews.REGULAR.class)
@@ -38,6 +41,14 @@ public class AccountsController {
         Account account = accountsService.getAccount(principal.getName());
         account.setAmount(coinService.getAmount(account.getLdapId()));
         return account;
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/account/{accountName}/{imageName:.+\\..+}", method = RequestMethod.GET)
+    @JsonView(JsonViews.REGULAR.class)
+    public byte[] getImage(@PathVariable String accountName, @PathVariable String imageName) {
+        String url = String.format("/account/%s/%s", accountName, imageName);
+        return accountsService.getImage(url);
     }
 
     @PreAuthorize("authenticated")
@@ -50,11 +61,31 @@ public class AccountsController {
     @RequestMapping(value = "/accounts/all", method = RequestMethod.GET)
     public List<AccountDTO> getAccounts() {
         return accountsService.getAll().stream()
-                .filter(account -> account.getAccountType() == AccountType.REGULAR)
-                .map(account ->
-                        new AccountDTO(account.getLdapId(), account.getErisAccount().getAddress()))
-                .collect(Collectors.toList());
+            .filter(account -> account.getAccountType() == AccountType.REGULAR)
+            .map(account ->
+                new AccountDTO(account.getLdapId(), account.getErisAccount().getAddress()))
+            .collect(Collectors.toList());
     }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
+    @RequestMapping(value = "/accounts", method = RequestMethod.GET)
+    @JsonView(JsonViews.COINS_MANAGER.class)
+    public List<Account> getAllAccounts() {
+        return accountsService.getAll().stream()
+            .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
+            .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
+    @RequestMapping(value = "/accounts/{accountType}", method = RequestMethod.GET)
+    @JsonView(JsonViews.COINS_MANAGER.class)
+    public List<Account> getAccountsByType(@PathVariable String accountType) {
+        return accountsService.getAll(AccountType.valueOf(accountType.toUpperCase())).stream()
+            .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
+            .collect(Collectors.toList());
+    }
+
+    // POST
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','INVENTORY')")
     @RequestMapping(value = "/account/merchant", method = RequestMethod.POST)
@@ -70,28 +101,18 @@ public class AccountsController {
         return accountsService.addMerchant(merchantDTO, AccountType.PROJECT);
     }
 
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/account/image", method = RequestMethod.POST)
+    public void loadAccountImage(@RequestBody MultipartFile file, Principal user) {
+        accountsService.loadAccountImage(file, user.getName());
+    }
+
+    // DELETE
+
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','INVENTORY')")
     @RequestMapping(value = "/account/{ldapId}", method = RequestMethod.DELETE)
     @JsonView(JsonViews.ADMIN.class)
     public Map<String, Boolean> deleteAccount(@PathVariable String ldapId) {
         return Collections.singletonMap("deleted", accountsService.delete(ldapId));
-    }
-
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
-    @RequestMapping(value = "/accounts", method = RequestMethod.GET)
-    @JsonView(JsonViews.COINS_MANAGER.class)
-    public List<Account> getAllAccounts() {
-        return accountsService.getAll().stream()
-                .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
-                .collect(Collectors.toList());
-    }
-
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
-    @RequestMapping(value = "/accounts/{accountType}", method = RequestMethod.GET)
-    @JsonView(JsonViews.COINS_MANAGER.class)
-    public List<Account> getAccountsByType(@PathVariable String accountType) {
-        return accountsService.getAll(AccountType.valueOf(accountType.toUpperCase())).stream()
-                .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
-                .collect(Collectors.toList());
     }
 }

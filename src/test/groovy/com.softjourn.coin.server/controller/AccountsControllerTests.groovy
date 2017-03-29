@@ -53,7 +53,7 @@ class AccountsControllerTests {
     private ErisTransactionCollector erisTransactionCollector
 
     @Autowired
-    private DefaultTokenServices tokenService;
+    private DefaultTokenServices tokenService
     @Value('${authKeyFileName}')
     private String authKeyFileName
     @Value('${authKeyStorePass}')
@@ -248,6 +248,19 @@ class AccountsControllerTests {
                 .andExpect(status().isForbidden())
     }
 
+    @Test
+    void 'test of GET request to /v1/account/vromanchuk/Super_Logo.png endpoint'() {
+        mockMvc.perform(get('/v1/account/vromanchuk/Super_Logo.png')
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM")))
+            .andExpect(status().isOk())
+    }
+
+    @Test
+    void 'test of POST request to /v1/account/image endpoint'() {
+        mockMvc.perform(post('/v1/account/image')
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM")))
+            .andExpect(status().isOk())
+    }
 
     private String prepareToken(Set<String> scopes, String... authorities) {
 
