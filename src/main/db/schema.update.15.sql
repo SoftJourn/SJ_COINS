@@ -1,0 +1,1 @@
+UPDATE accounts SET image = '/account/default';

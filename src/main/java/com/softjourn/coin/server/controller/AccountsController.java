@@ -9,10 +9,12 @@ import com.softjourn.coin.server.service.AccountsService;
 import com.softjourn.coin.server.service.CoinService;
 import com.softjourn.coin.server.util.JsonViews;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
@@ -47,8 +49,14 @@ public class AccountsController {
     @RequestMapping(value = "/account/{accountName}/{imageName:.+\\..+}", method = RequestMethod.GET)
     @JsonView(JsonViews.REGULAR.class)
     public byte[] getImage(@PathVariable String accountName, @PathVariable String imageName) {
-        String url = String.format("/account/%s/%s", accountName, imageName);
-        return accountsService.getImage(url);
+        String uri = String.format("/account/%s/%s", accountName, imageName);
+        return accountsService.getImage(uri);
+    }
+
+    @PreAuthorize("permitAll")
+    @RequestMapping(value = "/account/default", method = RequestMethod.GET)
+    public byte[] getDefaultImage(){
+        return accountsService.getDefaultImage();
     }
 
     @PreAuthorize("authenticated")
@@ -102,8 +110,8 @@ public class AccountsController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "/account/image", method = RequestMethod.POST)
-    public void loadAccountImage(@RequestBody MultipartFile file, Principal user) {
+    @RequestMapping(value = "/account/image", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void loadAccountImage(@NotNull @RequestParam MultipartFile file, Principal user) {
         accountsService.loadAccountImage(file, user.getName());
     }
 

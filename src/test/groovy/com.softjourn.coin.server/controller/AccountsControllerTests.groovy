@@ -6,12 +6,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpHeaders
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.restdocs.JUnitRestDocumentation
 import org.springframework.restdocs.payload.JsonFieldType
@@ -256,8 +256,8 @@ class AccountsControllerTests {
     }
 
     @Test
-    void 'test of POST request to /v1/account/image endpoint'() {
-        mockMvc.perform(post('/v1/account/image')
+    void 'test of GET request to /v1/account/default endpoint'() {
+        mockMvc.perform(get('/v1/account/default')
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM")))
             .andExpect(status().isOk())
     }
@@ -279,6 +279,6 @@ class AccountsControllerTests {
 
         tokenService.setTokenEnhancer(converter)
         OAuth2AccessToken token = tokenService.createAccessToken(oauth2auth)
-        return token.getValue();
+        return token.getValue()
     }
 }

@@ -37,7 +37,7 @@ import static com.softjourn.coin.server.entity.AccountType.REGULAR;
 @Slf4j
 public class AccountsService {
 
-    private static final String DEFAULT_IMAGE_NAME = "images/default.png";
+    private static final String DEFAULT_IMAGE_NAME = "/account/default";
 
     private ErisAccountsService erisAccountsService;
     private CoinService coinService;
@@ -49,6 +49,7 @@ public class AccountsService {
     private OAuthHelper oAuthHelper;
 
     private String imageStoragePath;
+    private String defaultAccountImagePath;
 
     @Autowired
     public AccountsService(AccountRepository accountRepository,
@@ -57,7 +58,8 @@ public class AccountsService {
                            ErisAccountsService erisAccountsService,
                            @Value("${auth.server.url}") String authServerUrl,
                            OAuthHelper oAuthHelper,
-                           @Value("${image.storage.path}") String imageStoragePath) {
+                           @Value("${image.storage.path}") String imageStoragePath,
+                           @Value("${image.account.default}") String defaultAccountImagePath) {
         this.accountRepository = accountRepository;
         this.erisAccountRepository = erisAccountRepository;
         this.coinService = coinService;
@@ -65,6 +67,7 @@ public class AccountsService {
         this.authServerUrl = authServerUrl;
         this.oAuthHelper = oAuthHelper;
         this.imageStoragePath = imageStoragePath;
+        this.defaultAccountImagePath = defaultAccountImagePath;
     }
 
     public List<Account> getAll() {
@@ -136,7 +139,7 @@ public class AccountsService {
 
     public void loadAccountImage(MultipartFile file, String accountName) {
         Account account = checkAccountExists(accountName);
-        String uri = String.format("/account/%s/%s", account.getLdapId(), file.getName());
+        String uri = String.format("/account/%s/%s", account.getLdapId(), file.getOriginalFilename());
         this.storeFile(file, uri);
         account.setImage(uri);
         this.update(account);
@@ -183,6 +186,10 @@ public class AccountsService {
             throw new InternalException("File can't be read");
         }
 
+    }
+
+    public byte[] getDefaultImage() {
+        return this.getImage(this.defaultAccountImagePath);
     }
 
     Account getAccountIfExistInLdapBase(String ldapId) {

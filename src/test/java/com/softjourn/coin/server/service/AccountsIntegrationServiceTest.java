@@ -62,6 +62,8 @@ public class AccountsIntegrationServiceTest {
 
     @Value("${image.storage.path}")
     private String imageStoragePath;
+    @Value("${image.storage.path}")
+    String defaultImagePath;
 
     @Mock
     private MultipartFile testFile,testOverrideFile;
@@ -87,7 +89,7 @@ public class AccountsIntegrationServiceTest {
     @Test
     public void loadAccountImage() throws Exception {
         testAccountName = "ovovchuk";
-        String uri = String.format("/account/%s/%s", testAccountName, testFile.getName());
+        String uri = String.format("/account/%s/%s", testAccountName, testFile.getOriginalFilename());
         this.cleanFolder(uri);
         assertFalse(fileExists(uri));
         this.accountsService.loadAccountImage(testFile, testAccountName);
@@ -99,7 +101,7 @@ public class AccountsIntegrationServiceTest {
         this.accountsService.loadAccountImage(testOverrideFile, testAccountName);
         assertFalse(fileExists(uri));
 
-        uri = String.format("/account/%s/%s", testAccountName, testOverrideFile.getName());
+        uri = String.format("/account/%s/%s", testAccountName, testOverrideFile.getOriginalFilename());
         assertTrue(fileExists(uri));
         account = this.accountsService.getAccount(testAccountName);
         assertEquals(uri, account.getImage());
@@ -129,7 +131,7 @@ public class AccountsIntegrationServiceTest {
     public void setUp() throws Exception {
 
         this.accountsService = new AccountsService(accountRepository, erisAccountRepository, coinService,
-            erisAccountsService, imageStoragePath, oAuthHelper, imageStoragePath);
+            erisAccountsService, imageStoragePath, oAuthHelper, imageStoragePath, defaultImagePath);
 
         this.mockFile(testFile,"loadingImageTest.jpg");
         this.mockFile(testOverrideFile,"loadingImageOverrideTest.png");
@@ -157,6 +159,6 @@ public class AccountsIntegrationServiceTest {
     private void mockFile(MultipartFile file, String fileName) throws IOException {
         String loadingImageTestUri = "/test/"+ fileName;
         when(file.getBytes()).thenReturn(readBytes(loadingImageTestUri));
-        when(file.getName()).thenReturn(fileName);
+        when(file.getOriginalFilename()).thenReturn(fileName);
     }
 }

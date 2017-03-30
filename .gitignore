@@ -18,3 +18,5 @@ target/
 /src/main/resources/persistance.xml
 
 application-prod.properties
+/src/main/resources/application-testing.properties
+/src/main/resources/testing-auth.pub
