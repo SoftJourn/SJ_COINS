@@ -118,7 +118,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
     public ErrorDetail handleIllegalArgumentException(IllegalArgumentException e) {
-        log.warn(e.getLocalizedMessage());
+        log.warn(e.getLocalizedMessage(), e);
         return buildErrorDetails(e, 40003, e.getMessage());
     }
 
