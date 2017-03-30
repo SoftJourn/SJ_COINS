@@ -36,17 +36,21 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
     private static final String TOKENS_ACCUMULATED = "tokensAccumulated";
     private static final String TOKEN_AMOUNTS = "tokenAmounts";
 
-    @Autowired
     private ErisContractService contractService;
 
-    @Autowired
     private InstanceRepository instanceRepository;
 
-    @Autowired
     private ErisAccountsService erisAccountsService;
 
+    @Autowired
+    public CrowdsaleServiceImpl(ErisContractService contractService, InstanceRepository instanceRepository, ErisAccountsService erisAccountsService) {
+        this.contractService = contractService;
+        this.instanceRepository = instanceRepository;
+        this.erisAccountsService = erisAccountsService;
+    }
+
     @Override
-    @SaveTransaction
+    @SaveTransaction(comment = "Donate to project")
     public Transaction donate(DonateDTO dto, Principal principal) throws IOException {
         // look for instance address and eris account
         Instance instance = instanceRepository.findByAddress(dto.getContractAddress());
@@ -77,8 +81,8 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
     }
 
     @Override
-    @SaveTransaction
-    public Transaction withDraw(String address) throws IOException {
+    @SaveTransaction(comment = "End project contract and withdraw money")
+    public Transaction withdraw(String address) throws IOException {
         // look for instance address
         Instance instance = instanceRepository.findByAddress(address);
         if (instance == null) {

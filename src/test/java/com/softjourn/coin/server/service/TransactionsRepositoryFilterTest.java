@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestData
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Instant;
@@ -85,6 +86,22 @@ public class TransactionsRepositoryFilterTest {
 
         List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
         assertEquals(2, result.size());
+    }
+
+    @Test
+    public void filteringTest_sorting() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        List<GenericFilter.Condition> conditions = new ArrayList<>();
+
+        filter.setConditions(conditions);
+        List<Sort.Order> orders = Arrays.asList(new Sort.Order(Sort.Direction.ASC, "created"), new Sort.Order(Sort.Direction.ASC, "account"));
+        Sort sort = new Sort(orders);
+        GenericFilter.PageRequestImpl pageRequest = new GenericFilter.PageRequestImpl(20, 0, sort);
+        filter.setInnerPageable(pageRequest.toPageable());
+
+
+        List<Transaction> result = repository.findAll(filter, filter.getInnerPageable()).getContent();
+        assertEquals("Deposit", result.get(10).getComment());
     }
 
     @Test
@@ -289,6 +306,26 @@ public class TransactionsRepositoryFilterTest {
         filter.setInnerPageable(defaultPageable);
 
         repository.findAll(filter, filter.getInnerPageable()).getContent();
+    }
+
+    @Test
+    public void filteringTest_filterByIntValue() {
+        GenericFilter<Transaction> filter = new GenericFilter<>();
+        List<GenericFilter.Condition> conditions = new ArrayList<>();
+
+        GenericFilter.Condition eqAccountCondition = new GenericFilter.Condition();
+        eqAccountCondition.setComparison(GenericFilter.Comparison.eq);
+        eqAccountCondition.setField("transactionStoring.blockNumber");
+        eqAccountCondition.setValue(3699719);
+
+        conditions.add(eqAccountCondition);
+
+        filter.setConditions(conditions);
+        filter.setInnerPageable(defaultPageable);
+
+        List<Transaction> content = repository.findAll(filter, filter.getInnerPageable()).getContent();
+        assertEquals(1, content.size());
+        assertEquals("5C37675ECFADF13DF7ECA8165FE27BBB264655D9", content.get(0).getErisTransactionId());
     }
 
     @Test

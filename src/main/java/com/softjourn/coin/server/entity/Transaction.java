@@ -66,7 +66,6 @@ public class Transaction<T> implements Serializable {
     private String erisTransactionId;
 
     @JsonView(JsonViews.DETAILED.class)
-    @FilterIgnore
     @OneToOne
     @JoinColumn(name = "erisTransactionId", referencedColumnName = "txId", insertable = false, updatable = false)
     private TransactionStoring transactionStoring;

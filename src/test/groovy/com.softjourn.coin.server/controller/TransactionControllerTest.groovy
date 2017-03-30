@@ -286,7 +286,7 @@ class TransactionControllerTest {
                 .andExpect(jsonPath("id").doesNotExist())
                 .andExpect(jsonPath("remain").doesNotExist())
                 .andExpect(jsonPath("value").doesNotExist())
-                .andExpect(jsonPath("transactionStoring").doesNotExist())
+                .andExpect(jsonPath("transactionStoring").exists())
                 .andDo(document('txs-filter-paths-response',
                 preprocessResponse(prettyPrint()),
                 responseFields(
@@ -298,7 +298,7 @@ class TransactionControllerTest {
                         fieldWithPath("status").description("Transaction status").type(JsonFieldType.STRING),
                         fieldWithPath("error").description("Transaction error").type(JsonFieldType.STRING),
                         fieldWithPath("erisTransactionId").description("Transaction erisTransactionId").type(JsonFieldType.STRING),
-
+                        fieldWithPath("transactionStoring").description("Transaction transactionStoring").type(JsonFieldType.OBJECT)
                 )))
     }
 
