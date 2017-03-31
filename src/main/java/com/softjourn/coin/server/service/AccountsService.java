@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.*;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -150,8 +151,9 @@ public class AccountsService {
         File storedFile = new File(url);
         try {
             FileUtils.deleteDirectory(storedFile.getParentFile());
+            Files.createDirectories(storedFile.getParentFile().toPath());
             //noinspection ResultOfMethodCallIgnored
-            storedFile.getParentFile().mkdirs();
+//            storedFile.getParentFile().mkdirs();
             //noinspection ResultOfMethodCallIgnored
             storedFile.createNewFile();
             FileOutputStream out = new FileOutputStream(storedFile);
