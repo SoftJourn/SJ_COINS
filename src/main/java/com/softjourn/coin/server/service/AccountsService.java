@@ -157,7 +157,7 @@ public class AccountsService {
             FileOutputStream out = new FileOutputStream(storedFile);
             out.write(file.getBytes());
         } catch (Exception e) {
-            throw new IllegalArgumentException("Can not create file with this path", e);
+            throw new IllegalArgumentException("Can not create file with "+url +" path", e);
         }
     }
 
