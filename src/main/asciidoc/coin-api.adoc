@@ -251,6 +251,32 @@ include::{snippets}/account/http-request.adoc[]
 include::{snippets}/account/http-response.adoc[]
 
 [[resources-accounts]]
+=== Load image to Account
+
+A `POST` request will set account image
+
+==== Response structure
+
+include::{snippets}/account/response-fields.adoc[]
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/account/http-request.adoc[]
+
+==== Example response
+
+include::{snippets}/account/http-response.adoc[]
+
+[[resources-accounts]]
+
+A `POST` request will get account of user that makes request
 === Accounts
 
 A `GET` request will get list of all accounts

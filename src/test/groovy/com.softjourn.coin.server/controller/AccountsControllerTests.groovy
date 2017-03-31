@@ -13,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.restdocs.JUnitRestDocumentation
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.authentication.TestingAuthenticationToken
@@ -27,8 +28,10 @@ import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFacto
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import org.springframework.web.multipart.MultipartFile
 
 import java.security.KeyPair
 import java.util.stream.Collectors
@@ -74,178 +77,189 @@ class AccountsControllerTests {
     @Before
     synchronized void setUp() {
         mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .apply(documentationConfiguration(restDocumentation))
-                .build()
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .apply(documentationConfiguration(restDocumentation))
+            .build()
     }
 
     @Test
     void 'test of GET request to /v1/account endpoint'() {
         mockMvc.perform(get('/v1/account')
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
-                .andExpect(status().isOk())
-                .andDo(document('account',
-                preprocessResponse(prettyPrint()),
-                responseFields(
-                        fieldWithPath('amount')
-                                .type(JsonFieldType.NUMBER)
-                                .description('Count of coins in account.'),
-                        fieldWithPath('name')
-                                .type(JsonFieldType.STRING)
-                                .description('Account\'s name.'),
-                        fieldWithPath('surname')
-                                .type(JsonFieldType.STRING)
-                                .description('Account\'s surname.'),
-                        fieldWithPath('image')
-                                .type(JsonFieldType.STRING)
-                                .description('Account\'s image.')
-                )
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
+            .andExpect(status().isOk())
+            .andDo(document('account',
+            preprocessResponse(prettyPrint()),
+            responseFields(
+                fieldWithPath('amount')
+                    .type(JsonFieldType.NUMBER)
+                    .description('Count of coins in account.'),
+                fieldWithPath('name')
+                    .type(JsonFieldType.STRING)
+                    .description('Account\'s name.'),
+                fieldWithPath('surname')
+                    .type(JsonFieldType.STRING)
+                    .description('Account\'s surname.'),
+                fieldWithPath('image')
+                    .type(JsonFieldType.STRING)
+                    .description('Account\'s image.')
+            )
         ))
     }
 
     @Test
     void 'test of GET request to /v1/account endpoint without auth header'() {
         mockMvc.perform(get('/v1/account'))
-                .andExpect(status().isUnauthorized())
+            .andExpect(status().isUnauthorized())
     }
 
     @Test
     void 'test of POST request to /v1/account/merchant endpoint'() {
         mockMvc.perform(post('/v1/account/merchant')
-                .content('{\n  "name": "VM1",\n  "uniqueId": "123456-123456-123456"\n}')
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN"))
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(document('addSeller',
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                requestFields(
-                        fieldWithPath('name')
-                                .type(JsonFieldType.STRING)
-                                .description('Vending machine name'),
-                        fieldWithPath('uniqueId')
-                                .type(JsonFieldType.STRING)
-                                .description('Unique Id of the machine')
-                ),
-                responseFields(
-                        fieldWithPath('name')
-                                .type(JsonFieldType.STRING)
-                                .description('Account\'s name.')
-                )
+            .content('{\n  "name": "VM1",\n  "uniqueId": "123456-123456-123456"\n}')
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN"))
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andDo(document('addSeller',
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestFields(
+                fieldWithPath('name')
+                    .type(JsonFieldType.STRING)
+                    .description('Vending machine name'),
+                fieldWithPath('uniqueId')
+                    .type(JsonFieldType.STRING)
+                    .description('Unique Id of the machine')
+            ),
+            responseFields(
+                fieldWithPath('name')
+                    .type(JsonFieldType.STRING)
+                    .description('Account\'s name.')
+            )
         ))
     }
 
     @Test
     void 'test of POST request to /v1/account/merchant endpoint with wrong ROLE'() {
         mockMvc.perform(post('/v1/account/merchant')
-                .content('{\n  "name": "VM1",\n  "uniqueId": "123456-123456-123456"\n}')
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM"))
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden())
+            .content('{\n  "name": "VM1",\n  "uniqueId": "123456-123456-123456"\n}')
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM"))
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden())
     }
 
     @Test
     void 'test of GET request to /v1/accounts endpoint'() {
         mockMvc.perform(get('/v1/accounts')
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
-                .andExpect(status().isOk())
-                .andDo(document('accounts',
-                preprocessResponse(prettyPrint()),
-                responseFields(
-                        fieldWithPath('[0].ldapId')
-                                .type(JsonFieldType.STRING)
-                                .description('LDAP ID'),
-                        fieldWithPath('[0].amount')
-                                .type(JsonFieldType.NUMBER)
-                                .description('Amount of coins'),
-                        fieldWithPath('[0].fullName')
-                                .type(JsonFieldType.STRING)
-                                .description('Account full name'),
-                        fieldWithPath('[0].isNew')
-                                .type(JsonFieldType.BOOLEAN)
-                                .description('Is new ?'),
-                        fieldWithPath('[1].ldapId')
-                                .type(JsonFieldType.STRING)
-                                .description('LDAP ID'),
-                        fieldWithPath('[1].amount')
-                                .type(JsonFieldType.NUMBER)
-                                .description('Amount of coins'),
-                        fieldWithPath('[1].fullName')
-                                .type(JsonFieldType.STRING)
-                                .description('Account full name'),
-                        fieldWithPath('[0].isNew')
-                                .type(JsonFieldType.BOOLEAN)
-                                .description('Is new ?'),
-                        fieldWithPath('[0].address')
-                                .type(JsonFieldType.STRING)
-                                .description('Eris account address')
-                )
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
+            .andExpect(status().isOk())
+            .andDo(document('accounts',
+            preprocessResponse(prettyPrint()),
+            responseFields(
+                fieldWithPath('[0].ldapId')
+                    .type(JsonFieldType.STRING)
+                    .description('LDAP ID'),
+                fieldWithPath('[0].amount')
+                    .type(JsonFieldType.NUMBER)
+                    .description('Amount of coins'),
+                fieldWithPath('[0].fullName')
+                    .type(JsonFieldType.STRING)
+                    .description('Account full name'),
+                fieldWithPath('[0].isNew')
+                    .type(JsonFieldType.BOOLEAN)
+                    .description('Is new ?'),
+                fieldWithPath('[1].ldapId')
+                    .type(JsonFieldType.STRING)
+                    .description('LDAP ID'),
+                fieldWithPath('[1].amount')
+                    .type(JsonFieldType.NUMBER)
+                    .description('Amount of coins'),
+                fieldWithPath('[1].fullName')
+                    .type(JsonFieldType.STRING)
+                    .description('Account full name'),
+                fieldWithPath('[0].isNew')
+                    .type(JsonFieldType.BOOLEAN)
+                    .description('Is new ?'),
+                fieldWithPath('[0].address')
+                    .type(JsonFieldType.STRING)
+                    .description('Eris account address')
+            )
         ))
     }
 
     @Test
     void 'test of GET request to /v1/accounts endpoint wrong ROLE'() {
         mockMvc.perform(get('/v1/accounts')
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADMIN")))
-                .andExpect(status().isForbidden())
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADMIN")))
+            .andExpect(status().isForbidden())
     }
 
     @Test
     void 'test of GET request to /v1/accounts/{accountType} endpoint'() {
         mockMvc.perform(get('/v1/accounts/{accountType}', 'merchant')
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
-                .andExpect(status().isOk())
-                .andDo(document('merchantAccounts',
-                preprocessResponse(prettyPrint()),
-                pathParameters(parameterWithName("accountType").description('Account type')),
-                responseFields(
-                        fieldWithPath('[0].ldapId')
-                                .type(JsonFieldType.STRING)
-                                .description('LDAP ID'),
-                        fieldWithPath('[0].amount')
-                                .type(JsonFieldType.NUMBER)
-                                .description('Amount of coins'),
-                        fieldWithPath('[0].fullName')
-                                .type(JsonFieldType.STRING)
-                                .description('Account full name'),
-                        fieldWithPath('[0].isNew')
-                                .type(JsonFieldType.BOOLEAN)
-                                .description('Is new ?'),
-                        fieldWithPath('[0].address')
-                                .type(JsonFieldType.STRING)
-                                .description('Eris account address')
-                )
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
+            .andExpect(status().isOk())
+            .andDo(document('merchantAccounts',
+            preprocessResponse(prettyPrint()),
+            pathParameters(parameterWithName("accountType").description('Account type')),
+            responseFields(
+                fieldWithPath('[0].ldapId')
+                    .type(JsonFieldType.STRING)
+                    .description('LDAP ID'),
+                fieldWithPath('[0].amount')
+                    .type(JsonFieldType.NUMBER)
+                    .description('Amount of coins'),
+                fieldWithPath('[0].fullName')
+                    .type(JsonFieldType.STRING)
+                    .description('Account full name'),
+                fieldWithPath('[0].isNew')
+                    .type(JsonFieldType.BOOLEAN)
+                    .description('Is new ?'),
+                fieldWithPath('[0].address')
+                    .type(JsonFieldType.STRING)
+                    .description('Eris account address')
+            )
         ))
     }
 
     @Test
     void 'test of GET request to /v1/accounts/{accountType} endpoint without auth header'() {
         mockMvc.perform(get('/v1/accounts/{accountType}', 'merchant'))
-                .andExpect(status().isUnauthorized())
+            .andExpect(status().isUnauthorized())
     }
 
     @Test
     void 'test of DELETE request to /v1/account/{accountName} endpoint'() {
         mockMvc.perform(delete('/v1/account/{ldapId}', 'VM1')
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
-                .andExpect(status().isOk())
-                .andDo(document('deleteAccount',
-                preprocessResponse(prettyPrint()),
-                pathParameters(parameterWithName("ldapId").description('Account ldapId')),
-                responseFields(
-                        fieldWithPath('deleted')
-                                .type(JsonFieldType.BOOLEAN)
-                                .description('Status of delete operation')
-                )
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_SUPER_ADMIN")))
+            .andExpect(status().isOk())
+            .andDo(document('deleteAccount',
+            preprocessResponse(prettyPrint()),
+            pathParameters(parameterWithName("ldapId").description('Account ldapId')),
+            responseFields(
+                fieldWithPath('deleted')
+                    .type(JsonFieldType.BOOLEAN)
+                    .description('Status of delete operation')
+            )
         ))
     }
 
     @Test
     void 'test of DELETE request to /v1/account/{accountName} endpoint wrong role'() {
         mockMvc.perform(delete('/v1/account/{ldapId}', 'VM1')
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM")))
-                .andExpect(status().isForbidden())
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM")))
+            .andExpect(status().isForbidden())
+    }
+
+    @Test
+    void 'test of POST request to /v1/account/image endpoint'() {
+        def fileData = [0, 0, 0, 0, 0] as byte[]
+        MultipartFile multipartFile = new MockMultipartFile("file", fileData)
+        mockMvc.perform(MockMvcRequestBuilders.fileUpload("/v1/account/image")
+            .file(multipartFile)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM")))
+            .andExpect(status().isOk())
+            .andDo(document('setAccountImage'))
     }
 
     @Test
@@ -253,6 +267,9 @@ class AccountsControllerTests {
         mockMvc.perform(get('/v1/account/vromanchuk/Super_Logo.png')
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM")))
             .andExpect(status().isOk())
+            .andDo(document('getAccountImage',
+            preprocessResponse(prettyPrint())
+        ))
     }
 
     @Test
@@ -260,6 +277,7 @@ class AccountsControllerTests {
         mockMvc.perform(get('/v1/account/default')
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_ADM")))
             .andExpect(status().isOk())
+            .andDo(document('defaultImage'))
     }
 
     private String prepareToken(Set<String> scopes, String... authorities) {
@@ -273,8 +291,8 @@ class AccountsControllerTests {
         OAuth2Authentication oauth2auth = new OAuth2Authentication(oauth2Request, userAuth)
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter()
         KeyPair keyPair = new KeyStoreKeyFactory(
-                new ClassPathResource(authKeyFileName), authKeyStorePass.toCharArray())
-                .getKeyPair(authKeyAlias, authKeyMasterPass.toCharArray())
+            new ClassPathResource(authKeyFileName), authKeyStorePass.toCharArray())
+            .getKeyPair(authKeyAlias, authKeyMasterPass.toCharArray())
         converter.setKeyPair(keyPair)
 
         tokenService.setTokenEnhancer(converter)
