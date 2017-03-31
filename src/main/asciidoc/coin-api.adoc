@@ -255,9 +255,20 @@ include::{snippets}/account/http-response.adoc[]
 
 A `POST` request will set account image
 
-==== Response structure
+==== Example request
 
-include::{snippets}/account/response-fields.adoc[]
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/setAccountImage/http-request.adoc[]
+//[[resources-account-image-load]]
+=== Get default image
+
+A `GET` request will get default account image
 
 ==== Example request
 
@@ -268,15 +279,34 @@ Don't forget to add authorization headers to the request
 "Authorization: Bearer <ACCESS_TOKEN>"
 ====
 
-include::{snippets}/account/http-request.adoc[]
+include::{snippets}/defaultImage/http-request.adoc[]
 
 ==== Example response
 
-include::{snippets}/account/http-response.adoc[]
+include::{snippets}/defaultImage/http-response.adoc[]
 
-[[resources-accounts]]
+[[resources-account-image-get-default]]
+=== Get account image
 
-A `POST` request will get account of user that makes request
+A `GET` request will get account image
+
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/getAccountImage/http-request.adoc[]
+
+==== Example response
+
+include::{snippets}/defaultImage/http-response.adoc[]
+
+[[resources-account-image-get]]
+
 === Accounts
 
 A `GET` request will get list of all accounts

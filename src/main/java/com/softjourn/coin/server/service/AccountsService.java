@@ -153,8 +153,6 @@ public class AccountsService {
             FileUtils.deleteDirectory(storedFile.getParentFile());
             Files.createDirectories(storedFile.getParentFile().toPath());
             //noinspection ResultOfMethodCallIgnored
-//            storedFile.getParentFile().mkdirs();
-            //noinspection ResultOfMethodCallIgnored
             storedFile.createNewFile();
             FileOutputStream out = new FileOutputStream(storedFile);
             out.write(file.getBytes());
