@@ -1,2 +1,0 @@
-ALTER TABLE accounts ADD fullName VARCHAR(255);
-ALTER TABLE accounts ADD image VARCHAR(255);
