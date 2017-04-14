@@ -99,7 +99,7 @@ public class ContractController {
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/instances/{id}", method = RequestMethod.GET)
     public List<ContractCreateResponseDTO> getInstances(@PathVariable Long id) {
-        return this.contractService.getInstances(id);
+        return this.contractService.getInstancesByContractId(id);
     }
 
 }

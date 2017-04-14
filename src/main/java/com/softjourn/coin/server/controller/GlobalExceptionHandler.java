@@ -135,6 +135,13 @@ public class GlobalExceptionHandler {
         return buildErrorDetails(e, null, message);
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ErisContractNotAllowedToCreate.class)
+    public ErrorDetail handle(ErisContractNotAllowedToCreate e) {
+        log.info(e.getMessage());
+        return buildErrorDetails(e, null, e.getMessage());
+    }
+
     private ErrorDetail buildErrorDetails(Exception e, Integer code, String message) {
         ErrorDetail errorDetail = new ErrorDetail();
         errorDetail.setTitle("Error");

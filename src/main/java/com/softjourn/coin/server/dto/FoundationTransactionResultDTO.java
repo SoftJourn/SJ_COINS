@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CrowdsaleTransactionResultDTO {
+public class FoundationTransactionResultDTO {
 
     private Boolean transactionResult;
 

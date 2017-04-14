@@ -1,7 +1,8 @@
 package com.softjourn.coin.server.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.softjourn.coin.server.dto.DonateDTO
+import com.softjourn.coin.server.dto.ApproveDTO
+import com.softjourn.coin.server.dto.WithdrawDTO
 import com.softjourn.coin.server.service.ErisTransactionCollector
 import org.junit.Before
 import org.junit.Rule
@@ -50,13 +51,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = ControllerTestConfig.class)
 @AutoConfigureTestDatabase
 @WebAppConfiguration
-class CrowdsaleControllerTest {
+class FoundationControllerTest {
 
     @MockBean
     private ErisTransactionCollector erisTransactionCollector
 
     @Autowired
-    private DefaultTokenServices tokenService;
+    private DefaultTokenServices tokenService
     @Value('${authKeyFileName}')
     private String authKeyFileName
     @Value('${authKeyStorePass}')
@@ -84,13 +85,13 @@ class CrowdsaleControllerTest {
     }
 
     @Test
-    void 'test of POST request to /v1/crowdsale/donate endpoint'() {
-        mockMvc.perform(post('/v1/crowdsale/donate')
+    void 'test of POST request to /v1/foundation/approve endpoint'() {
+        mockMvc.perform(post('/v1/foundation/approve')
                 .contentType(APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER"))
-                .content(json(new DonateDTO("some address", "some address", BigInteger.valueOf(1)))))
+                .content(json(new ApproveDTO("some address", "some address", BigInteger.valueOf(1)))))
                 .andExpect(status().isOk())
-                .andDo(document("crowdsale-donate-request", preprocessRequest(prettyPrint()),
+                .andDo(document("foundation-approve-request", preprocessRequest(prettyPrint()),
                 requestFields(
                         fieldWithPath("contractAddress")
                                 .description("Contract address(currency)(Required field)")
@@ -102,7 +103,7 @@ class CrowdsaleControllerTest {
                                 .description("Amount to spend(Required field)")
                                 .type(JsonFieldType.NUMBER),
                 )))
-                .andDo(document('crowdsale-donate-response',
+                .andDo(document('foundation-approve-response',
                 preprocessResponse(prettyPrint()),
                 responseFields(
                         fieldWithPath('transactionResult')
@@ -113,23 +114,23 @@ class CrowdsaleControllerTest {
     }
 
     @Test
-    void 'test of POST request to /v1/crowdsale/donate endpoint without auth header'() {
-        mockMvc.perform(post('/v1/crowdsale/donate')
+    void 'test of POST request to /v1/foundation/approve endpoint without auth header'() {
+        mockMvc.perform(post('/v1/foundation/approve')
                 .contentType(APPLICATION_JSON)
-                .content(json(new DonateDTO("some address", "some address", BigInteger.valueOf(1)))))
+                .content(json(new ApproveDTO("some address", "some address", BigInteger.valueOf(1)))))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of POST request to /v1/crowdsale/withdraw/{address} endpoint'() {
-        mockMvc.perform(post('/v1/crowdsale/withdraw/{address}', "some address(project)")
+    void 'test of POST request to /v1/foundation/close endpoint'() {
+        mockMvc.perform(post('/v1/foundation/close/{address}', "some address(project)")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER"))
                 .contentType(APPLICATION_JSON))
-                .andDo(document("crowdsale-withdraw-request",
-                pathParameters(parameterWithName("address").description("Contract address(project)"))
-        ))
+                .andDo(document("foundation-close-request", preprocessRequest(prettyPrint()),
+                pathParameters(parameterWithName("address")
+                        .description("Contract address(project)"))))
                 .andExpect(status().isOk())
-                .andDo(document('crowdsale-withdraw-response',
+                .andDo(document('foundation-close-response',
                 preprocessResponse(prettyPrint()),
                 responseFields(
                         fieldWithPath('transactionResult')
@@ -140,18 +141,47 @@ class CrowdsaleControllerTest {
     }
 
     @Test
-    void 'test of POST request to /v1/crowdsale/withdraw/{address} endpoint without auth header'() {
-        mockMvc.perform(post('/v1/crowdsale/withdraw/{address}', "some address(project)")
+    void 'test of POST request to /v1/foundation/withdraw/{address} endpoint'() {
+        mockMvc.perform(post('/v1/foundation/withdraw/{address}', "some address(project)")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER"))
+                .content(json(new WithdrawDTO(BigInteger.valueOf(1), BigInteger.valueOf(1), "withdraw")))
+                .contentType(APPLICATION_JSON))
+                .andDo(document("foundation-withdraw-request", preprocessRequest(prettyPrint()),
+                requestFields(
+                        fieldWithPath("amount")
+                                .description("Amount to withdraw(Required field)")
+                                .type(JsonFieldType.NUMBER),
+                        fieldWithPath("id")
+                                .description("Some id of external record(Required field)")
+                                .type(JsonFieldType.NUMBER),
+                        fieldWithPath("note")
+                                .description("Note about withdrawal(Required field)")
+                                .type(JsonFieldType.STRING),
+                )))
+                .andExpect(status().isOk())
+                .andDo(document('foundation-withdraw-response',
+                preprocessResponse(prettyPrint()),
+                responseFields(
+                        fieldWithPath('transactionResult')
+                                .type(JsonFieldType.BOOLEAN)
+                                .description("Transaction result.")
+                )
+        ))
+    }
+
+    @Test
+    void 'test of POST request to /v1/foundation/withdraw/{address} endpoint without auth header'() {
+        mockMvc.perform(post('/v1/foundation/withdraw/{address}', "some address(project)")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
     }
 
     @Test
-    void 'test of GET request to /v1/crowdsale/{address} endpoint'() {
-        mockMvc.perform(get('/v1/crowdsale/{address}', "some address(project)")
+    void 'test of GET request to /v1/foundation/{address} endpoint'() {
+        mockMvc.perform(get('/v1/foundation/{address}', "some address(project)")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "USER")))
                 .andExpect(status().isOk())
-                .andDo(document('crowdsale-info-response',
+                .andDo(document('foundation-info-response',
                 preprocessResponse(prettyPrint()),
                 responseFields(
                         fieldWithPath('info.[0].name')
@@ -165,14 +195,26 @@ class CrowdsaleControllerTest {
                                 .description("Token(currency) address."),
                         fieldWithPath('tokens.[0].amount')
                                 .type(JsonFieldType.OBJECT)
-                                .description("Token(currency) amount.")
+                                .description("Token(currency) amount."),
+                        fieldWithPath('withdrawInfo.[0].amount')
+                                .type(JsonFieldType.NUMBER)
+                                .description("Contract's withdrawal amount."),
+                        fieldWithPath('withdrawInfo.[0].id')
+                                .type(JsonFieldType.NUMBER)
+                                .description("Contract's withdrawal id."),
+                        fieldWithPath('withdrawInfo.[0].timestamp')
+                                .type(JsonFieldType.NUMBER)
+                                .description("Contract's withdrawal timestamp."),
+                        fieldWithPath('withdrawInfo.[0].note')
+                                .type(JsonFieldType.STRING)
+                                .description("Contract's withdrawal note.")
                 )
         ))
     }
 
     @Test
-    void 'test of GET request to /v1/crowdsale/{address} endpoint without auth header'() {
-        mockMvc.perform(get('/v1/crowdsale/{address}', "some address(project)"))
+    void 'test of GET request to /v1/foundation/{address} endpoint without auth header'() {
+        mockMvc.perform(get('/v1/foundation/{address}', "some address(project)"))
                 .andExpect(status().isUnauthorized())
     }
 

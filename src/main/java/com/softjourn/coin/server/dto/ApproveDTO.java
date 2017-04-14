@@ -9,7 +9,7 @@ import java.math.BigInteger;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DonateDTO {
+public class ApproveDTO {
 
     private String contractAddress;
 

@@ -86,12 +86,16 @@ public class TransactionSavingAspect {
                 .map(Account::getLdapId)
                 .orElseGet(() -> getArg(joinPoint, "accountName", String.class));
         if (accName != null) {
-            transaction.setRemain(coinService.getAmount(accName));
+            try {
+                transaction.setRemain(coinService.getAmount(accName));
+            } catch (Exception e) {
+                transaction.setRemain(null);
+            }
         }
     }
 
-    private < R> R getArgOrAnnotationValue(ProceedingJoinPoint joinPoint, String argName,
-                                             Function<SaveTransaction, String> transactionGetter, Function<String, R> converter) {
+    private <R> R getArgOrAnnotationValue(ProceedingJoinPoint joinPoint, String argName,
+                                          Function<SaveTransaction, String> transactionGetter, Function<String, R> converter) {
         SaveTransaction annotation = ((MethodSignature) joinPoint.getSignature()).getMethod().getAnnotation(SaveTransaction.class);
         String argValue = getArg(joinPoint, argName, String.class);
         String annotationValue = transactionGetter.apply(annotation);

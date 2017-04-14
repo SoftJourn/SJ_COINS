@@ -14,11 +14,12 @@ import java.util.List;
 
 public class Util {
 
-    public static <T> MappingIterator<T> getDataFromCSV(byte[] file, Class<T> tClass) throws IOException {
+    public static <T> List<T> getDataFromCSV(byte[] file, Class<T> tClass) throws IOException {
         CsvMapper mapper = new CsvMapper();
         CsvSchema schema = mapper.schemaFor(tClass).withHeader().withColumnSeparator(',');
         ObjectReader r = mapper.readerFor(tClass).with(schema);
-        return r.readValues(file);
+        MappingIterator<Object> objectMappingIterator = r.readValues(file);
+        return (List<T>) objectMappingIterator.readAll();
     }
 
     public static <T> void dataToCSV(Writer writer, List<T> list, Class<T> tClass) throws IOException {
@@ -26,7 +27,6 @@ public class Util {
         CsvSchema schema = mapper.schemaFor(tClass).withHeader().withColumnSeparator(',');
         ObjectWriter objectWriter = mapper.writerFor(tClass).with(schema);
         objectWriter.writeValuesAsArray(writer).writeAll(list).flush();
-
     }
 
     public static void validateMultipartFileMimeType(MultipartFile multipartFile, String pattern) {

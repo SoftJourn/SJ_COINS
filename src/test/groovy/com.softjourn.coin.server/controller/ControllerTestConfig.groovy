@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.test.context.web.WebAppConfiguration
+import org.springframework.web.multipart.MultipartFile
 
 import java.security.Principal
 import java.time.Instant
@@ -73,6 +74,14 @@ class ControllerTestConfig {
         seller.fullName = "VM1"
         seller.accountType = AccountType.MERCHANT
 
+        def account = new Account("123456-123456-123457", 0)
+        account.fullName = "Me"
+        account.accountType = AccountType.REGULAR
+
+        def account3 = new Account("123456-123456-123458", 0)
+        account3.fullName = "Not me"
+        account3.accountType = AccountType.REGULAR
+
         when(accountsService.getAccount(anyString())).thenReturn(account1)
 
         when(accountsService.addMerchant(any(MerchantDTO.class), eq(AccountType.MERCHANT))).thenReturn(seller)
@@ -80,6 +89,7 @@ class ControllerTestConfig {
         when(accountsService.getAll()).thenReturn([account1, account2])
 
         when(accountsService.getAll(AccountType.MERCHANT)).thenReturn([seller])
+        when(accountsService.getAll(AccountType.REGULAR)).thenReturn([account, account3])
 
         when(accountsService.delete(anyString())).thenReturn(true)
 
@@ -104,7 +114,7 @@ class ControllerTestConfig {
         when(contractService.newContract(any() as NewContractDTO)).thenReturn(transaction)
         when(contractService.getContracts()).thenReturn([contract])
         when(contractService.newInstance(any() as NewContractInstanceDTO)).thenReturn(transaction)
-        when(contractService.getInstances(anyLong())).thenReturn([new ContractCreateResponseDTO(1, "contract", "type", "some address")])
+        when(contractService.getInstancesByContractId(anyLong())).thenReturn([new ContractCreateResponseDTO(1, "contract", "type", "some address")])
         when(contractService.getContractsByAddress(anyString())).thenReturn(contract)
         when(contractService.getTypes()).thenReturn([new Type("some type")])
         when(contractService.getContractsByType(anyString())).thenReturn([contract])
@@ -123,13 +133,14 @@ class ControllerTestConfig {
     }
 
     @Bean
-    CrowdsaleService crowdsaleService() {
-        def crowdsaleService = Mockito.mock(CrowdsaleService.class)
+    FoundationService foundationService() {
+        def foundationService = Mockito.mock(FoundationService.class)
         def transaction = new Transaction("id")
-        transaction.setValue(new CrowdsaleTransactionResultDTO(true))
-        when(crowdsaleService.donate(any() as DonateDTO, any() as Principal)).thenReturn(transaction)
-        when(crowdsaleService.withdraw(anyString())).thenReturn(transaction)
-        when(crowdsaleService.getInfo(anyString())).thenReturn(new CrowdsaleInfoDTO(
+        transaction.setValue(new FoundationTransactionResultDTO(true))
+        when(foundationService.approve(any() as ApproveDTO, any() as Principal)).thenReturn(transaction)
+        when(foundationService.withdraw(anyString(), any() as WithdrawDTO)).thenReturn(transaction)
+        when(foundationService.close(anyString(), any() as Principal)).thenReturn(transaction)
+        when(foundationService.getInfo(anyString())).thenReturn(new FoundationInfoDTO(
                 new ArrayList<Map<String, Object>>() {
                     {
                         add(new HashMap<String, Object>() {
@@ -149,10 +160,45 @@ class ControllerTestConfig {
                             }
                         })
                     }
+                },
+                new ArrayList<Map<String, Object>>() {
+                    {
+                        add(new HashMap<String, Object>() {
+                            {
+                                put("amount", "amount")
+                                put("id", "id")
+                                put("timestamp", "timestamp")
+                                put("note", "note")
+                            }
+                        })
+                    }
                 }
         ))
 
-        crowdsaleService
+        foundationService
+    }
+
+
+    @Bean
+    FillAccountsService fillAccountsService() {
+        def fillAccountsService = Mockito.mock(FillAccountsService.class)
+
+        def account = new Account("123456-123456-123458", 0)
+        account.fullName = "Me"
+        account.accountType = AccountType.REGULAR
+
+        def checkDTO = new CheckDTO()
+        checkDTO.setIsDone(2)
+        checkDTO.setTotal(2)
+        checkDTO.setTransactions(new ArrayList<Transaction>() {
+            {
+                add(createTransaction(account, account))
+            }
+        })
+
+        when(fillAccountsService.checkProcessing(anyString())).thenReturn(checkDTO)
+        when(fillAccountsService.fillAccounts(anyObject() as MultipartFile)).thenReturn(new ResultDTO("some hash"))
+        fillAccountsService
     }
 
     @Bean

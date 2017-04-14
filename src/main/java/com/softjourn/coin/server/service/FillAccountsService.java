@@ -1,6 +1,5 @@
 package com.softjourn.coin.server.service;
 
-import com.fasterxml.jackson.databind.MappingIterator;
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
 import com.softjourn.coin.server.dto.AccountFillDTO;
 import com.softjourn.coin.server.dto.CheckDTO;
@@ -43,15 +42,18 @@ import static com.softjourn.coin.server.util.Util.validateMultipartFileMimeType;
 @Service
 public class FillAccountsService {
 
-    @Autowired
-    @Qualifier("transactionResultMap")
-    private Map<String, List<Future<Transaction>>> map;
+    private final Map<String, List<Future<Transaction>>> map;
+
+    private final CoinService coinService;
+
+    private final AccountsService accountsService;
 
     @Autowired
-    private CoinService coinService;
-
-    @Autowired
-    private AccountsService accountsService;
+    public FillAccountsService(@Qualifier("transactionResultMap") Map<String, List<Future<Transaction>>> map, CoinService coinService, AccountsService accountsService) {
+        this.map = map;
+        this.coinService = coinService;
+        this.accountsService = accountsService;
+    }
 
     public ResultDTO fillAccounts(MultipartFile multipartFile) {
         // is file valid
@@ -60,40 +62,36 @@ public class FillAccountsService {
         List<Future<Transaction>> futureTransactions = new ArrayList<>();
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         try {
-            // reading file content
-            MappingIterator<AccountFillDTO> iterator = getDataFromCSV(multipartFile.getBytes(), AccountFillDTO.class);
             // get data from read file
-            List<AccountFillDTO> accountsToFill = iterator.readAll();
+            List<AccountFillDTO> accountsToFill = getDataFromCSV(multipartFile.getBytes(), AccountFillDTO.class);
             // Check if all values are positive
-            this.checkAmountIsPositive(accountsToFill);
-            // Are enough coins in treasury
-            if (!isEnoughInTreasury(BigDecimal.valueOf(accountsToFill.stream()
-                    .mapToDouble(value -> value.getCoins().doubleValue()).sum()))) {
-                throw new NotEnoughAmountInTreasuryException("Not enough coins in treasury!");
-            } else {
-                // if enough - filling accounts one by one
-                for (AccountFillDTO dto : accountsToFill) {
-                    checkAmountIsPositive(dto.getCoins());
-                    futureTransactions.add(executorService.submit(planJob(dto)));
-                }
-                String hash = UUID.randomUUID().toString();
-                this.map.put(hash, futureTransactions);
-                return new ResultDTO(hash);
+            validateContent(accountsToFill);
+            // if enough - filling accounts one by one
+            for (AccountFillDTO dto : accountsToFill) {
+                futureTransactions.add(executorService.submit(planJob(dto)));
             }
-        } catch (IOException e) {
+            String hash = UUID.randomUUID().toString();
+            this.map.put(hash, futureTransactions);
+            return new ResultDTO(hash);
+        } catch (IOException |
+                NullPointerException e)
+
+        {
             log.error(e.getLocalizedMessage());
             throw new CouldNotReadFileException("File contains mistakes");
         }
+
     }
 
     public CheckDTO checkProcessing(String checkHash) {
-        long done = map.get(checkHash).stream().filter(Future::isDone).count();
+        List<Future<Transaction>> transactions = map.get(checkHash);
+        long done = transactions.stream().filter(Future::isDone).count();
         long total = (long) map.get(checkHash).size();
         CheckDTO dto = new CheckDTO();
         dto.setIsDone(done);
         dto.setTotal(total);
         if (total == done) {
-            dto.setTransactions(map.get(checkHash).stream().map(this::getTransaction).collect(Collectors.toList()));
+            dto.setTransactions(transactions.stream().map(this::getTransaction).collect(Collectors.toList()));
             this.cleanTransactionResultMap(checkHash);
             return dto;
         } else {
@@ -117,6 +115,15 @@ public class FillAccountsService {
     private Callable<Transaction> planJob(AccountFillDTO accountDTO) {
         return () -> this.coinService.fillAccount(accountDTO.getAccount(), accountDTO.getCoins(),
                 String.format("Filling account %s by %.0f coins", accountDTO.getAccount(), accountDTO.getCoins()));
+    }
+
+    private void validateContent(List<AccountFillDTO> accountsToFill) {
+        this.checkAmountIsPositive(accountsToFill);
+        // Are enough coins in treasury
+        if (!isEnoughInTreasury(BigDecimal.valueOf(accountsToFill.stream()
+                .mapToDouble(value -> value.getCoins().doubleValue()).sum()))) {
+            throw new NotEnoughAmountInTreasuryException("Not enough coins in treasury!");
+        }
     }
 
     private Boolean isEnoughInTreasury(BigDecimal decimal) {

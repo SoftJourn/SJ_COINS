@@ -14,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.restdocs.JUnitRestDocumentation
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.payload.JsonFieldType
@@ -29,6 +30,9 @@ import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFacto
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.MvcResult
+import org.springframework.test.web.servlet.ResultMatcher
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 
@@ -212,7 +216,7 @@ class CoinsControllerTests {
     @Test
     void 'test of POST request to /v1/rollback/{txId} endpoint'() {
         mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/rollback/{txId}', "12")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.singleton("rollback"))))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.singleton("rollback"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath('$.id', Matchers.is(notNullValue())))
@@ -450,9 +454,92 @@ class CoinsControllerTests {
                 .andExpect(status().isForbidden())
     }
 
+    @Test
+    void 'test of GET request to /v1/add/template endpoint to download template'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/v1/template')
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/csv"))
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"template.csv\""))
+                .andDo(document("template-response",
+                preprocessResponse(prettyPrint())))
+    }
+
+    @Test
+    void 'test of POST request to /v1/add/ endpoint to fill accounts'() {
+        def csv = "Account,\"Full Name\",Coins\n" +
+                "ovovchuk,\"Oleksandr Vovchuk\",0\n" +
+                "vkraietskyi,\"Volodymyr Kraietskyi\",0\n" +
+                "vkuryga,\"Vita Kuryga\",0\n" +
+                "vmoroz,\"Volodymyr Moroz\",0\n" +
+                "vromanchuk,\"Volodymyr Romanchuk\",0"
+        MockMultipartFile file = new MockMultipartFile("file", "file", "multipart/form-data", csv.getBytes())
+        mockMvc.perform(RestDocumentationRequestBuilders.fileUpload('/v1/add/')
+                .file(file)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING")))
+                .andExpect(status().isOk())
+                .andDo(document('fillAccounts-response',
+                preprocessResponse(prettyPrint()),
+                responseFields(
+                        fieldWithPath('checkHash')
+                                .type(JsonFieldType.STRING)
+                                .description('Hash of running process')
+                )))
+    }
+
+    @Test
+    void 'test of GET request to /v1/add/check endpoint to check progress'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.get('/v1/check/{checkHash}', "some hash")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andDo(document('check-response',
+                preprocessResponse(prettyPrint()),
+                responseFields(
+                        fieldWithPath('total')
+                                .type(JsonFieldType.NUMBER)
+                                .description('Total amount of records to process'),
+                        fieldWithPath('isDone')
+                                .type(JsonFieldType.STRING)
+                                .description('Amount of records that have already processed'),
+                        fieldWithPath('transactions')
+                                .type(JsonFieldType.ARRAY)
+                                .description('Array of processed transactions(This array will be full only in case where all transactions are processed)'),
+                        fieldWithPath('transactions[0].amount')
+                                .type(JsonFieldType.NUMBER)
+                                .description('Transaction amount'),
+                        fieldWithPath('transactions[0].comment')
+                                .type(JsonFieldType.STRING)
+                                .description('Transaction comment'),
+                        fieldWithPath('transactions[0].created')
+                                .type(JsonFieldType.OBJECT)
+                                .description('Create date'),
+                        fieldWithPath('transactions[0].status')
+                                .type(JsonFieldType.STRING)
+                                .description('Transaction status'),
+                        fieldWithPath('transactions[0].remain')
+                                .type(JsonFieldType.NUMBER)
+                                .description('Remaining amount after body'),
+                        fieldWithPath('transactions[0].error')
+                                .type(JsonFieldType.STRING)
+                                .description('Error description'),
+                        fieldWithPath('transactions[0].transactionStoring')
+                                .type(JsonFieldType.OBJECT)
+                                .description('Error description'),
+                        fieldWithPath('transactions[0].transactionStoring')
+                                .type(JsonFieldType.OBJECT)
+                                .description('Error description')
+                )
+        ))
+    }
+
+
     private String prepareToken(Set<String> scopes, String... authorities) {
 
-        def authoritiesCollection =  Arrays.asList(authorities).stream().map({s -> (GrantedAuthority){-> s}}).collect(Collectors.toList())
+        def authoritiesCollection = Arrays.asList(authorities).stream().map({ s ->
+            (GrantedAuthority) { -> s
+            }
+        }).collect(Collectors.toList())
         OAuth2Request oauth2Request = new OAuth2Request(null, "test", authoritiesCollection, true, scopes, null, null, null, null)
         Authentication userAuth = new TestingAuthenticationToken("test", null, authorities)
         OAuth2Authentication oauth2auth = new OAuth2Authentication(oauth2Request, userAuth)

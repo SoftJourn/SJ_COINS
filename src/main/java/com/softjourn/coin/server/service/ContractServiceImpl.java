@@ -13,10 +13,10 @@ import com.softjourn.coin.server.entity.Instance;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.Type;
 import com.softjourn.coin.server.exceptions.ContractNotFoundException;
+import com.softjourn.coin.server.exceptions.ErisContractNotAllowedToCreate;
 import com.softjourn.coin.server.exceptions.TypeNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.ContractRepository;
-import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.InstanceRepository;
 import com.softjourn.coin.server.repository.TypeRepository;
 import com.softjourn.eris.contract.ContractUnit;
@@ -53,7 +53,7 @@ public class ContractServiceImpl implements ContractService {
 
     @Autowired
     public ContractServiceImpl(ContractRepository contractRepository, InstanceRepository instanceRepository,
-                               TypeRepository typeRepository, ErisContractService contractService, AccountRepository accountRepository, ErisAccountRepository erisAccountRepository) {
+                               TypeRepository typeRepository, ErisContractService contractService, AccountRepository accountRepository) {
         this.contractRepository = contractRepository;
         this.instanceRepository = instanceRepository;
         this.typeRepository = typeRepository;
@@ -62,10 +62,17 @@ public class ContractServiceImpl implements ContractService {
     }
 
 
+    /**
+     * Method creates deploys contract, if deployment was successful then saves contracts data into db
+     * and returns result of deployment
+     *
+     * @param dto
+     * @return Transaction
+     */
     @Override
-    @SaveTransaction(comment = "New contract deploing")
+    @SaveTransaction(comment = "New contract deploying")
     @Transactional
-    public synchronized Transaction newContract(NewContractDTO dto) {
+    public Transaction newContract(NewContractDTO dto) {
         // deploy contract on eris
         com.softjourn.coin.server.entity.Type type = typeRepository.findOne(dto.getType());
         if (type != null) {
@@ -78,19 +85,19 @@ public class ContractServiceImpl implements ContractService {
             contract.setAbi(dto.getAbi());
             contract.setCode(dto.getCode());
             contract.setActive(true);
-            contractRepository.save(contract);
+            Contract newContract = contractRepository.save(contract);
             // create account and eris account for new contract instance
-            Account account = this.prepareAccount(contract.getType().toString(), dto.getName());
+            Account account = this.prepareAccount(newContract.getType().toString(), dto.getName());
             Account newAccount = accountRepository.save(account);
             newAccount.setErisAccount(this.prepareErisAccount(newAccount, deployResponse.getContract().getAddress()));
             accountRepository.save(newAccount);
             // save data about new contact instance
-            Instance instance = this.prepareInstance(contract, deployResponse.getContract(), dto.getName());
+            Instance instance = this.prepareInstance(newContract, deployResponse.getContract(), dto.getName());
             instance.setAccount(newAccount);
             Instance newInstance = instanceRepository.save(instance);
             // prepare response object
-            ContractCreateResponseDTO contractDTO = new ContractCreateResponseDTO(contract.getId(), newInstance.getName(),
-                    contract.getType().getType(), newInstance.getAddress());
+            ContractCreateResponseDTO contractDTO = new ContractCreateResponseDTO(newContract.getId(), newInstance.getName(),
+                    newContract.getType().getType(), newInstance.getAddress());
             // prepare transaction
             Transaction transaction = TransactionsService.prepareTransaction(contractDTO, deployResponse.getResult().getTx_id(),
                     String.format("Deploy contract %s", account.getFullName()));
@@ -103,16 +110,33 @@ public class ContractServiceImpl implements ContractService {
         }
     }
 
+    /**
+     * Method gets information about contracts
+     *
+     * @return List<Contract>
+     */
     @Override
     public List<Contract> getContracts() {
         return contractRepository.findAll();
     }
 
+    /**
+     * Method gets information about one specific contract
+     *
+     * @param id
+     * @return Contract
+     */
     @Override
     public Contract getContractById(Long id) {
         return this.contractRepository.findOne(id);
     }
 
+    /**
+     * Method changes active property of one specific contract
+     *
+     * @param id
+     * @return Contract
+     */
     @Override
     public Contract changeActive(Long id) {
         Contract contract = contractRepository.findOne(id);
@@ -120,16 +144,34 @@ public class ContractServiceImpl implements ContractService {
         return contractRepository.save(contract);
     }
 
+    /**
+     * Method returns all types of contracts
+     *
+     * @return List<Type>
+     */
     @Override
     public List<Type> getTypes() {
         return this.typeRepository.findAll();
     }
 
+    /**
+     * Method returns all contracts by specific type
+     *
+     * @param type
+     * @return List<Contract>
+     */
     @Override
     public List<Contract> getContractsByType(String type) {
         return contractRepository.findContractByTypeType(type);
     }
 
+    /**
+     * Method returns contract by specific address
+     *
+     * @param address
+     * @return Contract
+     * @throws ContractNotFoundException
+     */
     @Override
     public Contract getContractsByAddress(String address) throws ContractNotFoundException {
         Instance instance = instanceRepository.findByAddress(address);
@@ -138,8 +180,14 @@ public class ContractServiceImpl implements ContractService {
         return instance.getContract();
     }
 
+    /**
+     * Method gets all instances of specific contract
+     *
+     * @param id
+     * @return List<ContractCreateResponseDTO>
+     */
     @Override
-    public List<ContractCreateResponseDTO> getInstances(Long id) {
+    public List<ContractCreateResponseDTO> getInstancesByContractId(Long id) {
         List<Instance> instances = instanceRepository.findByContractId(id);
         if (instances != null) {
             return instances.stream().map(instance ->
@@ -151,13 +199,21 @@ public class ContractServiceImpl implements ContractService {
         }
     }
 
+    /**
+     * Method creates new instance of existing contract
+     *
+     * @param dto
+     * @return Transaction
+     */
     @Override
     @Transactional
     @SaveTransaction(comment = "New contract instance creating")
-    public synchronized Transaction newInstance(NewContractInstanceDTO dto) {
+    public Transaction newInstance(NewContractInstanceDTO dto) {
         // look for existing contract
         Contract contract = contractRepository.findOne(dto.getContractId());
         if (contract != null) {
+            // check is contract active
+            isAllowedToCreate(contract);
             // deploy contract on eris
             DeployResponse deployResponse = contractService.deploy(contract.getCode(),
                     contract.getAbi(), dto.getParameters());
@@ -187,9 +243,10 @@ public class ContractServiceImpl implements ContractService {
 
     /**
      * Method prepares Instance object
-     * @param contract database Contract entity
+     *
+     * @param contract     database Contract entity
      * @param erisContract Eris contract object
-     * @param name name for new instance
+     * @param name         name for new instance
      * @return Instance
      */
     private Instance prepareInstance(Contract contract, com.softjourn.eris.contract.Contract erisContract, String name) {
@@ -202,6 +259,7 @@ public class ContractServiceImpl implements ContractService {
 
     /**
      * Method prepares Account object
+     *
      * @param type Contract type string
      * @param name Contract instance name
      * @return Account
@@ -220,6 +278,7 @@ public class ContractServiceImpl implements ContractService {
 
     /**
      * Method prepares ErisAccount object
+     *
      * @param account Database Account entity
      * @param address Eris address of account
      * @return ErisAccount
@@ -234,6 +293,18 @@ public class ContractServiceImpl implements ContractService {
         return erisAccount;
     }
 
+    private void isAllowedToCreate(Contract contract) {
+        if (!contract.getActive())
+            throw new ErisContractNotAllowedToCreate("This contract impossible to create, because he isn't active.");
+    }
+
+    /**
+     * Method gets contract by id, reads constructor parameters of contract and returns them
+     *
+     * @param id
+     * @return List<Map<String, String>>
+     * @throws IOException
+     */
     @Override
     public List<Map<String, String>> getContractConstructorInfo(Long id) throws IOException {
         Contract contract = contractRepository.findOne(id);

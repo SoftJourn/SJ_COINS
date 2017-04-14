@@ -119,13 +119,11 @@ public class CoinsController {
     @RequestMapping(value = "/template", method = RequestMethod.GET)
     public ResponseEntity<Void> getTemplate(HttpServletResponse response) throws IOException {
         String contentDisposition = "attachment; filename=\"template.csv\"";
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
         response.setContentType("application/csv");
         response.setCharacterEncoding("UTF-8");
         this.fillAccountsService.getAccountDTOTemplate(response.getWriter());
-        return new ResponseEntity<>(headers, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")

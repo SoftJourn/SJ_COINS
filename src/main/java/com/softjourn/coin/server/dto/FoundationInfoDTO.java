@@ -9,15 +9,18 @@ import java.util.Map;
 
 @Data
 @AllArgsConstructor
-public class CrowdsaleInfoDTO {
+public class FoundationInfoDTO {
 
-    public CrowdsaleInfoDTO() {
+    public FoundationInfoDTO() {
         info = new ArrayList<>();
+        withdrawInfo = new ArrayList<>();
         tokens = new ArrayList<>();
     }
 
     List<Map<String, Object>> info;
 
     List<Map<String, Object>> tokens;
+
+    List<Map<String, Object>> withdrawInfo;
 
 }

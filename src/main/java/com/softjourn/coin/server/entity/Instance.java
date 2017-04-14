@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "instances")
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class Instance {
 
