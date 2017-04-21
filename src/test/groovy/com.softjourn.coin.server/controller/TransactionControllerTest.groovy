@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.softjourn.coin.server.dto.PageRequestImpl
 import com.softjourn.coin.server.entity.Transaction
 import com.softjourn.coin.server.service.GenericFilter
 import org.junit.Before
@@ -78,7 +79,7 @@ class TransactionControllerTest {
 
     private GenericFilter<Transaction> filterWithWrongType
 
-    private GenericFilter.PageRequestImpl myTxsPageRequest
+    private PageRequestImpl myTxsPageRequest
 
     @Before
     synchronized void setUp() {
@@ -93,16 +94,16 @@ class TransactionControllerTest {
         GenericFilter.Condition ltCondition = new GenericFilter.Condition("created", "2017-02-14T10:12:45Z", GenericFilter.Comparison.lt)
         GenericFilter.Condition inCondition = new GenericFilter.Condition("account", ["vdanyliuk", "ovovchuk"], GenericFilter.Comparison.in)
         
-        GenericFilter.PageRequestImpl pageRequest = new GenericFilter.PageRequestImpl(50, 0, new Sort(new Sort.Order(Sort.Direction.ASC, "amount")))
+        PageRequestImpl pageRequest = new PageRequestImpl(50, 0, new Sort(new Sort.Order(Sort.Direction.ASC, "amount")))
 
         filter = new GenericFilter<>([eqCondition, gtCondition, ltCondition, inCondition], pageRequest)
 
-        GenericFilter.PageRequestImpl pageRequestWithoutOrdering = new GenericFilter.PageRequestImpl()
+        PageRequestImpl pageRequestWithoutOrdering = new PageRequestImpl()
         pageRequestWithoutOrdering.page = 0
         pageRequestWithoutOrdering.size = 50
         filterWithoutOrdering = new GenericFilter<>([eqCondition], pageRequestWithoutOrdering)
 
-        myTxsPageRequest = new GenericFilter.PageRequestImpl(50, 0, new Sort(new Sort.Order(Sort.Direction.ASC, "amount")))
+        myTxsPageRequest = new PageRequestImpl(50, 0, new Sort(new Sort.Order(Sort.Direction.ASC, "amount")))
 
         GenericFilter.Condition wrongCondition = new GenericFilter.Condition("amount", "notNumericValue", GenericFilter.Comparison.eq)
 

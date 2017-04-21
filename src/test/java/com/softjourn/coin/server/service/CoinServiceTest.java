@@ -53,6 +53,9 @@ public class CoinServiceTest {
     @Mock
     AccountsService accountsService;
 
+    @Mock
+    TransactionMapper mapper;
+
     @InjectMocks
     CoinService coinService;
 

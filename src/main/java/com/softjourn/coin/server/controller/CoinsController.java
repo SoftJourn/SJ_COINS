@@ -87,7 +87,7 @@ public class CoinsController {
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/deposit", method = RequestMethod.POST)
     public Transaction deposit(Principal principal, @RequestBody CashDTO cashDTO) {
-        return coinService.deposit(cashDTO, principal.getName(), "Deposite cash.", new BigDecimal(cashDTO.getAmount()));
+        return coinService.deposit(cashDTO, principal.getName(), "Deposit cash.", new BigDecimal(cashDTO.getAmount()));
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")

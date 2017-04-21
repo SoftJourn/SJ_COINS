@@ -1,24 +1,34 @@
 package com.softjourn.coin.server.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.softjourn.coin.server.util.SortJsonDeserializer;
+import com.softjourn.coin.server.dto.PageRequestImpl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.ClassUtils;
 
 import javax.persistence.Entity;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldName;
@@ -327,24 +337,6 @@ public class GenericFilter<T> implements Specification<T> {
 
         public static Condition lt(String field, Object value) {
             return new Condition(field, value, Comparison.lt);
-        }
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class PageRequestImpl {
-        private int size;
-        private int page;
-        @JsonDeserialize(using = SortJsonDeserializer.class)
-        private Sort sort;
-
-        public Pageable toPageable() {
-            if (sort == null) {
-                return new PageRequest(page, size);
-            } else {
-                return new PageRequest(page, size, sort);
-            }
         }
     }
 }
