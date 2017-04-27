@@ -242,7 +242,7 @@ public class CoinService {
         rollbackTx.setAccount(merchant);
         rollbackTx.setDestination(user);
         rollbackTx.setAmount(amount);
-        rollbackTx.setComment("Rollback buying body. ID: " + txId);
+        rollbackTx.setComment("Rollback buying transaction. ID: " + txId);
         return rollbackTx;
     }
 
