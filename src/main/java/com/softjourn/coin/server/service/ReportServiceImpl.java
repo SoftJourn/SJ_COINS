@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.dto.ReportDefiner;
+import com.softjourn.common.utils.ReflectionUtil;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -17,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.softjourn.coin.server.util.Util.instantToRFC_1123_DATE_TIME;
+import static com.softjourn.common.utils.ReflectionUtil.tryToCastValue;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -66,16 +68,11 @@ public class ReportServiceImpl implements ReportService {
             cell.setCellValue("");
         } else if (value instanceof Date)
             cell.setCellValue((Date) value);
-        else if (value instanceof Boolean)
-            cell.setCellValue((Boolean) value);
-        else if (value instanceof String)
-            cell.setCellValue((String) value);
-        else if (value instanceof Number)
-            cell.setCellValue(((Number) value).doubleValue());
         else if (value instanceof Instant)
             cell.setCellValue(instantToRFC_1123_DATE_TIME((Instant) value));
-        else if (value.getClass().isEnum())
-            cell.setCellValue(value.toString());
+        else if (value instanceof Number || value.getClass().isPrimitive())
+            cell.setCellValue((Double) tryToCastValue(Double.class, value));
+        else cell.setCellValue(value.toString());
 
         cell.setCellStyle(style);
 
