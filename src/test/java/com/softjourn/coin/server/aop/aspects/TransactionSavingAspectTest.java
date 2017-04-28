@@ -3,7 +3,6 @@ package com.softjourn.coin.server.aop.aspects;
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.Transaction;
-import com.softjourn.coin.server.entity.TransactionType;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.coin.server.service.CoinService;

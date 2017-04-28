@@ -36,19 +36,19 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <version>${spring.boot.version}</version>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
 
         <dependency>
             <groupId>com.softjourn</groupId>
             <artifactId>eris-java-client</artifactId>
-            <version>0.10.2</version>
+            <version>0.10.3</version>
         </dependency>
 
         <dependency>
             <groupId>com.softjourn</groupId>
             <artifactId>common</artifactId>
-            <version>0.3.0</version>
+            <version>0.4.2</version>
         </dependency>
 
         <dependency>
@@ -257,6 +257,13 @@
             <artifactId>spring-security-test</artifactId>
             <version>4.1.1.RELEASE</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- to create reports in xlx format-->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.16</version>
         </dependency>
 
     </dependencies>

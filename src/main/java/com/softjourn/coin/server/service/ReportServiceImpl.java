@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.softjourn.coin.server.util.Util.instantToRFC_1123_DATE_TIME;
+import static com.softjourn.common.utils.ReflectionUtil.tryToCastValue;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -42,14 +43,19 @@ public class ReportServiceImpl implements ReportService {
         HSSFCellStyle style = workbook.createCellStyle();
         style.setFont(font);
 
+        int columns = 0;
         // header
-        Row header = sheet.createRow(0);
-        int columns = prepareHeaders(header, style, 0, definers);
+        if (definers != null) {
+            Row header = sheet.createRow(0);
+            columns = prepareHeaders(header, style, 0, definers);
+        }
 
         // main content
-        for (int i = 0; i < entities.size(); i++) {
-            Row content = sheet.createRow(i + 1);
-            prepareContent(content, style, 0, definers, entities.get(i));
+        if (entities != null) {
+            for (int i = 0; i < entities.size(); i++) {
+                Row content = sheet.createRow(i + 1);
+                columns = prepareContent(content, style, 0, definers, entities.get(i));
+            }
         }
 
         // auto size columns width
@@ -60,28 +66,43 @@ public class ReportServiceImpl implements ReportService {
         return workbook;
     }
 
+    /**
+     * Method prepares cell and sets data and style into cell
+     *
+     * @param row    - row where is needed to add content
+     * @param style  - content style
+     * @param column - column index
+     * @param value  - value to set
+     * @return Cell
+     */
     private Cell prepareCell(Row row, CellStyle style, Integer column, Object value) {
         Cell cell = row.createCell(column);
         if (value == null) {
             cell.setCellValue("");
         } else if (value instanceof Date)
             cell.setCellValue((Date) value);
-        else if (value instanceof Boolean)
-            cell.setCellValue((Boolean) value);
-        else if (value instanceof String)
-            cell.setCellValue((String) value);
-        else if (value instanceof Number)
-            cell.setCellValue(((Number) value).doubleValue());
         else if (value instanceof Instant)
             cell.setCellValue(instantToRFC_1123_DATE_TIME((Instant) value));
-        else if (value.getClass().isEnum())
-            cell.setCellValue(value.toString());
+        else if (value instanceof Number || value.getClass().isPrimitive())
+            cell.setCellValue((Double) tryToCastValue(Double.class, value));
+        else if (value.getClass().isInstance(true))
+            cell.setCellValue((Boolean) tryToCastValue(Boolean.class, value));
+        else cell.setCellValue(value.toString());
 
         cell.setCellStyle(style);
 
         return cell;
     }
 
+    /**
+     * Method adds header into row reading definer of entity
+     *
+     * @param row      - row where is needed to add content
+     * @param style    - content style
+     * @param index    - number of column from where is needed to start filling
+     * @param definers - entity definer
+     * @return -  int - is needed for recursion
+     */
     private int prepareHeaders(Row row, CellStyle style, int index, List<ReportDefiner> definers) {
         for (ReportDefiner definer : definers) {
             if (definer.getDefiners().size() == 0 && definer.getHeader() != null) {
@@ -93,6 +114,19 @@ public class ReportServiceImpl implements ReportService {
         return index;
     }
 
+    /**
+     * Method adds content into row reading entity and definer of entity
+     *
+     * @param row      - row where is needed to add content
+     * @param style    - content style
+     * @param index    - number of column from where is needed to start filling
+     * @param definers - entity definer
+     * @param entity   - data
+     * @param <T>      - data class
+     * @return -  int - is needed for recursion
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     private <T> int prepareContent(Row row, CellStyle style, int index, List<ReportDefiner> definers, T entity) throws NoSuchFieldException, IllegalAccessException {
         for (ReportDefiner definer : definers) {
             if (entity == null) {

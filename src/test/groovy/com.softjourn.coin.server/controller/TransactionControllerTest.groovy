@@ -93,7 +93,7 @@ class TransactionControllerTest {
         GenericFilter.Condition gtCondition = new GenericFilter.Condition("created", "2017-02-10T10:12:45Z", GenericFilter.Comparison.gt)
         GenericFilter.Condition ltCondition = new GenericFilter.Condition("created", "2017-02-14T10:12:45Z", GenericFilter.Comparison.lt)
         GenericFilter.Condition inCondition = new GenericFilter.Condition("account", ["vdanyliuk", "ovovchuk"], GenericFilter.Comparison.in)
-        
+
         PageRequestImpl pageRequest = new PageRequestImpl(50, 0, new Sort(new Sort.Order(Sort.Direction.ASC, "amount")))
 
         filter = new GenericFilter<>([eqCondition, gtCondition, ltCondition, inCondition], pageRequest)
@@ -202,6 +202,7 @@ class TransactionControllerTest {
                         fieldWithPath("amount").description("Transaction funds amount"),
                         fieldWithPath("status").description("transaction status (SUCCESSFUL or FAILED)"),
                         fieldWithPath("error").description("Error description if tx fas failed"),
+                        fieldWithPath("type").description("Transaction type"),
                         fieldWithPath("remain").description("Error description if tx fas failed").ignored(),
                         fieldWithPath("transactionStoring").description("Additional information about transaction from blockchain"),
                         fieldWithPath("transactionStoring.chainId").description("Name of the Eris chain"),
@@ -298,9 +299,37 @@ class TransactionControllerTest {
                         fieldWithPath("created").description("Transaction created").type(JsonFieldType.STRING),
                         fieldWithPath("status").description("Transaction status").type(JsonFieldType.STRING),
                         fieldWithPath("error").description("Transaction error").type(JsonFieldType.STRING),
+                        fieldWithPath("type").description("Transaction type").type(JsonFieldType.STRING),
                         fieldWithPath("erisTransactionId").description("Transaction erisTransactionId").type(JsonFieldType.STRING),
                         fieldWithPath("transactionStoring").description("Transaction transactionStoring").type(JsonFieldType.OBJECT)
                 )))
+    }
+
+    @Test
+    void 'test of GET request to /v1/transactions/export endpoint'() {
+        mockMvc.perform(RestDocumentationRequestBuilders.post('/v1/transactions/export')
+                .content(json(filter))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + prepareToken(Collections.emptySet(), "ROLE_BILLING"))
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andDo(document("txs-filter-paths-export-request", preprocessRequest(prettyPrint()),
+                requestFields(
+                        fieldWithPath("conditions").description("All conditions").type(JsonFieldType.OBJECT),
+                        fieldWithPath("conditions[0].field").description("Field name for this condition").type(JsonFieldType.STRING),
+                        fieldWithPath("conditions[0].value").description("Field value").type(JsonFieldType.VARIES),
+                        fieldWithPath("conditions[0].comparison").description("Name of comparing method (eq, gt, lt, in)").type(JsonFieldType.STRING),
+                        fieldWithPath("pageable").description("Page information").type(JsonFieldType.OBJECT),
+                        fieldWithPath("pageable.size").description("Required page size").type(JsonFieldType.NUMBER),
+                        fieldWithPath("pageable.page").description("Page number").type(JsonFieldType.NUMBER),
+                        fieldWithPath("pageable.sort").description("Sorting options").type(JsonFieldType.ARRAY),
+                        fieldWithPath("pageable.sort[0].direction").description("Sort direction (ASC, DESC)").type(JsonFieldType.STRING),
+                        fieldWithPath("pageable.sort[0].property").description("Field to sort by").type(JsonFieldType.STRING),
+                        fieldWithPath("pageable.sort[0].ignoreCase").description("Field to sort by").type(JsonFieldType.BOOLEAN).optional(),
+                        fieldWithPath("pageable.sort[0].nullHandling").description("What to do with null values (NATIVE, NULLS_FIRST, NULLS_LAST)").type(JsonFieldType.STRING).optional(),
+                        fieldWithPath("pageable.sort[0].ascending").type(JsonFieldType.STRING).ignored()
+                )))
+                .andDo(document('txs-filter-paths-export-response',
+                preprocessResponse(prettyPrint())))
     }
 
     @Test

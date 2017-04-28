@@ -195,6 +195,9 @@ class CoinsControllerTests {
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
                                 .description('Error description'),
+                        fieldWithPath('type')
+                                .type(JsonFieldType.STRING)
+                                .description('Transaction type'),
                         fieldWithPath('transactionStoring')
                                 .type(JsonFieldType.OBJECT)
                                 .description('Error description')
@@ -250,6 +253,9 @@ class CoinsControllerTests {
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
                                 .description('Error description'),
+                        fieldWithPath('type')
+                                .type(JsonFieldType.STRING)
+                                .description('Transaction type'),
                         fieldWithPath('transactionStoring')
                                 .type(JsonFieldType.OBJECT)
                                 .description('Error description')
@@ -324,6 +330,9 @@ class CoinsControllerTests {
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
                                 .description('Error description'),
+                        fieldWithPath('type')
+                                .type(JsonFieldType.STRING)
+                                .description('Transaction type'),
                         fieldWithPath('transactionStoring')
                                 .type(JsonFieldType.OBJECT)
                                 .description('Error description')
@@ -373,6 +382,9 @@ class CoinsControllerTests {
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
                                 .description('Error description'),
+                        fieldWithPath('type')
+                                .type(JsonFieldType.STRING)
+                                .description('Transaction type'),
                         fieldWithPath('transactionStoring')
                                 .type(JsonFieldType.OBJECT)
                                 .description('Error description')
@@ -431,6 +443,9 @@ class CoinsControllerTests {
                         fieldWithPath('error')
                                 .type(JsonFieldType.STRING)
                                 .description('Error description'),
+                        fieldWithPath('type')
+                                .type(JsonFieldType.STRING)
+                                .description('Transaction type'),
                         fieldWithPath('transactionStoring')
                                 .type(JsonFieldType.OBJECT)
                                 .description('Error description'),

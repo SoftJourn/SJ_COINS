@@ -69,6 +69,7 @@ public class CoinServiceMoveTest {
         account2.setErisAccount(erisAccount2);
 
 
+
         when(principal.getName()).thenReturn("account1");
 
         TransactionMapper mapper = mock(TransactionMapper.class);

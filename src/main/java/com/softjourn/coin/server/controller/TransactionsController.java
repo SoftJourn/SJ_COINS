@@ -76,8 +76,8 @@ public class TransactionsController {
     }
 
     @PreAuthorize("hasRole('BILLING')")
-    @RequestMapping(value = "/report", method = RequestMethod.POST)
-    public String getSingleReplenishmentReport(@RequestBody GenericFilter<Transaction> filter) throws IOException, NoSuchFieldException, IllegalAccessException {
+    @RequestMapping(value = "/export", method = RequestMethod.POST)
+    public String export(@RequestBody GenericFilter<Transaction> filter) throws IOException, ReflectiveOperationException {
         Workbook workbook = service.export(filter);
 
         byte[] bytes;
