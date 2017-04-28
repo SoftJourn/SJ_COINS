@@ -10,34 +10,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.util.ClassUtils;
 
 import javax.persistence.Entity;
 import javax.persistence.criteria.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.stream.Stream;
 
-import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldName;
-import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldType;
+import static com.softjourn.common.utils.ReflectionUtil.*;
 
 
 @Data
 @NoArgsConstructor
 public class GenericFilter<T> implements Specification<T> {
-
-
-    private static final Map<Class, Class> WRAPPERS = Collections.unmodifiableMap(new HashMap<Class, Class>(){{
-        put(byte.class, Byte.class);
-        put(char.class, Character.class);
-        put(short.class, Short.class);
-        put(int.class, Integer.class);
-        put(long.class, Long.class);
-        put(boolean.class, Boolean.class);
-    }});
 
     private List<Condition> conditions = new ArrayList<>();
 
@@ -125,15 +108,6 @@ public class GenericFilter<T> implements Specification<T> {
         return criteriaBuilder.lessThanOrEqualTo(fieldPath, (Comparable) value);
     }
 
-    private Object getCastedValue(Path fieldPath, Object value) {
-        try {
-            Class fieldClass = fieldPath.getJavaType();
-            return tryToCastValue(fieldClass, value);
-        } catch (ReflectiveOperationException roe) {
-            throw new IllegalArgumentException("Can't cast value " + value + " to " + fieldPath.getJavaType() + ".");
-        }
-    }
-
     @SuppressWarnings("unchecked")
     private Predicate buildInPredicate(CriteriaBuilder criteriaBuilder, Root<T> root, Condition condition) {
         if (condition.value instanceof Collection) {
@@ -144,98 +118,9 @@ public class GenericFilter<T> implements Specification<T> {
         } else throw new IllegalArgumentException("Method buildInPredicate can be applied only for collections");
     }
 
-    @SuppressWarnings("unchecked")
-    private Object tryToCastValue(Class valueClass, Object value) throws ReflectiveOperationException {
-        if (valueClass.isInstance(value) || isWrapperFor(valueClass, value)) {
-            return value;
-        } else if (hasAppropriateConstructor(valueClass, value)) {
-            return getInstanceByConstructor(valueClass, value);
-        } else if (hasValueOfFactoryMethod(valueClass, value)) {
-            return getInstanceByValueOf(valueClass, value);
-        } else if (value instanceof String && hasParseFactoryMethod(valueClass)) {
-            return getInstanceByParse(valueClass, value);
-        } else if (value instanceof Integer && Number.class.isAssignableFrom(valueClass)) {
-            return valueClass.getConstructor(long.class).newInstance(value);
-        } else
-            throw new IllegalArgumentException("Can't create value of class " + valueClass.getName() + " from value " + value.toString());
-    }
-
-    private boolean isWrapperFor(Class valueClass, Object value) {
-        return valueClass.isPrimitive() && getWrapperClass(valueClass).isInstance(value);
-    }
-
-    private Class getWrapperClass(Class valueClass) {
-        return WRAPPERS.get(valueClass);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Object getInstanceByConstructor(Class valueClass, Object value) {
-        return Stream.of(valueClass.getConstructors())
-                .filter(constructor -> constructor.getParameterCount() == 1)
-                .filter(constructor -> ClassUtils.isAssignableValue(constructor.getParameterTypes()[0], value))
-                .findAny()
-                .map(constructor -> getInstanceByConstructor(value, constructor))
-                .orElseThrow(() -> new IllegalArgumentException("Can't create value of class " + valueClass.getName() + " from value " + value));
-    }
-
-    private Object getInstanceByConstructor(Object value, Constructor constructor) {
-        try {
-            return constructor.newInstance(value);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalArgumentException("Can't create value of class " + constructor.getDeclaringClass().getName() + " from value " + value);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private boolean hasAppropriateConstructor(Class valueClass, Object value) {
-        return Stream.of(valueClass.getConstructors())
-                .filter(constructor -> constructor.getParameterCount() == 1)
-                .anyMatch(constructor -> ClassUtils.isAssignableValue(constructor.getParameterTypes()[0], value));
-    }
-
-    private Object getInstanceByValueOf(Class valueClass, Object value) {
-        return getInstanceByFactoryMethod(valueClass, value, "valueOf");
-    }
-
-    private Object getInstanceByParse(Class valueClass, Object value) {
-        return getInstanceByFactoryMethod(valueClass, value, "parse");
-    }
-
-    @SuppressWarnings("unchecked")
-    private Object getInstanceByFactoryMethod(Class valueClass, Object value, String methodName) {
-            return Stream.of(valueClass.getMethods())
-                    .filter(method -> method.getName().equals(methodName))
-                    .map(method -> invokeFactoryMethod(method, value))
-                    .findAny()
-                    .orElseThrow(() -> new IllegalArgumentException("Class " + valueClass + " doesn't contain method " + methodName));
-    }
-
-    private Object invokeFactoryMethod(Method method, Object value) {
-        try {
-            return method.invoke(null, value);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalArgumentException("Can't create value of class " + method.getDeclaringClass().getName() + " from value " + value);
-        }
-    }
-
-    private boolean hasValueOfFactoryMethod(Class valueClass, Object value) {
-        return hasFactoryMethod(valueClass, "valueOf", value.getClass());
-    }
-
-    private boolean hasParseFactoryMethod(Class valueClass) {
-        return hasFactoryMethod(valueClass, "parse", String.class);
-    }
-
-    private boolean hasFactoryMethod(Class clazz, String methodName, Class argumentClass) {
-        return Stream.of(clazz.getMethods())
-                .filter(method -> method.getName().equals(methodName))
-                .filter(method -> method.getParameterCount() == 1)
-                .filter(this::isStatic)
-                .anyMatch(method -> method.getParameterTypes()[0].isAssignableFrom(argumentClass));
-    }
-
-    private boolean isStatic(Method method) {
-        return Modifier.isStatic(method.getModifiers());
+    private Object getCastedValue(Path fieldPath, Object value) {
+        Class fieldClass = fieldPath.getJavaType();
+        return tryToCastValue(fieldClass, value);
     }
 
     private Path getFieldPath(Root<T> root, Condition condition) {
@@ -250,11 +135,13 @@ public class GenericFilter<T> implements Specification<T> {
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private Path getPathBySimpleFieldOrEntityFieldIdForInCause(Root<T> root, Condition condition) {
-        if (condition.value instanceof Collection && !((Collection) condition.value).isEmpty()) {
-            Object value = ((Collection) condition.value).stream().findFirst().get();
-            return getPathBySimpleFieldOrEntityFieldId(root, condition.field, value);
+        if (condition.value instanceof Collection) {
+            return  ((Collection<?>) condition.value).stream()
+                    .map(val -> getPathBySimpleFieldOrEntityFieldId(root, condition.field, val))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Value for IN cause should be not empty."));
         } else {
-            throw new IllegalArgumentException("Condition value should be not empty collection.");
+            throw new IllegalArgumentException("Value for IN cause should be collection.");
         }
     }
 
@@ -340,11 +227,7 @@ public class GenericFilter<T> implements Specification<T> {
         private Sort sort;
 
         public Pageable toPageable() {
-            if (sort == null) {
-                return new PageRequest(page, size);
-            } else {
-                return new PageRequest(page, size, sort);
-            }
+            return new PageRequest(page, size, sort);
         }
     }
 }

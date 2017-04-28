@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldName;
-import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldType;
+import static com.softjourn.common.utils.ReflectionUtil.getIdFieldName;
+import static com.softjourn.common.utils.ReflectionUtil.getIdFieldType;
 
 public class AutocompleteService<T> {
 
