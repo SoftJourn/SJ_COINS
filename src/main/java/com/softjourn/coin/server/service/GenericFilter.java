@@ -15,9 +15,7 @@ import javax.persistence.Entity;
 import javax.persistence.criteria.*;
 import java.util.*;
 
-import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldName;
-import static com.softjourn.coin.server.util.ReflectionUtil.getIdFieldType;
-import static com.softjourn.common.utils.ReflectionUtil.tryToCastValue;
+import static com.softjourn.common.utils.ReflectionUtil.*;
 
 
 @Data
