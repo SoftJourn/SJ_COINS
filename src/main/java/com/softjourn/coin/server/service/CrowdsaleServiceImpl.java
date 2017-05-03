@@ -26,6 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.softjourn.coin.server.entity.TransactionType.EXPENSE;
+import static com.softjourn.coin.server.entity.TransactionType.WITHDRAW_FOUNDATION;
+
 @Slf4j
 @Service
 public class CrowdsaleServiceImpl implements CrowdsaleService {
@@ -42,15 +45,18 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
 
     private ErisAccountsService erisAccountsService;
 
+    private TransactionMapper mapper;
+
     @Autowired
-    public CrowdsaleServiceImpl(ErisContractService contractService, InstanceRepository instanceRepository, ErisAccountsService erisAccountsService) {
+    public CrowdsaleServiceImpl(ErisContractService contractService, InstanceRepository instanceRepository, ErisAccountsService erisAccountsService, TransactionMapper mapper) {
         this.contractService = contractService;
         this.instanceRepository = instanceRepository;
         this.erisAccountsService = erisAccountsService;
+        this.mapper = mapper;
     }
 
     @Override
-    @SaveTransaction(comment = "Donate to project")
+    @SaveTransaction(comment = "Donate to project", type = EXPENSE)
     public Transaction donate(DonateDTO dto, Principal principal) throws IOException {
         // look for instance address and eris account
         Instance instance = instanceRepository.findByAddress(dto.getContractAddress());
@@ -69,7 +75,7 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
                 log.error(response.getError().toString());
                 throw new ErisProcessingException(response.getError().getMessage());
             } else {
-                Transaction transaction = TransactionsService.prepareTransaction(new CrowdsaleTransactionResultDTO((Boolean) response.getReturnValues().get(0)),
+                Transaction transaction = mapper.prepareTransaction(new CrowdsaleTransactionResultDTO((Boolean) response.getReturnValues().get(0)),
                         response.getTxParams().getTxId(), String.format("Donate coins %d", dto.getAmount()));
 
                 transaction.setAccount(erisAccount.getAccount());
@@ -81,7 +87,7 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
     }
 
     @Override
-    @SaveTransaction(comment = "End project contract and withdraw money")
+    @SaveTransaction(comment = "End project contract and withdraw money", type = WITHDRAW_FOUNDATION)
     public Transaction withdraw(String address) throws IOException {
         // look for instance address
         Instance instance = instanceRepository.findByAddress(address);
@@ -98,7 +104,7 @@ public class CrowdsaleServiceImpl implements CrowdsaleService {
                 throw new ErisProcessingException(response.getError().getMessage());
             } else {
 
-                Transaction transaction = TransactionsService.prepareTransaction(new CrowdsaleTransactionResultDTO((Boolean) response.getReturnValues().get(0)),
+                Transaction transaction = mapper.prepareTransaction(new CrowdsaleTransactionResultDTO((Boolean) response.getReturnValues().get(0)),
                         response.getTxParams().getTxId(), "Withdraw coins");
 
                 transaction.setAccount(instance.getAccount());

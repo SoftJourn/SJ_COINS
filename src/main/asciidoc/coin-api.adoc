@@ -862,3 +862,25 @@ include::{snippets}/txs-filter-autocomplete-response/response-fields.adoc[]
 ==== Example response
 
 include::{snippets}/txs-filter-autocomplete-response/http-response.adoc[]
+
+=== Export transactions into excel
+
+A `POST` request  will return excel file in base64 formal
+
+[[resources-txs-filter-paths-export-request]]
+==== Example request
+
+[NOTE]
+====
+Don't forget to add authorization headers to the request
+
+"Authorization: Bearer <ACCESS_TOKEN>"
+====
+
+include::{snippets}/txs-filter-paths-export-request/http-request.adoc[]
+
+[[resources-txs-filter-paths-export-response]]
+
+==== Example response
+
+include::{snippets}/txs-filter-paths-export-response/http-response.adoc[]

@@ -10,7 +10,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 public class Util {
 
@@ -33,6 +37,14 @@ public class Util {
         if (!multipartFile.getContentType().matches(pattern)) {
             throw new WrongMimeTypeException(String.format("File's extension is not %s", pattern));
         }
+    }
+
+    public static String instantToRFC_1123_DATE_TIME(Instant instant) {
+        return DateTimeFormatter
+                .RFC_1123_DATE_TIME
+                .withLocale(Locale.getDefault())
+                .withZone(ZoneId.of("+0"))
+                .format(instant);
     }
 
 }

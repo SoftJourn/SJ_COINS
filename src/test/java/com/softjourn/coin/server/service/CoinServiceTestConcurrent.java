@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -80,8 +81,9 @@ public class CoinServiceTestConcurrent {
 
         when(accountsService.getAccount("user")).thenReturn(account);
         when(accountsService.getAccount("seller")).thenReturn(sellerAccount);
+        TransactionMapper mapper = mock(TransactionMapper.class);
 
-        coinService = new CoinService(accountsService, contractService, erisAccountRepository, transactionRepository);
+        coinService = new CoinService(accountsService, contractService, erisAccountRepository, transactionRepository, mapper);
 
         when(contractService.getTokenContractForAccount(any())).thenReturn(contract);
 

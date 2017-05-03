@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * ErisTransactionHelper
  * Created by vromanchuk on 12.01.17.
  */
-@Component
+//@Component
 @Slf4j
 public class ErisTransactionCollector implements Runnable {
 

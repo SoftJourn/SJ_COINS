@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.service;
 
+import com.softjourn.coin.server.dto.PageRequestImpl;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStoring;
@@ -96,7 +97,7 @@ public class TransactionsRepositoryFilterTest {
         filter.setConditions(conditions);
         List<Sort.Order> orders = Arrays.asList(new Sort.Order(Sort.Direction.ASC, "created"), new Sort.Order(Sort.Direction.ASC, "account"));
         Sort sort = new Sort(orders);
-        GenericFilter.PageRequestImpl pageRequest = new GenericFilter.PageRequestImpl(20, 0, sort);
+        PageRequestImpl pageRequest = new PageRequestImpl(20, 0, sort);
         filter.setInnerPageable(pageRequest.toPageable());
 
 

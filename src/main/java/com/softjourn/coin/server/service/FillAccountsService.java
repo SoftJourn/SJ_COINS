@@ -9,6 +9,7 @@ import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
+import com.softjourn.coin.server.entity.TransactionType;
 import com.softjourn.coin.server.exceptions.CouldNotReadFileException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInTreasuryException;
 import lombok.NonNull;
@@ -35,6 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import static com.softjourn.coin.server.entity.TransactionType.REGULAR_REPLENISHMENT;
 import static com.softjourn.coin.server.util.Util.dataToCSV;
 import static com.softjourn.coin.server.util.Util.getDataFromCSV;
 import static com.softjourn.coin.server.util.Util.validateMultipartFileMimeType;
@@ -43,15 +45,18 @@ import static com.softjourn.coin.server.util.Util.validateMultipartFileMimeType;
 @Service
 public class FillAccountsService {
 
-    @Autowired
-    @Qualifier("transactionResultMap")
-    private Map<String, List<Future<Transaction>>> map;
+    private final Map<String, List<Future<Transaction>>> map;
+
+    private final CoinService coinService;
+
+    private final AccountsService accountsService;
 
     @Autowired
-    private CoinService coinService;
-
-    @Autowired
-    private AccountsService accountsService;
+    public FillAccountsService(@Qualifier("transactionResultMap") Map<String, List<Future<Transaction>>> map, CoinService coinService, AccountsService accountsService) {
+        this.map = map;
+        this.coinService = coinService;
+        this.accountsService = accountsService;
+    }
 
     public ResultDTO fillAccounts(MultipartFile multipartFile) {
         // is file valid
@@ -113,7 +118,7 @@ public class FillAccountsService {
         dataToCSV(writer, collect, AccountFillDTO.class);
     }
 
-    @SaveTransaction(comment = "Move money from treasury to account.")
+    @SaveTransaction(comment = "Move money from treasury to account.", type = REGULAR_REPLENISHMENT)
     private Callable<Transaction> planJob(AccountFillDTO accountDTO) {
         return () -> this.coinService.fillAccount(accountDTO.getAccount(), accountDTO.getCoins(),
                 String.format("Filling account %s by %.0f coins", accountDTO.getAccount(), accountDTO.getCoins()));

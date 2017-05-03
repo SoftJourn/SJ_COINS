@@ -56,6 +56,7 @@ public class AutocompleteServiceTest {
             put("created", "date");
             put("status", "text");
             put("error", "text");
+            put("type", "text");
             put("account", new TreeMap<String, Object>() {{
                 put("ldapId", "text");
                 put("fullName", "text");

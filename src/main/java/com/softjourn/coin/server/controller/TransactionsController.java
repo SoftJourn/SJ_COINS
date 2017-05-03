@@ -5,15 +5,25 @@ import com.softjourn.coin.server.dto.MobileTransactionDTO;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.service.AutocompleteService;
 import com.softjourn.coin.server.service.GenericFilter;
+import com.softjourn.coin.server.service.ReportService;
 import com.softjourn.coin.server.service.TransactionsService;
 import com.softjourn.coin.server.util.JsonViews;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.Principal;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -25,10 +35,13 @@ public class TransactionsController {
 
     private AutocompleteService<Transaction> autocompleteService;
 
+    private ReportService reportService;
+
     @Autowired
-    public TransactionsController(TransactionsService service, AutocompleteService<Transaction> autocompleteService) {
+    public TransactionsController(TransactionsService service, AutocompleteService<Transaction> autocompleteService, ReportService reportService) {
         this.service = service;
         this.autocompleteService = autocompleteService;
+        this.reportService = reportService;
     }
 
     @JsonView(JsonViews.REGULAR.class)
@@ -60,6 +73,20 @@ public class TransactionsController {
     @RequestMapping(value = "/filter/autocomplete", method = RequestMethod.GET)
     public List getAutocompleteOptions(@RequestParam String field) {
         return autocompleteService.getAutocomplete(field);
+    }
+
+    @PreAuthorize("hasRole('BILLING')")
+    @RequestMapping(value = "/export", method = RequestMethod.POST)
+    public String export(@RequestBody GenericFilter<Transaction> filter) throws IOException, ReflectiveOperationException {
+        Workbook workbook = service.export(filter);
+
+        byte[] bytes;
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            workbook.write(bos);
+            bytes = bos.toByteArray();
+        }
+
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
     public enum Direction {

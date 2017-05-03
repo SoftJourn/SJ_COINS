@@ -5,6 +5,7 @@ import com.softjourn.coin.server.aop.annotations.SaveTransaction;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
+import com.softjourn.coin.server.entity.TransactionType;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.coin.server.service.CoinService;
@@ -72,6 +73,8 @@ public class TransactionSavingAspect {
         replaceIfNull(transaction::getAmount, transaction::setAmount, amount);
         String comment = getArgOrAnnotationValue(joinPoint, "comment", SaveTransaction::comment, Function.identity());
         replaceIfNull(transaction::getComment, transaction::setComment, comment);
+        TransactionType type = getArg(joinPoint, "type", TransactionType.class);
+        replaceIfNull(transaction::getType, transaction::setType, type);
         transaction.setCreated(Instant.now());
     }
 

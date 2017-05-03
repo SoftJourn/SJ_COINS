@@ -51,6 +51,10 @@ public class Transaction<T> implements Serializable {
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
+    @JsonView({JsonViews.DETAILED.class, JsonViews.REGULAR.class})
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
+
     @FilterIgnore
     private BigDecimal remain;
 
