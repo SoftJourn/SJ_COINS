@@ -1,16 +1,6 @@
 ALTER TABLE transactions ADD COLUMN type varchar(32);
 
 UPDATE transactions
-SET type = 'REGULAR_REPLENISHMENT'
-WHERE transactions.account_ldap_id IS NULL AND transactions.destination_ldap_id IS NOT NULL AND
-      transactions.amount = 1500 and transactions.type IS NULL;
-
-UPDATE transactions
-SET type = 'SINGLE_REPLENISHMENT'
-WHERE transactions.account_ldap_id IS NULL AND transactions.destination_ldap_id IS NOT NULL AND
-      transactions.amount != 1500 and transactions.type IS NULL;
-
-UPDATE transactions
 SET type = 'EXPENSE'
 WHERE transactions.destination_ldap_id in (SELECT account_ldap_id from instances) and transactions.type IS NULL;
 
@@ -41,3 +31,13 @@ WHERE transactions.comment LIKE '%Rollback%' and transactions.type IS NULL;
 UPDATE transactions
 SET type = 'DEPOSIT'
 WHERE transactions.comment LIKE '%Deposite cash%' and transactions.type IS NULL;
+
+UPDATE transactions
+SET type = 'REGULAR_REPLENISHMENT'
+WHERE transactions.account_ldap_id IS NULL AND transactions.destination_ldap_id IS NOT NULL AND
+      transactions.amount = 1500 and transactions.type IS NULL;
+
+UPDATE transactions
+SET type = 'SINGLE_REPLENISHMENT'
+WHERE transactions.account_ldap_id IS NULL AND transactions.destination_ldap_id IS NOT NULL AND
+      transactions.amount != 1500 and transactions.type IS NULL;
