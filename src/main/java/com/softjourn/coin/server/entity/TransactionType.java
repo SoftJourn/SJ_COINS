@@ -1,0 +1,8 @@
+package com.softjourn.coin.server.entity;
+
+public enum TransactionType {
+    DEPLOYMENT, SINGLE_REPLENISHMENT, REGULAR_REPLENISHMENT,
+    EXPENSE, WITHDRAW_OFFLINE, WITHDRAW_FOUNDATION,
+    DEPOSIT, TRANSFER, ROLLBACK,
+    UNKNOWN
+}

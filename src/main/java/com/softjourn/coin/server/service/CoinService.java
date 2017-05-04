@@ -9,12 +9,16 @@ import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.Transaction;
-import com.softjourn.coin.server.exceptions.*;
+import com.softjourn.coin.server.entity.TransactionType;
+import com.softjourn.coin.server.exceptions.AccountNotFoundException;
+import com.softjourn.coin.server.exceptions.ChequeIsUsedException;
+import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
+import com.softjourn.coin.server.exceptions.ErisProcessingException;
+import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
 import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.coin.server.util.QRCodeUtil;
 import com.softjourn.eris.contract.response.Response;
-import com.softjourn.eris.contract.response.TxParams;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
@@ -25,8 +29,19 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.softjourn.coin.server.entity.TransactionType.EXPENSE;
+import static com.softjourn.coin.server.entity.TransactionType.REGULAR_REPLENISHMENT;
+import static com.softjourn.coin.server.entity.TransactionType.ROLLBACK;
+import static com.softjourn.coin.server.entity.TransactionType.SINGLE_REPLENISHMENT;
+import static com.softjourn.coin.server.entity.TransactionType.TRANSFER;
+import static com.softjourn.coin.server.entity.TransactionType.WITHDRAW_OFFLINE;
 
 @Slf4j
 @Service
@@ -62,13 +77,16 @@ public class CoinService {
 
     private TransactionRepository transactionRepository;
 
+    private TransactionMapper mapper;
+
 
     @SuppressWarnings("unused")
     @Autowired
-    public CoinService(AccountsService accountsService, ErisContractService contractService, ErisAccountRepository erisAccountRepository, TransactionRepository transactionRepository) {
+    public CoinService(AccountsService accountsService, ErisContractService contractService, ErisAccountRepository erisAccountRepository, TransactionRepository transactionRepository, TransactionMapper mapper) {
         this.accountsService = accountsService;
         this.contractService = contractService;
         this.transactionRepository = transactionRepository;
+        this.mapper = mapper;
     }
 
     @PostConstruct
@@ -80,7 +98,7 @@ public class CoinService {
     }
 
     @SuppressWarnings("unused")
-    @SaveTransaction(comment = "Moving money to user.")
+    @SaveTransaction(comment = "Moving money to user.", type = SINGLE_REPLENISHMENT)
     public Transaction fillAccount(@NonNull String destinationName,
                                    @NonNull BigDecimal amount,
                                    String comment) {
@@ -93,13 +111,13 @@ public class CoinService {
 
             Response response = moveByEris(treasuryErisAccount, erisAccount.getAddress(), amount);
 
-            return mapToTransaction(response);
+            return mapper.mapToTransaction(response);
         }
 
     }
 
     @SuppressWarnings("unused")
-    @SaveTransaction(comment = "Distributing money.")
+    @SaveTransaction(comment = "Distributing money.", type = REGULAR_REPLENISHMENT)
     public Transaction distribute(BigDecimal amount, String comment) {
         try {
             List<Account> accounts = accountsService.getAll(AccountType.REGULAR);
@@ -124,7 +142,7 @@ public class CoinService {
                     .flatMap(v -> v ? Optional.of(1) : Optional.empty())
                     .orElseThrow(NotEnoughAmountInAccountException::new);
 
-            return mapToTransaction(response);
+            return mapper.mapToTransaction(response);
 
         } catch (Exception e) {
             throw new ErisProcessingException("Can't distribute money.", e);
@@ -132,7 +150,7 @@ public class CoinService {
     }
 
     @SuppressWarnings("unused")
-    @SaveTransaction(comment = "Transfer money")
+    @SaveTransaction(comment = "Transfer money", type = TRANSFER)
     public synchronized Transaction move(@NonNull String accountName,
                                          @NonNull String destinationName,
                                          @NonNull BigDecimal amount,
@@ -153,7 +171,7 @@ public class CoinService {
 
         Response response = moveByEris(donor, acceptor.getAddress(), amount);
 
-        return mapToTransaction(response);
+        return mapper.mapToTransaction(response);
     }
 
 
@@ -196,7 +214,7 @@ public class CoinService {
     }
 
     @SuppressWarnings("unused")
-    @SaveTransaction(comment = "Buying")
+    @SaveTransaction(comment = "Buying", type = EXPENSE)
     public Transaction buy(@NonNull String destinationName, @NonNull String accountName, @NonNull BigDecimal amount, String comment) {
         synchronized (getMonitor(accountName)) {
             checkEnoughAmount(accountName, amount);
@@ -209,27 +227,27 @@ public class CoinService {
 
             Response response = moveByEris(erisAccount, sellerAccount.getAddress(), amount);
 
-            return mapToTransaction(response);
+            return mapper.mapToTransaction(response);
         }
     }
 
-    @SaveTransaction(comment = "Rollback previous transaction.")
+    @SaveTransaction(comment = "Rollback previous transaction.", type = ROLLBACK)
     public Transaction rollback(Long txId) {
         Transaction transaction = transactionRepository.findOne(txId);
         Account user = transaction.getAccount();
         Account merchant = transaction.getDestination();
         BigDecimal amount = transaction.getAmount();
         Response response = moveByEris(merchant.getErisAccount(), user.getErisAccount().getAddress(), amount);
-        Transaction rollbackTx = mapToTransaction(response);
+        Transaction rollbackTx = mapper.mapToTransaction(response);
         rollbackTx.setAccount(merchant);
         rollbackTx.setDestination(user);
         rollbackTx.setAmount(amount);
-        rollbackTx.setComment("Rollback buying body. ID: " + txId);
+        rollbackTx.setComment("Rollback buying transaction. ID: " + txId);
         return rollbackTx;
     }
 
     @SuppressWarnings({"unused", "unchecked"})
-    @SaveTransaction(comment = "Withdrawing money")
+    @SaveTransaction(comment = "Withdrawing money", type = WITHDRAW_OFFLINE)
     public Transaction<byte[]> withdraw(@NonNull String accountName, @NonNull BigDecimal amount, String comment, boolean image) {
         try {
             checkEnoughAmount(accountName, amount);
@@ -256,7 +274,7 @@ public class CoinService {
                     .map(v -> image ? QRCodeUtil.genQRCode(v) : v.getBytes())
                     .orElseThrow(() -> new ErisProcessingException("Wrong server response."));
 
-            Transaction<byte[]> transaction = mapToTransaction(response);
+            Transaction<byte[]> transaction = mapper.mapToTransaction(response);
             transaction.setValue(resultData);
 
             return transaction;
@@ -267,7 +285,7 @@ public class CoinService {
 
     }
 
-    @SaveTransaction(comment = "Deposit money")
+    @SaveTransaction(comment = "Deposit money", type = TransactionType.DEPOSIT)
     public Transaction deposit(CashDTO cashDTO, String destinationName, String comment, BigDecimal amount) {
         try {
             ErisAccount account = getErisAccount(destinationName);
@@ -284,7 +302,7 @@ public class CoinService {
                 throw new ChequeIsUsedException();
             }
 
-            return mapToTransaction(response);
+            return mapper.mapToTransaction(response);
         } catch (Exception e) {
             throw new ErisProcessingException("Can't deposite money." + e.getMessage(), e);
         }
@@ -327,16 +345,8 @@ public class CoinService {
         }
     }
 
-    private Transaction mapToTransaction(Response response) {
-        return Optional.ofNullable(response)
-                .map(Response::getTxParams)
-                .map(TxParams::getTxId)
-                .map(Transaction::new)
-                .orElseGet(Transaction::new);
-    }
-
     @SuppressWarnings("unused")
-    @SaveTransaction(comment = "Move money from merchant account to treasury.")
+    @SaveTransaction(comment = "Move money from merchant account to treasury.", type = TRANSFER)
     public synchronized Transaction moveToTreasury(String accountName, BigDecimal amount, String comment) {
         checkAmountIsPositive(amount);
 
@@ -350,7 +360,7 @@ public class CoinService {
 
         Response response = moveByEris(erisAccount, treasuryAccountAddress, amount);
 
-        return mapToTransaction(response);
+        return mapper.mapToTransaction(response);
     }
 
     private ErisAccount getErisAccount(String ldapId) {

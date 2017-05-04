@@ -2,26 +2,36 @@ package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.controller.TransactionsController;
 import com.softjourn.coin.server.dto.MobileTransactionDTO;
+import com.softjourn.coin.server.dto.ReportDefiner;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.repository.TransactionRepository;
+import com.softjourn.eris.contract.response.Response;
+import com.softjourn.eris.contract.response.TxParams;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static com.softjourn.coin.server.service.GenericFilter.Condition.eq;
 
 @Service
-public class TransactionsService {
+public class TransactionsService implements TransactionMapper {
 
     TransactionRepository repository;
 
+    ReportService reportService;
+
     @Autowired
-    public TransactionsService(TransactionRepository repository) {
+    public TransactionsService(TransactionRepository repository, ReportService reportService) {
         this.repository = repository;
+        this.reportService = reportService;
     }
 
     public Page<Transaction> getFiltered(GenericFilter<Transaction> filter, Pageable pageable) {
@@ -40,20 +50,49 @@ public class TransactionsService {
 
     private GenericFilter<Transaction> getFilter(TransactionsController.Direction direction, String user) {
         switch (direction) {
-            case IN: return GenericFilter.or(eq("destination", user));
-            case OUT: return GenericFilter.or(eq("account", user));
-            default: return GenericFilter.or(eq("account", user), eq("destination", user));
+            case IN:
+                return GenericFilter.or(eq("destination", user));
+            case OUT:
+                return GenericFilter.or(eq("account", user));
+            default:
+                return GenericFilter.or(eq("account", user), eq("destination", user));
         }
     }
 
+    public Workbook export(GenericFilter<Transaction> filter) throws NoSuchFieldException, IllegalAccessException {
+        Page<Transaction> transactions = getFiltered(filter, filter.getPageable().toPageable());
+
+        List<ReportDefiner> definers = new ArrayList<>();
+
+        ReportDefiner account = new ReportDefiner("account", null);
+        account.getDefiners().add(new ReportDefiner("fullName", "Account"));
+
+        ReportDefiner destination = new ReportDefiner("destination", null);
+        destination.getDefiners().add(new ReportDefiner("fullName", "Destination"));
+
+        definers.add(account);
+        definers.add(new ReportDefiner("amount", "Amount"));
+        definers.add(new ReportDefiner("comment", "Comment"));
+        definers.add(new ReportDefiner("created", "Created"));
+        definers.add(destination);
+        definers.add(new ReportDefiner("error", "Error"));
+        definers.add(new ReportDefiner("status", "Status"));
+        definers.add(new ReportDefiner("type", "Type"));
+
+
+        return reportService.toReport("Transactions report", transactions.getContent(), definers);
+
+    }
+
     /**
-     * Metrod prepares Transaction object
+     * Method prepares Transaction object
+     *
      * @param o
      * @param erisTransactionId
      * @param comment
      * @return Transaction
      */
-    public static Transaction prepareTransaction(Object o, String erisTransactionId, String comment) {
+    public Transaction prepareTransaction(Object o, String erisTransactionId, String comment) {
         Transaction<Object> transaction = new Transaction<>(erisTransactionId);
         transaction.setComment(comment);
         transaction.setAmount(null);
@@ -61,6 +100,20 @@ public class TransactionsService {
         transaction.setCreated(Instant.now());
         transaction.setValue(o);
         return transaction;
+    }
+
+    /**
+     * Method maps eris response to transaction
+     *
+     * @param response
+     * @return Transaction
+     */
+    public Transaction mapToTransaction(Response response) {
+        return Optional.ofNullable(response)
+                .map(Response::getTxParams)
+                .map(TxParams::getTxId)
+                .map(Transaction::new)
+                .orElseGet(Transaction::new);
     }
 
 }

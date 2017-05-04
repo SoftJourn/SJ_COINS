@@ -108,3 +108,5 @@ ALTER TABLE instances ADD COLUMN account_ldap_id varchar(255) NOT NULL;
 
 ALTER TABLE instances
   ADD CONSTRAINT FKhr2kxnlv3eb3x30dm2l9fpvdf FOREIGN KEY (account_ldap_id) REFERENCES accounts (ldap_id);
+
+ALTER TABLE transactions ADD COLUMN type varchar(32);

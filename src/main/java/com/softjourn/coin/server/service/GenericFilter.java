@@ -1,21 +1,30 @@
 package com.softjourn.coin.server.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.softjourn.coin.server.util.SortJsonDeserializer;
+import com.softjourn.coin.server.dto.PageRequestImpl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.Entity;
-import javax.persistence.criteria.*;
-import java.util.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
-import static com.softjourn.common.utils.ReflectionUtil.*;
+import static com.softjourn.common.utils.ReflectionUtil.getIdFieldName;
+import static com.softjourn.common.utils.ReflectionUtil.getIdFieldType;
+import static com.softjourn.common.utils.ReflectionUtil.tryToCastValue;
 
 
 @Data
@@ -214,20 +223,6 @@ public class GenericFilter<T> implements Specification<T> {
 
         public static Condition lt(String field, Object value) {
             return new Condition(field, value, Comparison.lt);
-        }
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class PageRequestImpl {
-        private int size;
-        private int page;
-        @JsonDeserialize(using = SortJsonDeserializer.class)
-        private Sort sort;
-
-        public Pageable toPageable() {
-            return new PageRequest(page, size, sort);
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.softjourn.coin.server.aop.annotations;
 
 
+import com.softjourn.coin.server.entity.TransactionType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -30,5 +32,7 @@ public @interface SaveTransaction {
     String destinationName() default "";
 
     String comment();
+
+    TransactionType type();
 
 }

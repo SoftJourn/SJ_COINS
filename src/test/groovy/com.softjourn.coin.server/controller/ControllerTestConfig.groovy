@@ -3,6 +3,8 @@ package com.softjourn.coin.server.controller
 import com.softjourn.coin.server.dto.*
 import com.softjourn.coin.server.entity.*
 import com.softjourn.coin.server.service.*
+import org.apache.poi.hssf.usermodel.HSSFWorkbook
+import org.apache.poi.ss.usermodel.Workbook
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
@@ -186,6 +188,7 @@ class ControllerTestConfig {
                 return page
             }
         })
+        when(transactionsService.export(any() as GenericFilter<Transaction>)).thenReturn(new HSSFWorkbook())
         when(transactionsService.getForUser(anyString(), any(Pageable.class), any(TransactionsController.Direction))).thenReturn(page.map({ tx -> new MobileTransactionDTO(tx) }))
 
         transactionsService

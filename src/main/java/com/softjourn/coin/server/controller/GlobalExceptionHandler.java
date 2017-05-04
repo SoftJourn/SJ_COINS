@@ -135,6 +135,14 @@ public class GlobalExceptionHandler {
         return buildErrorDetails(e, null, message);
     }
 
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(ReflectiveOperationException.class)
+    public ErrorDetail handle(ReflectiveOperationException e) {
+        log.info(e.getMessage());
+
+        return buildErrorDetails(e, null, e.getLocalizedMessage());
+    }
+
     private ErrorDetail buildErrorDetails(Exception e, Integer code, String message) {
         ErrorDetail errorDetail = new ErrorDetail();
         errorDetail.setTitle("Error");

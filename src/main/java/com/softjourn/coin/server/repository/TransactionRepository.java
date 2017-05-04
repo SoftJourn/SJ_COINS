@@ -10,4 +10,5 @@ public interface TransactionRepository extends CrudRepository<Transaction, Long>
 
     @Override
     <T extends Transaction> T save(T transaction);
+
 }

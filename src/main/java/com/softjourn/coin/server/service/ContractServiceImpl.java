@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.softjourn.coin.server.entity.TransactionType.DEPLOYMENT;
 import static com.softjourn.eris.contract.Util.parseAbi;
 
 @Service
@@ -51,19 +52,22 @@ public class ContractServiceImpl implements ContractService {
 
     private final AccountRepository accountRepository;
 
+    private final TransactionMapper mapper;
+
     @Autowired
     public ContractServiceImpl(ContractRepository contractRepository, InstanceRepository instanceRepository,
-                               TypeRepository typeRepository, ErisContractService contractService, AccountRepository accountRepository, ErisAccountRepository erisAccountRepository) {
+                               TypeRepository typeRepository, ErisContractService contractService, AccountRepository accountRepository, ErisAccountRepository erisAccountRepository, TransactionMapper mapper) {
         this.contractRepository = contractRepository;
         this.instanceRepository = instanceRepository;
         this.typeRepository = typeRepository;
         this.contractService = contractService;
         this.accountRepository = accountRepository;
+        this.mapper = mapper;
     }
 
 
     @Override
-    @SaveTransaction(comment = "New contract deploing")
+    @SaveTransaction(comment = "New contract deploying", type = DEPLOYMENT)
     @Transactional
     public synchronized Transaction newContract(NewContractDTO dto) {
         // deploy contract on eris
@@ -92,7 +96,7 @@ public class ContractServiceImpl implements ContractService {
             ContractCreateResponseDTO contractDTO = new ContractCreateResponseDTO(contract.getId(), newInstance.getName(),
                     contract.getType().getType(), newInstance.getAddress());
             // prepare transaction
-            Transaction transaction = TransactionsService.prepareTransaction(contractDTO, deployResponse.getResult().getTx_id(),
+            Transaction transaction = mapper.prepareTransaction(contractDTO, deployResponse.getResult().getTx_id(),
                     String.format("Deploy contract %s", account.getFullName()));
 
             transaction.setAccount(newAccount);
@@ -153,7 +157,7 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     @Transactional
-    @SaveTransaction(comment = "New contract instance creating")
+    @SaveTransaction(comment = "New contract instance creating", type = DEPLOYMENT)
     public synchronized Transaction newInstance(NewContractInstanceDTO dto) {
         // look for existing contract
         Contract contract = contractRepository.findOne(dto.getContractId());
@@ -174,7 +178,7 @@ public class ContractServiceImpl implements ContractService {
             ContractCreateResponseDTO contractDTO = new ContractCreateResponseDTO(contract.getId(), newInstance.getName(),
                     contract.getType().getType(), newInstance.getAddress());
             // prepare transaction
-            Transaction transaction = TransactionsService.prepareTransaction(contractDTO, deployResponse.getResult().getTx_id(),
+            Transaction transaction = mapper.prepareTransaction(contractDTO, deployResponse.getResult().getTx_id(),
                     String.format("Deploy contract %s", account.getFullName()));
 
             transaction.setAccount(newAccount);
@@ -187,9 +191,10 @@ public class ContractServiceImpl implements ContractService {
 
     /**
      * Method prepares Instance object
-     * @param contract database Contract entity
+     *
+     * @param contract     database Contract entity
      * @param erisContract Eris contract object
-     * @param name name for new instance
+     * @param name         name for new instance
      * @return Instance
      */
     private Instance prepareInstance(Contract contract, com.softjourn.eris.contract.Contract erisContract, String name) {
@@ -202,6 +207,7 @@ public class ContractServiceImpl implements ContractService {
 
     /**
      * Method prepares Account object
+     *
      * @param type Contract type string
      * @param name Contract instance name
      * @return Account
@@ -220,6 +226,7 @@ public class ContractServiceImpl implements ContractService {
 
     /**
      * Method prepares ErisAccount object
+     *
      * @param account Database Account entity
      * @param address Eris address of account
      * @return ErisAccount
