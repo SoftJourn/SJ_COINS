@@ -2,10 +2,11 @@ package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.controller.TransactionsController;
 import com.softjourn.coin.server.dto.MobileTransactionDTO;
-import com.softjourn.coin.server.dto.ReportDefiner;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.repository.TransactionRepository;
+import com.softjourn.common.export.ExcelServiceImpl;
+import com.softjourn.common.export.ExportDefiner;
 import com.softjourn.eris.contract.response.Response;
 import com.softjourn.eris.contract.response.TxParams;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -26,12 +27,9 @@ public class TransactionsService implements TransactionMapper {
 
     TransactionRepository repository;
 
-    ReportService reportService;
-
     @Autowired
-    public TransactionsService(TransactionRepository repository, ReportService reportService) {
+    public TransactionsService(TransactionRepository repository) {
         this.repository = repository;
-        this.reportService = reportService;
     }
 
     public Page<Transaction> getFiltered(GenericFilter<Transaction> filter, Pageable pageable) {
@@ -62,26 +60,24 @@ public class TransactionsService implements TransactionMapper {
     public Workbook export(GenericFilter<Transaction> filter) throws NoSuchFieldException, IllegalAccessException {
         Page<Transaction> transactions = getFiltered(filter, filter.getPageable().toPageable());
 
-        List<ReportDefiner> definers = new ArrayList<>();
+        List<ExportDefiner> definers = new ArrayList<>();
 
-        ReportDefiner account = new ReportDefiner("account", null);
-        account.getDefiners().add(new ReportDefiner("fullName", "Account"));
+        ExportDefiner account = new ExportDefiner("account", null);
+        account.getDefiners().add(new ExportDefiner("fullName", "Account"));
 
-        ReportDefiner destination = new ReportDefiner("destination", null);
-        destination.getDefiners().add(new ReportDefiner("fullName", "Destination"));
+        ExportDefiner destination = new ExportDefiner("destination", null);
+        destination.getDefiners().add(new ExportDefiner("fullName", "Destination"));
 
         definers.add(account);
-        definers.add(new ReportDefiner("amount", "Amount"));
-        definers.add(new ReportDefiner("comment", "Comment"));
-        definers.add(new ReportDefiner("created", "Created"));
+        definers.add(new ExportDefiner("amount", "Amount"));
+        definers.add(new ExportDefiner("comment", "Comment"));
+        definers.add(new ExportDefiner("created", "Created"));
         definers.add(destination);
-        definers.add(new ReportDefiner("error", "Error"));
-        definers.add(new ReportDefiner("status", "Status"));
-        definers.add(new ReportDefiner("type", "Type"));
+        definers.add(new ExportDefiner("error", "Error"));
+        definers.add(new ExportDefiner("status", "Status"));
+        definers.add(new ExportDefiner("type", "Type"));
 
-
-        return reportService.toReport("Transactions report", transactions.getContent(), definers);
-
+        return new ExcelServiceImpl().export("Transactions report", transactions.getContent(), definers);
     }
 
     /**
