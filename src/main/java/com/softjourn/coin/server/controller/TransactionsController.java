@@ -5,7 +5,6 @@ import com.softjourn.coin.server.dto.MobileTransactionDTO;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.service.AutocompleteService;
 import com.softjourn.coin.server.service.GenericFilter;
-import com.softjourn.coin.server.service.ReportService;
 import com.softjourn.coin.server.service.TransactionsService;
 import com.softjourn.coin.server.util.JsonViews;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -35,13 +34,11 @@ public class TransactionsController {
 
     private AutocompleteService<Transaction> autocompleteService;
 
-    private ReportService reportService;
 
     @Autowired
-    public TransactionsController(TransactionsService service, AutocompleteService<Transaction> autocompleteService, ReportService reportService) {
+    public TransactionsController(TransactionsService service, AutocompleteService<Transaction> autocompleteService) {
         this.service = service;
         this.autocompleteService = autocompleteService;
-        this.reportService = reportService;
     }
 
     @JsonView(JsonViews.REGULAR.class)

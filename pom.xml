@@ -48,7 +48,7 @@
         <dependency>
             <groupId>com.softjourn</groupId>
             <artifactId>common</artifactId>
-            <version>0.4.3</version>
+            <version>0.4.4</version>
         </dependency>
 
         <dependency>
@@ -257,13 +257,6 @@
             <artifactId>spring-security-test</artifactId>
             <version>4.1.1.RELEASE</version>
             <scope>test</scope>
-        </dependency>
-
-        <!-- to create reports in xlx format-->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>3.16</version>
         </dependency>
 
         <dependency>
