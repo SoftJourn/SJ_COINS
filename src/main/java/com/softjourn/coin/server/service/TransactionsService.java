@@ -5,7 +5,7 @@ import com.softjourn.coin.server.dto.MobileTransactionDTO;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.repository.TransactionRepository;
-import com.softjourn.common.export.ExcelServiceImpl;
+import com.softjourn.common.export.ExcelExport;
 import com.softjourn.common.export.ExportDefiner;
 import com.softjourn.eris.contract.response.Response;
 import com.softjourn.eris.contract.response.TxParams;
@@ -57,7 +57,7 @@ public class TransactionsService implements TransactionMapper {
         }
     }
 
-    public Workbook export(GenericFilter<Transaction> filter) throws NoSuchFieldException, IllegalAccessException {
+    public Workbook export(GenericFilter<Transaction> filter) throws ReflectiveOperationException {
         Page<Transaction> transactions = getFiltered(filter, filter.getPageable().toPageable());
 
         List<ExportDefiner> definers = new ArrayList<>();
@@ -77,7 +77,7 @@ public class TransactionsService implements TransactionMapper {
         definers.add(new ExportDefiner("status", "Status"));
         definers.add(new ExportDefiner("type", "Type"));
 
-        return new ExcelServiceImpl().export("Transactions report", transactions.getContent(), definers);
+        return new ExcelExport().export("Transactions report", transactions.getContent(), definers);
     }
 
     /**
