@@ -2,28 +2,90 @@
 
 ## Start up documentation
 
-### Step 1: create databases structure
+### Step 1: Create databases structure
 
 #### Enter as root user and create user for these databases using commands:
 
 ```sql
-Create User 'sj_vending'@'localhost' IDENTIFIED BY '2XenNakX1e3RLrpT';
-grant all privileges on *.* to 'sj_vending'@'localhost';
+CREATE USER 'user'@'localhost' IDENTIFIED BY 'somePassword';
+
+GRANT ALL PRIVILEGES ON *.* TO 'user'@'localhost';
 ```
 
 #### Enter as this new user and create databases:
 
 ```sql
-create database sj_coins character set utf8;
+CREATE DATABASE sj_coins CHARACTER SET utf8;
 ```
 
-#### Init databases using sql scripts which are located in db folders of each module;
+#### NOTE: All the tables will be created during the first service start.
 
-### Step 2: Add certificates to your jvm's key storage:
+### Step 2: Install and create application with the help of Monax Platform:
 
-#### Go to your jre's key tool directory(by default it is "/usr/java/latest/jre/bin/keytool") and use commands(by default to set certificate password "changeit" is used):
+Please read the "Getting started" tutorial [here](https://monax.io/docs/getting-started/)
+
+
+### Step 3: Add sensitive properties:
 
 ```bash
-sudo keytool -import -alias coins -file ~/sj_coins/coin-server/src/main/resources/ssl/coins.cer -keystore cacerts
+mkdir $HOME/.coins
+mkdir $HOME/.coins/images
+touch application.properties
 ```
-#### Reboot system to use certificates
+
+Add this properties to the previously created file
+
+```properties
+#DATABASE
+spring.datasource.url=jdbc:mysql://127.0.0.1:3306/sj_coins?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false
+spring.datasource.username=user
+spring.datasource.password=somePassword
+
+#ERIS
+eris.token.contract.address=someAddress
+eris.token.contract.file=contractFileName
+
+eris.offline.contract.address=someAddress
+eris.offline.contract.file=contractFileName
+
+eris.treasury.account.address=someAddress
+eris.treasury.account.key.public=somePublicKey
+eris.treasury.account.key.private=somePrivateKey
+
+eris.chain.url=http://hostname:1337
+eris.compiler.url=http://hostname/compile
+eris.chain.version=0.11
+
+#AUTH
+authPublicKeyFile=/home/username/.coins/auth.pub
+auth.server.url=https://hostname
+auth.client.client-id=clientId
+auth.client.client-secret=clientSecret
+
+```
+
+### Step 4: Add logback configuration
+
+```bash
+cd $HOME/.coins
+touch logback.xml
+```
+
+Add basic configuration to the file
+
+```xml
+<configuration debug="true" scan="true" scanPeriod="30">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-35(%d{dd-MM-yyyy} %magenta(%d{HH:mm:ss}) [%5.10(%thread)]) %highlight(%-5level) %cyan(%logger{16}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
+```
+
+### Step 5: Run project
