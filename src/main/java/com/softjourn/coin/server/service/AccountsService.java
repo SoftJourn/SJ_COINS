@@ -4,10 +4,10 @@ package com.softjourn.coin.server.service;
 import com.softjourn.coin.server.dto.MerchantDTO;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
-import com.softjourn.coin.server.entity.ErisAccount;
+import com.softjourn.coin.server.entity.FabricAccount;
 import com.softjourn.coin.server.exceptions.*;
 import com.softjourn.coin.server.repository.AccountRepository;
-import com.softjourn.coin.server.repository.ErisAccountRepository;
+import com.softjourn.coin.server.repository.FabricAccountRepository;
 import com.softjourn.common.auth.OAuthHelper;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 import lombok.NonNull;
@@ -40,10 +40,10 @@ public class AccountsService {
 
     private static final String DEFAULT_IMAGE_NAME = "/account/default";
 
-    private ErisAccountsService erisAccountsService;
+    private CertificateService certificateService;
     private CoinService coinService;
 
-    private ErisAccountRepository erisAccountRepository;
+    private FabricAccountRepository fabricAccountRepository;
     private AccountRepository accountRepository;
 
     private String authServerUrl;
@@ -54,21 +54,21 @@ public class AccountsService {
 
     @Autowired
     public AccountsService(AccountRepository accountRepository,
-                           ErisAccountRepository erisAccountRepository,
+                           FabricAccountRepository fabricAccountRepository,
                            @Lazy CoinService coinService,
-                           ErisAccountsService erisAccountsService,
                            @Value("${auth.server.url}") String authServerUrl,
                            OAuthHelper oAuthHelper,
                            @Value("${image.storage.path}") String imageStoragePath,
-                           @Value("${image.account.default}") String defaultAccountImagePath) {
+                           @Value("${image.account.default}") String defaultAccountImagePath,
+                           CertificateService certificateService) {
         this.accountRepository = accountRepository;
-        this.erisAccountRepository = erisAccountRepository;
+        this.fabricAccountRepository = fabricAccountRepository;
         this.coinService = coinService;
-        this.erisAccountsService = erisAccountsService;
         this.authServerUrl = authServerUrl;
         this.oAuthHelper = oAuthHelper;
         this.imageStoragePath = imageStoragePath;
         this.defaultAccountImagePath = defaultAccountImagePath;
+        this.certificateService = certificateService;
     }
 
     public List<Account> getAll() {
@@ -110,15 +110,15 @@ public class AccountsService {
         newMerchantAccount.setFullName(merchantDTO.getName());
         newMerchantAccount.setAccountType(accountType);
         newMerchantAccount.setNew(true);
-        ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
+        FabricAccount fabricAccount = certificateService.newFabricAccount(merchantDTO.getUniqueId());
 
-        if (erisAccount == null) {
+        if (fabricAccount == null) {
             throw new ErisAccountNotFoundException();
         }
 
         newMerchantAccount = accountRepository.save(newMerchantAccount);
-        erisAccount.setAccount(newMerchantAccount);
-        erisAccountRepository.save(erisAccount);
+        fabricAccount.setAccount(newMerchantAccount);
+        fabricAccountRepository.save(fabricAccount);
 
         return newMerchantAccount;
     }
@@ -232,26 +232,20 @@ public class AccountsService {
     @Transactional
     Account createAccount(String ldapId) {
         return Optional.ofNullable(getAccountIfExistInLdapBase(ldapId))
-            .map(a -> buildAccount(a, getNewErisAccount()))
+            .map(a -> buildAccount(a, certificateService.newFabricAccount(a.getLdapId())))
             .map(a -> accountRepository.save(a))
             .orElseThrow(() -> new AccountNotFoundException(ldapId));
     }
 
-    private Account buildAccount(Account account, ErisAccount erisAccount) {
+    private Account buildAccount(Account account, FabricAccount fabricAccount) {
         account.setAmount(new BigDecimal(0));
         account.setImage(DEFAULT_IMAGE_NAME);
         account.setAccountType(AccountType.REGULAR);
         account.setNew(true);
         account.setAccountType(REGULAR);
-        account.setErisAccount(erisAccount);
-        erisAccount.setAccount(account);
+        account.setFabricAccount(fabricAccount);
+        fabricAccount.setAccount(account);
         return account;
-    }
-
-    private ErisAccount getNewErisAccount() {
-        ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
-        if (erisAccount == null) throw new ErisProcessingException("Can't create new ErisAccount");
-        return erisAccount;
     }
 
     private Account checkAndChangeIsNewStatus(Boolean isNew, Account account) {

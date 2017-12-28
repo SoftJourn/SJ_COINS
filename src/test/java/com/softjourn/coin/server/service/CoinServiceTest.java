@@ -3,7 +3,7 @@ package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.entity.*;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
-import com.softjourn.coin.server.repository.ErisAccountRepository;
+import com.softjourn.coin.server.repository.FabricAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
@@ -48,7 +48,7 @@ public class CoinServiceTest {
     ErisContractService contractService;
 
     @Mock
-    ErisAccountRepository erisAccountRepository;
+    FabricAccountRepository fabricAccountRepository;
 
     @Mock
     AccountsService accountsService;
@@ -63,30 +63,30 @@ public class CoinServiceTest {
     ArgumentCaptor<Object> captor;
 
     @Captor
-    ArgumentCaptor<ErisAccount> erisAccountCaptor;
+    ArgumentCaptor<FabricAccount> erisAccountCaptor;
 
     @Before
     public void setUp() throws Exception {
 
         account = new Account("user", new BigDecimal(100));
 
-        ErisAccount erisAccount1 = new ErisAccount();
-        erisAccount1.setAddress("address1");
-        erisAccount1.setType(ErisAccountType.ROOT);
+        FabricAccount fabricAccount1 = new FabricAccount();
+        fabricAccount1.setAddress("address1");
+        fabricAccount1.setType(ErisAccountType.ROOT);
 
-        account.setErisAccount(erisAccount1);
+        account.setFabricAccount(fabricAccount1);
 
         Account account2 = new Account("VM1", new BigDecimal(100));
         account2.setAccountType(AccountType.MERCHANT);
-        account2.setErisAccount(erisAccount1);
+        account2.setFabricAccount(fabricAccount1);
 
         Account account3 = new Account("VM2", new BigDecimal(100));
         account3.setAccountType(AccountType.MERCHANT);
-        account3.setErisAccount(erisAccount1);
+        account3.setFabricAccount(fabricAccount1);
 
         List<Account> accounts = Arrays.asList(account, account2, account3);
 
-        ReflectionTestUtils.setField(coinService, "treasuryErisAccount", erisAccount1, ErisAccount.class);
+        ReflectionTestUtils.setField(coinService, "treasuryErisAccount", fabricAccount1, FabricAccount.class);
 
         when(principal.getName()).thenReturn("user");
 
@@ -192,6 +192,6 @@ public class CoinServiceTest {
         verify(contractService, times(2)).getTokenContractForAccount(erisAccountCaptor.capture());
 
         assertEquals(captor.getAllValues().get(1), amount.toBigInteger());
-        assertEquals(erisAccountCaptor.getValue(), account.getErisAccount());
+        assertEquals(erisAccountCaptor.getValue(), account.getFabricAccount());
     }
 }

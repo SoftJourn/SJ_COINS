@@ -2,11 +2,11 @@ package com.softjourn.coin.server.service;
 
 
 import com.softjourn.coin.server.entity.Account;
-import com.softjourn.coin.server.entity.ErisAccount;
+import com.softjourn.coin.server.entity.FabricAccount;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
-import com.softjourn.coin.server.repository.ErisAccountRepository;
+import com.softjourn.coin.server.repository.FabricAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
@@ -47,7 +47,7 @@ public class CoinServiceMoveTest {
     TransactionRepository transactionRepository;
 
     @Mock
-    ErisAccountRepository erisAccountRepository;
+    FabricAccountRepository fabricAccountRepository;
 
     @Mock
     Contract contract;
@@ -60,13 +60,13 @@ public class CoinServiceMoveTest {
         account1 = new Account("account1", new BigDecimal(100));
         account2 = new Account("account2", new BigDecimal(200));
 
-        ErisAccount erisAccount1 = new ErisAccount();
-        erisAccount1.setAddress("address1");
-        ErisAccount erisAccount2 = new ErisAccount();
-        erisAccount2.setAddress("address1");
+        FabricAccount fabricAccount1 = new FabricAccount();
+        fabricAccount1.setAddress("address1");
+        FabricAccount fabricAccount2 = new FabricAccount();
+        fabricAccount2.setAddress("address1");
 
-        account1.setErisAccount(erisAccount1);
-        account2.setErisAccount(erisAccount2);
+        account1.setFabricAccount(fabricAccount1);
+        account2.setFabricAccount(fabricAccount2);
 
 
 
@@ -74,7 +74,7 @@ public class CoinServiceMoveTest {
 
         TransactionMapper mapper = mock(TransactionMapper.class);
 
-        coinService = new CoinService(accountsService, contractService, erisAccountRepository, transactionRepository, mapper);
+        coinService = new CoinService(accountsService, contractService, fabricAccountRepository, transactionRepository, mapper);
 
         when(accountsService.getAccount("account1")).thenReturn(account1);
         when(accountsService.getAccount("account2")).thenReturn(account2);

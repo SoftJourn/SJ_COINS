@@ -55,24 +55,25 @@ public class AccountsController {
 
     @PreAuthorize("permitAll")
     @RequestMapping(value = "/account/default", method = RequestMethod.GET)
-    public byte[] getDefaultImage(){
+    public byte[] getDefaultImage() {
         return accountsService.getDefaultImage();
     }
 
-    @PreAuthorize("authenticated")
-    @RequestMapping(value = "/eris/account", method = RequestMethod.GET)
-    public AccountDTO getErisAccount(Principal principal) {
-        return new AccountDTO(principal.getName(), accountsService.getAccount(principal.getName()).getErisAccount().getAddress());
-    }
+    // TODO Figure out do we need this method
+//    @PreAuthorize("authenticated")
+//    @RequestMapping(value = "/eris/account", method = RequestMethod.GET)
+//    public AccountDTO getErisAccount(Principal principal) {
+//        return new AccountDTO(principal.getName(), accountsService.getAccount(principal.getName()).getFabricAccount().getAddress());
+//    }
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/accounts/all", method = RequestMethod.GET)
     public List<AccountDTO> getAccounts() {
         return accountsService.getAll().stream()
-            .filter(account -> account.getAccountType() == AccountType.REGULAR)
-            .map(account ->
-                new AccountDTO(account.getLdapId(), account.getErisAccount().getAddress()))
-            .collect(Collectors.toList());
+                .filter(account -> account.getAccountType() == AccountType.REGULAR)
+                .map(account ->
+                        new AccountDTO(account.getLdapId()))
+                .collect(Collectors.toList());
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
@@ -80,8 +81,8 @@ public class AccountsController {
     @JsonView(JsonViews.COINS_MANAGER.class)
     public List<Account> getAllAccounts() {
         return accountsService.getAll().stream()
-            .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
-            .collect(Collectors.toList());
+                .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
+                .collect(Collectors.toList());
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
@@ -89,8 +90,8 @@ public class AccountsController {
     @JsonView(JsonViews.COINS_MANAGER.class)
     public List<Account> getAccountsByType(@PathVariable String accountType) {
         return accountsService.getAll(AccountType.valueOf(accountType.toUpperCase())).stream()
-            .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
-            .collect(Collectors.toList());
+                .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
+                .collect(Collectors.toList());
     }
 
     // POST
@@ -100,13 +101,6 @@ public class AccountsController {
     @JsonView(JsonViews.ADMIN.class)
     public Account addMerchant(@RequestBody MerchantDTO merchantDTO) {
         return accountsService.addMerchant(merchantDTO, AccountType.MERCHANT);
-    }
-
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','INVENTORY')")
-    @RequestMapping(value = "/account/crowdsale", method = RequestMethod.POST)
-    @JsonView(JsonViews.ADMIN.class)
-    public Account addCrowdSaleAccount(@RequestBody MerchantDTO merchantDTO) {
-        return accountsService.addMerchant(merchantDTO, AccountType.PROJECT);
     }
 
     @PreAuthorize("authenticated")

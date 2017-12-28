@@ -2,11 +2,11 @@ package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
-import com.softjourn.coin.server.entity.ErisAccount;
+import com.softjourn.coin.server.entity.FabricAccount;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.AccountWasDeletedException;
 import com.softjourn.coin.server.repository.AccountRepository;
-import com.softjourn.coin.server.repository.ErisAccountRepository;
+import com.softjourn.coin.server.repository.FabricAccountRepository;
 import com.softjourn.common.auth.OAuthHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class AccountsServiceTest {
     @Mock
     ErisAccountsService erisAccountsService;
     @Mock
-    ErisAccountRepository erisAccountRepository;
+    FabricAccountRepository fabricAccountRepository;
     @Mock
     private RestTemplate restTemplate;
     @Mock
@@ -103,7 +103,7 @@ public class AccountsServiceTest {
             }
         });
 
-        when(erisAccountsService.bindFreeAccount()).thenReturn(new ErisAccount());
+        when(erisAccountsService.bindFreeAccount()).thenReturn(new FabricAccount());
 
     }
 

@@ -32,7 +32,7 @@ public class Account {
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     @FilterIgnore
-    private ErisAccount erisAccount;
+    private FabricAccount fabricAccount;
 
     @JsonView(JsonViews.REGULAR.class)
     @FilterIgnore
@@ -70,14 +70,6 @@ public class Account {
     @JsonProperty(value = "ldapName", access = JsonProperty.Access.WRITE_ONLY)
     public void setLdapName(String ldapName) {
         ldapId = ldapName;
-    }
-
-    @JsonProperty(value = "address", access = JsonProperty.Access.READ_ONLY)
-    @JsonView({JsonViews.COINS_MANAGER.class})
-    private String getAddress() {
-        return Optional.ofNullable(erisAccount)
-                .map(ErisAccount::getAddress)
-                .orElse("");
     }
 
     @Override

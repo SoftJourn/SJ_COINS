@@ -3,7 +3,7 @@ package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
-import com.softjourn.coin.server.repository.ErisAccountRepository;
+import com.softjourn.coin.server.repository.FabricAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
@@ -62,7 +62,7 @@ public class CoinServiceTransactionsTest {
 
         AccountsService accountsService = mock(AccountsService.class);
 
-        ErisAccountRepository erisAccountRepository = mock(ErisAccountRepository.class);
+        FabricAccountRepository fabricAccountRepository = mock(FabricAccountRepository.class);
 
         ReflectionTestUtils.setField(accountsService, "accountRepository", accountRepository);
 
@@ -74,7 +74,7 @@ public class CoinServiceTransactionsTest {
 
         TransactionMapper mapper = mock(TransactionMapper.class);
 
-        coinService = new CoinService(accountsService, contractService, erisAccountRepository, transactionRepository, mapper);
+        coinService = new CoinService(accountsService, contractService, fabricAccountRepository, transactionRepository, mapper);
 
         when(contractService.getTokenContractForAccount(any())).thenReturn(contract);
 

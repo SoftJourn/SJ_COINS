@@ -2,9 +2,9 @@ package com.softjourn.coin.server.service;
 
 
 import com.softjourn.coin.server.entity.Account;
-import com.softjourn.coin.server.entity.ErisAccount;
+import com.softjourn.coin.server.entity.FabricAccount;
 import com.softjourn.coin.server.entity.ErisAccountType;
-import com.softjourn.coin.server.repository.ErisAccountRepository;
+import com.softjourn.coin.server.repository.FabricAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.eris.contract.Contract;
 import com.softjourn.eris.contract.response.Response;
@@ -53,7 +53,7 @@ public class CoinServiceTestConcurrent {
     AccountsService accountsService;
 
     @Mock
-    ErisAccountRepository erisAccountRepository;
+    FabricAccountRepository fabricAccountRepository;
 
     @Mock
     Contract contract;
@@ -68,14 +68,14 @@ public class CoinServiceTestConcurrent {
         account = new Account("user", new BigDecimal(200000));
         sellerAccount = new Account("seller", new BigDecimal(0));
 
-        ErisAccount erisAccount1 = new ErisAccount();
-        erisAccount1.setAddress("address1");
-        erisAccount1.setType(ErisAccountType.ROOT);
-        account.setErisAccount(erisAccount1);
+        FabricAccount fabricAccount1 = new FabricAccount();
+        fabricAccount1.setAddress("address1");
+        fabricAccount1.setType(ErisAccountType.ROOT);
+        account.setFabricAccount(fabricAccount1);
 
-        ErisAccount sellerErisAccount = new ErisAccount();
-        sellerErisAccount.setAddress("address");
-        sellerAccount.setErisAccount(sellerErisAccount);
+        FabricAccount sellerFabricAccount = new FabricAccount();
+        sellerFabricAccount.setAddress("address");
+        sellerAccount.setFabricAccount(sellerFabricAccount);
 
         when(principal.getName()).thenReturn("user");
 
@@ -83,7 +83,7 @@ public class CoinServiceTestConcurrent {
         when(accountsService.getAccount("seller")).thenReturn(sellerAccount);
         TransactionMapper mapper = mock(TransactionMapper.class);
 
-        coinService = new CoinService(accountsService, contractService, erisAccountRepository, transactionRepository, mapper);
+        coinService = new CoinService(accountsService, contractService, fabricAccountRepository, transactionRepository, mapper);
 
         when(contractService.getTokenContractForAccount(any())).thenReturn(contract);
 

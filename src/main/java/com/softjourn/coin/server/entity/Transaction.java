@@ -67,17 +67,12 @@ public class Transaction<T> implements Serializable {
     private transient T value;
 
     @JsonIgnore
-    private String erisTransactionId;
-
-    @JsonView(JsonViews.DETAILED.class)
-    @OneToOne
-    @JoinColumn(name = "erisTransactionId", referencedColumnName = "txId", insertable = false, updatable = false)
-    private TransactionStoring transactionStoring;
+    private String transactionId;
 
     public Transaction() {
     }
 
     public Transaction(String txId) {
-        erisTransactionId = txId;
+        transactionId = txId;
     }
 }

@@ -10,6 +10,8 @@ import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.service.CoinService;
 import com.softjourn.coin.server.service.FillAccountsService;
 import lombok.extern.slf4j.Slf4j;
+import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
+import org.hyperledger.fabric.sdk.exception.ProposalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @RestController
@@ -53,13 +56,13 @@ public class CoinsController {
     @RequestMapping(value = "/buy/{merchantLdapId}", method = RequestMethod.POST)
     public Transaction spentAmount(Principal principal,
                                    @RequestBody AmountDTO amountDto,
-                                   @PathVariable String merchantLdapId) {
+                                   @PathVariable String merchantLdapId) throws InterruptedException, InvalidArgumentException, ProposalException, ExecutionException {
         return coinService.buy(merchantLdapId, principal.getName(), amountDto.getAmount(), amountDto.getComment());
     }
 
     @PreAuthorize("#oauth2.hasScope('rollback')")
     @RequestMapping(value = "/rollback/{txId}", method = RequestMethod.POST)
-    public Transaction rollback(@PathVariable Long txId, Principal principal) {
+    public Transaction rollback(@PathVariable Long txId, Principal principal) throws InterruptedException, InvalidArgumentException, ProposalException, ExecutionException {
         System.out.println(principal);
         return coinService.rollback(txId);
     }
@@ -68,38 +71,20 @@ public class CoinsController {
     @RequestMapping(value = "/move/{account}", method = RequestMethod.POST)
     public Transaction moveAmount(Principal principal,
                                   @RequestBody AmountDTO amountDTO,
-                                  @PathVariable String account) {
+                                  @PathVariable String account) throws InterruptedException, InvalidArgumentException, ProposalException, ExecutionException {
         return coinService.move(principal.getName(), account, amountDTO.getAmount(), amountDTO.getComment());
-    }
-
-    @PreAuthorize("authenticated")
-    @RequestMapping(value = "/withdraw", method = RequestMethod.POST)
-    public byte[] withdrawAmount(Principal principal,
-                                 @RequestBody AmountDTO amountDTO,
-                                 @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String accept,
-                                 HttpServletResponse response) {
-        boolean produceImage = MediaType.IMAGE_PNG_VALUE.equals(accept);
-        response.setHeader(HttpHeaders.CONTENT_TYPE, produceImage ? MediaType.IMAGE_PNG_VALUE : MediaType.APPLICATION_JSON_UTF8_VALUE);
-        Transaction<byte[]> transaction = coinService.withdraw(principal.getName(), amountDTO.getAmount(), amountDTO.getComment(), produceImage);
-        return transaction.getValue();
-    }
-
-    @PreAuthorize("authenticated")
-    @RequestMapping(value = "/deposit", method = RequestMethod.POST)
-    public Transaction deposit(Principal principal, @RequestBody CashDTO cashDTO) {
-        return coinService.deposit(cashDTO, principal.getName(), "Deposit cash.", new BigDecimal(cashDTO.getAmount()));
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/move/{account}/treasury", method = RequestMethod.POST)
-    public Transaction moveAmountToTreasury(@PathVariable String account, @RequestBody AmountDTO amountDTO) {
+    public Transaction moveAmountToTreasury(@PathVariable String account, @RequestBody AmountDTO amountDTO) throws InterruptedException, InvalidArgumentException, ProposalException, ExecutionException {
         return coinService.moveToTreasury(account, amountDTO.getAmount(), amountDTO.getComment());
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/add/{account}", method = RequestMethod.POST)
     public Transaction addAmount(@RequestBody AmountDTO amount,
-                                 @PathVariable String account) {
+                                 @PathVariable String account) throws InterruptedException, InvalidArgumentException, ProposalException, ExecutionException {
         return coinService.fillAccount(account, amount.getAmount(), amount.getComment());
     }
 
@@ -130,13 +115,13 @@ public class CoinsController {
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/distribute", method = RequestMethod.POST)
-    public void distribute(@RequestBody AmountDTO amount) {
+    public void distribute(@RequestBody AmountDTO amount) throws InterruptedException, ExecutionException, InvalidArgumentException, ProposalException {
         coinService.distribute(amount.getAmount(), "Distribute money for all accounts.");
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/amount/treasury", method = RequestMethod.GET)
-    public Map<String, BigDecimal> getTreasuryAmount() {
+    public Map<String, BigDecimal> getTreasuryAmount() throws ProposalException, InvalidArgumentException {
         HashMap<String, BigDecimal> responseBody = new HashMap<>();
         responseBody.put("amount", coinService.getTreasuryAmount());
         return responseBody;

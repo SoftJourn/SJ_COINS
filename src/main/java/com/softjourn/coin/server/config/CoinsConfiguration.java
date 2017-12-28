@@ -8,9 +8,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.service.AutocompleteService;
 import com.softjourn.common.auth.OAuthHelper;
-import com.softjourn.eris.accounts.AccountsService;
-import com.softjourn.eris.accounts.KeyService;
-import com.softjourn.eris.rpc.HTTPRPCClient;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,12 +37,6 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
 
     @Value("${authPublicKeyFile}")
     private String authPublicKeyFile;
-
-    @Value("${eris.chain.url}")
-    private String erisChainUrl;
-
-    @Value("${eris.treasury.account.key.private}")
-    private String treasuryAccountPrivKey;
 
     @Bean
     public Module springDataPageModule() {
@@ -107,12 +98,6 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
         } catch (IOException e) {
             throw new RuntimeException("Can't read auth public key from file " + authPublicKeyFile);
         }
-    }
-
-    @Bean
-    public AccountsService erisAccountsCreatingService() {
-        KeyService keyService = new KeyService();
-        return new AccountsService(keyService, treasuryAccountPrivKey, new HTTPRPCClient(erisChainUrl));
     }
 
     @Bean(name = "transactionResultMap")

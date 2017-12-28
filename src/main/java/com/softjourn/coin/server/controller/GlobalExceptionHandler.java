@@ -2,8 +2,17 @@ package com.softjourn.coin.server.controller;
 
 
 import com.softjourn.coin.server.dto.ErrorDetail;
-import com.softjourn.coin.server.exceptions.*;
-import com.softjourn.eris.contract.ContractDeploymentException;
+import com.softjourn.coin.server.exceptions.AccountNotFoundException;
+import com.softjourn.coin.server.exceptions.ChequeIsUsedException;
+import com.softjourn.coin.server.exceptions.ContractNotFoundException;
+import com.softjourn.coin.server.exceptions.CouldNotReadFileException;
+import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
+import com.softjourn.coin.server.exceptions.ErisContractInstanceNotFound;
+import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
+import com.softjourn.coin.server.exceptions.NotEnoughAmountInTreasuryException;
+import com.softjourn.coin.server.exceptions.NotFoundException;
+import com.softjourn.coin.server.exceptions.TypeNotFoundException;
+import com.softjourn.coin.server.exceptions.WrongMimeTypeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -62,13 +71,6 @@ public class GlobalExceptionHandler {
     public ErrorDetail handleNoHandlerFoundException(NoHandlerFoundException e) {
         log.warn(e.getLocalizedMessage());
         return buildErrorDetails(e, 40401, String.format("Endpoint %s not found", e.getRequestURL()));
-    }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(ContractDeploymentException.class)
-    public ErrorDetail handleContractDeploymentException(ContractDeploymentException e) {
-        log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(e, 40904, e.getLocalizedMessage());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

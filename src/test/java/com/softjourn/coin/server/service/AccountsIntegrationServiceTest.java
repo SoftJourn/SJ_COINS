@@ -3,7 +3,7 @@ package com.softjourn.coin.server.service;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.exceptions.NotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
-import com.softjourn.coin.server.repository.ErisAccountRepository;
+import com.softjourn.coin.server.repository.FabricAccountRepository;
 import com.softjourn.common.auth.OAuthHelper;
 import lombok.extern.java.Log;
 import org.apache.commons.io.FileUtils;
@@ -58,7 +58,7 @@ public class AccountsIntegrationServiceTest {
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
-    private ErisAccountRepository erisAccountRepository;
+    private FabricAccountRepository fabricAccountRepository;
 
     @Value("${image.storage.path}")
     private String imageStoragePath;
@@ -130,7 +130,7 @@ public class AccountsIntegrationServiceTest {
     @Before
     public void setUp() throws Exception {
 
-        this.accountsService = new AccountsService(accountRepository, erisAccountRepository, coinService,
+        this.accountsService = new AccountsService(accountRepository, fabricAccountRepository, coinService,
             erisAccountsService, imageStoragePath, oAuthHelper, imageStoragePath, defaultImagePath);
 
         this.mockFile(testFile,"loadingImageTest.jpg");
