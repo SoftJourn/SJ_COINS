@@ -1,8 +1,6 @@
 package com.softjourn.coin.server.service;
 
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.dto.BalancesDTO;
 import com.softjourn.coin.server.dto.EnrollResponseDTO;
@@ -10,7 +8,10 @@ import com.softjourn.coin.server.dto.LdapBalanceDTO;
 import com.softjourn.coin.server.dto.MerchantDTO;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
-import com.softjourn.coin.server.exceptions.*;
+import com.softjourn.coin.server.exceptions.AccountEnrollException;
+import com.softjourn.coin.server.exceptions.AccountNotFoundException;
+import com.softjourn.coin.server.exceptions.AccountWasDeletedException;
+import com.softjourn.coin.server.exceptions.NotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.common.auth.OAuthHelper;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
@@ -21,7 +22,6 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -31,7 +31,9 @@ import javax.transaction.Transactional;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
