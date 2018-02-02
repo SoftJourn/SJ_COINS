@@ -7,8 +7,6 @@ import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.common.export.ExcelExport;
 import com.softjourn.common.export.ExportDefiner;
-import com.softjourn.eris.contract.response.Response;
-import com.softjourn.eris.contract.response.TxParams;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.softjourn.coin.server.service.GenericFilter.Condition.eq;
 
@@ -96,20 +93,6 @@ public class TransactionsService implements TransactionMapper {
         transaction.setCreated(Instant.now());
         transaction.setValue(o);
         return transaction;
-    }
-
-    /**
-     * Method maps eris response to transaction
-     *
-     * @param response
-     * @return Transaction
-     */
-    public Transaction mapToTransaction(Response response) {
-        return Optional.ofNullable(response)
-                .map(Response::getTxParams)
-                .map(TxParams::getTxId)
-                .map(Transaction::new)
-                .orElseGet(Transaction::new);
     }
 
 }

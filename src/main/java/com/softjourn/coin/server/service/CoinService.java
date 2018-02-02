@@ -1,47 +1,29 @@
 package com.softjourn.coin.server.service;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
-import com.softjourn.coin.server.dto.CashDTO;
+import com.softjourn.coin.server.dto.BalancesDTO;
+import com.softjourn.coin.server.dto.InvokeResponseDTO;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
-import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.entity.Transaction;
-import com.softjourn.coin.server.entity.TransactionType;
+import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
-import com.softjourn.coin.server.exceptions.ChequeIsUsedException;
-import com.softjourn.coin.server.exceptions.ErisAccountNotFoundException;
-import com.softjourn.coin.server.exceptions.ErisProcessingException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
-import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
-import com.softjourn.coin.server.util.QRCodeUtil;
-import com.softjourn.eris.contract.response.Response;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.softjourn.coin.server.entity.TransactionType.EXPENSE;
-import static com.softjourn.coin.server.entity.TransactionType.REGULAR_REPLENISHMENT;
-import static com.softjourn.coin.server.entity.TransactionType.ROLLBACK;
-import static com.softjourn.coin.server.entity.TransactionType.SINGLE_REPLENISHMENT;
-import static com.softjourn.coin.server.entity.TransactionType.TRANSFER;
-import static com.softjourn.coin.server.entity.TransactionType.WITHDRAW_OFFLINE;
+import static com.softjourn.coin.server.entity.TransactionType.*;
 
 @Slf4j
 @Service
@@ -56,45 +38,25 @@ public class CoinService {
 
     private AccountsService accountsService;
 
-    private ErisContractService contractService;
-
     private Map<String, String> monitors = new HashMap<>();
 
-    @Value("${eris.treasury.account.address}")
-    private String treasuryAccountAddress;
-    @Value("${eris.treasury.account.key.public}")
-    private String treasuryAccountPubKey;
-    @Value("${eris.treasury.account.key.private}")
-    private String treasuryAccountPrivKey;
-
-    @Value("${eris.offline.contract.address}")
-    private String offlineVaultAddress;
-
-    @Value("${eris.token.contract.address}")
-    private String tokenContractAddress;
-
-    private ErisAccount treasuryErisAccount;
+    @Value("${treasury.account}")
+    private String treasuryAccount;
 
     private TransactionRepository transactionRepository;
 
-    private TransactionMapper mapper;
+    private FabricService fabricService;
 
 
     @SuppressWarnings("unused")
     @Autowired
-    public CoinService(AccountsService accountsService, ErisContractService contractService, ErisAccountRepository erisAccountRepository, TransactionRepository transactionRepository, TransactionMapper mapper) {
+    public CoinService(AccountsService accountsService,
+                       FabricService fabricService,
+                       TransactionRepository transactionRepository,
+                       TransactionMapper mapper) {
+        this.fabricService = fabricService;
         this.accountsService = accountsService;
-        this.contractService = contractService;
         this.transactionRepository = transactionRepository;
-        this.mapper = mapper;
-    }
-
-    @PostConstruct
-    private void setUp() {
-        treasuryErisAccount = new ErisAccount();
-        treasuryErisAccount.setAddress(treasuryAccountAddress);
-        treasuryErisAccount.setPubKey(treasuryAccountPubKey);
-        treasuryErisAccount.setPrivKey(treasuryAccountPrivKey);
     }
 
     @SuppressWarnings("unused")
@@ -107,11 +69,22 @@ public class CoinService {
 
             Account account = removeIsNewStatus(destinationName);
 
-            ErisAccount erisAccount = getErisAccount(account);
+            log.info(account.getEmail());
+            InvokeResponseDTO.Amount transfer = fabricService.invoke(treasuryAccount, "transfer",
+                    new String[]{"user_", account.getEmail(), amount.toString()}, InvokeResponseDTO.Amount.class);
 
-            Response response = moveByEris(treasuryErisAccount, erisAccount.getAddress(), amount);
+            Transaction transaction = new Transaction();
+            if (transfer.getTransactionID() != null) {
+                transaction.setDestination(account);
+                log.info(transfer.getTransactionID());
+                transaction.setTransactionId(transfer.getTransactionID());
+                transaction.setAmount(amount);
+                transaction.setStatus(TransactionStatus.SUCCESS);
+            } else {
+                System.out.println();
+            }
 
-            return mapper.mapToTransaction(response);
+            return transaction;
         }
 
     }
@@ -119,34 +92,25 @@ public class CoinService {
     @SuppressWarnings("unused")
     @SaveTransaction(comment = "Distributing money.", type = REGULAR_REPLENISHMENT)
     public Transaction distribute(BigDecimal amount, String comment) {
-        try {
-            List<Account> accounts = accountsService.getAll(AccountType.REGULAR);
+        List<Account> accounts = accountsService.getAll(AccountType.REGULAR);
 
-            removeIsNewStatus(accounts);
+        removeIsNewStatus(accounts);
 
-            List<String> accountsAddresses = accounts.stream()
-                    .map(Account::getErisAccount)
-                    .map(ErisAccount::getAddress)
-                    .collect(Collectors.toList());
+        List<String> accountsEmails = accounts.stream()
+                .map(Account::getEmail)
+                .collect(Collectors.toList());
 
-            Response response = contractService
-                    .getTokenContractForAccount(treasuryErisAccount)
-                    .call(DISTRIBUTE_MONEY, accountsAddresses, amount.toBigInteger());
+        accountsEmails.add(amount.toString());
 
-            processResponseError(response);
+        InvokeResponseDTO.Amount distribute = fabricService.invoke(treasuryAccount, "distribute",
+                accountsEmails.toArray(new String[0]), InvokeResponseDTO.Amount.class);
 
-            Optional.ofNullable(response)
-                    .flatMap(r -> Optional.ofNullable(r.getReturnValues()))
-                    .flatMap(v -> Optional.ofNullable(v.get(0)))
-                    .map(v -> (Boolean) v)
-                    .flatMap(v -> v ? Optional.of(1) : Optional.empty())
-                    .orElseThrow(NotEnoughAmountInAccountException::new);
+        Transaction transaction = new Transaction();
+        transaction.setTransactionId(distribute.getTransactionID());
+        transaction.setAmount(amount);
+        transaction.setStatus(TransactionStatus.SUCCESS);
 
-            return mapper.mapToTransaction(response);
-
-        } catch (Exception e) {
-            throw new ErisProcessingException("Can't distribute money.", e);
-        }
+        return transaction;
     }
 
     @SuppressWarnings("unused")
@@ -159,55 +123,46 @@ public class CoinService {
 
         Account donorAccount = removeIsNewStatus(accountName);
 
-        ErisAccount donor = getErisAccount(donorAccount);
-
         Account acceptorAccount = removeIsNewStatus(destinationName);
-
-        ErisAccount acceptor = getErisAccount(acceptorAccount);
 
         if (!isEnoughAmount(accountName, amount)) {
             throw new NotEnoughAmountInAccountException();
         }
 
-        Response response = moveByEris(donor, acceptor.getAddress(), amount);
+        InvokeResponseDTO move = move(donorAccount.getEmail(), acceptorAccount.getEmail(), amount);
 
-        return mapper.mapToTransaction(response);
+        Transaction transaction = new Transaction();
+        transaction.setAmount(amount);
+        transaction.setStatus(TransactionStatus.SUCCESS);
+        transaction.setAccount(donorAccount);
+        transaction.setDestination(acceptorAccount);
+        transaction.setTransactionId(move.getTransactionID());
+
+        return transaction;
     }
 
 
-    public BigDecimal getAmount(String ldapId) {
-        try {
-            ErisAccount account = getErisAccount(ldapId);
-            return getAmountForErisAccount(account);
-        } catch (Exception e) {
-            throw new ErisProcessingException("Can't query balance for account " + ldapId, e);
-        }
+    public BigDecimal getAmount(String email) {
+        InvokeResponseDTO.Amount balanceOf = fabricService.invoke(email, "balanceOf", new String[]{email}, InvokeResponseDTO.Amount.class);
+        return balanceOf.getPayload();
     }
 
-    private BigDecimal getAmountForErisAccount(ErisAccount erisAccount) {
-        try {
-            Response response = contractService.getTokenContractForAccount(erisAccount).call(GET_MONEY, erisAccount.getAddress());
-            processResponseError(response);
-            return Optional.ofNullable(response)
-                    .flatMap(r -> Optional.ofNullable(r.getReturnValues()))
-                    .flatMap(v -> Optional.ofNullable(v.get(0)))
-                    .map(v -> (BigInteger) v)
-                    .map(BigDecimal::new)
-                    .orElseThrow(() -> new ErisProcessingException("Wrong server response."));
-        } catch (Exception e) {
-            throw new ErisProcessingException("Can't query balance for account " + erisAccount.getAddress(), e);
-        }
+    public List<BalancesDTO> getAmounts(List<Account> accounts) throws IOException {
+        List<String> emails = accounts.stream().map(Account::getEmail).collect(Collectors.toList());
+        ObjectMapper mapper = new ObjectMapper();
+        InvokeResponseDTO.Balances balanceOf = fabricService.invoke(treasuryAccount, "batchBalanceOf",
+                new String[]{mapper.writeValueAsString(emails)}, InvokeResponseDTO.Balances.class);
+        return balanceOf.getPayload();
     }
 
     public BigDecimal getTreasuryAmount() {
-        return getAmountForErisAccount(treasuryErisAccount);
+        return getAmount(treasuryAccount);
     }
 
     public BigDecimal getAmountByAccountType(AccountType accountType) {
         return Optional.ofNullable(accountsService.getAll(accountType))
                 .map(accounts -> accounts.stream()
-                        .filter(account -> Objects.nonNull(account.getErisAccount()))
-                        .peek(account -> account.setAmount(getAmountForErisAccount(account.getErisAccount())))
+                        .peek(account -> account.setAmount(getAmount(account.getEmail())))
                         .map(Account::getAmount)
                         .reduce(BigDecimal.ZERO, BigDecimal::add))
                 .orElse(BigDecimal.ZERO);
@@ -215,19 +170,25 @@ public class CoinService {
 
     @SuppressWarnings("unused")
     @SaveTransaction(comment = "Buying", type = EXPENSE)
-    public Transaction buy(@NonNull String destinationName, @NonNull String accountName, @NonNull BigDecimal amount, String comment) {
+    public Transaction buy(@NonNull String destinationName, @NonNull String accountName, @NonNull BigDecimal
+            amount, String comment) {
         synchronized (getMonitor(accountName)) {
             checkEnoughAmount(accountName, amount);
 
             Account account = removeIsNewStatus(accountName);
 
-            ErisAccount erisAccount = getErisAccount(account);
             Account merchantAccount = removeIsNewStatus(destinationName);
-            ErisAccount sellerAccount = getErisAccount(merchantAccount);
+            InvokeResponseDTO move = move(account.getEmail(), merchantAccount.getEmail(), amount);
 
-            Response response = moveByEris(erisAccount, sellerAccount.getAddress(), amount);
 
-            return mapper.mapToTransaction(response);
+            Transaction transaction = new Transaction();
+            transaction.setAmount(amount);
+            transaction.setAccount(account);
+            transaction.setStatus(TransactionStatus.SUCCESS);
+            transaction.setDestination(merchantAccount);
+            transaction.setTransactionId(move.getTransactionID());
+
+            return transaction;
         }
     }
 
@@ -237,85 +198,15 @@ public class CoinService {
         Account user = transaction.getAccount();
         Account merchant = transaction.getDestination();
         BigDecimal amount = transaction.getAmount();
-        Response response = moveByEris(merchant.getErisAccount(), user.getErisAccount().getAddress(), amount);
-        Transaction rollbackTx = mapper.mapToTransaction(response);
+        InvokeResponseDTO move = move(merchant.getEmail(), user.getEmail(), amount);
+        Transaction rollbackTx = new Transaction();
+        rollbackTx.setTransactionId(move.getTransactionID());
         rollbackTx.setAccount(merchant);
         rollbackTx.setDestination(user);
         rollbackTx.setAmount(amount);
+        transaction.setStatus(TransactionStatus.SUCCESS);
         rollbackTx.setComment("Rollback buying transaction. ID: " + txId);
         return rollbackTx;
-    }
-
-    @SuppressWarnings({"unused", "unchecked"})
-    @SaveTransaction(comment = "Withdrawing money", type = WITHDRAW_OFFLINE)
-    public Transaction<byte[]> withdraw(@NonNull String accountName, @NonNull BigDecimal amount, String comment, boolean image) {
-        try {
-            checkEnoughAmount(accountName, amount);
-
-            ErisAccount account = getErisAccount(accountName);
-
-            Response approveResponse = contractService
-                    .getTokenContractForAccount(account)
-                    .call(APPROVE_TRANSFER, offlineVaultAddress, amount.toBigInteger());
-
-            processResponseError(approveResponse);
-
-            Response response = contractService
-                    .getOfflineContractForAccount(account)
-                    .call(WITHDRAW_MONEY, tokenContractAddress, amount.toBigInteger());
-
-            processResponseError(response);
-
-            byte[] resultData = Optional.ofNullable(response)
-                    .flatMap(r -> Optional.ofNullable(r.getReturnValues()))
-                    .flatMap(l -> Optional.ofNullable(l.get(0)))
-                    .map(v -> (byte[]) v)
-                    .map(v -> withdrawResultMapping(v, tokenContractAddress, offlineVaultAddress, amount.toBigInteger()))
-                    .map(v -> image ? QRCodeUtil.genQRCode(v) : v.getBytes())
-                    .orElseThrow(() -> new ErisProcessingException("Wrong server response."));
-
-            Transaction<byte[]> transaction = mapper.mapToTransaction(response);
-            transaction.setValue(resultData);
-
-            return transaction;
-
-        } catch (Exception e) {
-            throw new ErisProcessingException("Can't withdraw money.", e);
-        }
-
-    }
-
-    @SaveTransaction(comment = "Deposit money", type = TransactionType.DEPOSIT)
-    public Transaction deposit(CashDTO cashDTO, String destinationName, String comment, BigDecimal amount) {
-        try {
-            ErisAccount account = getErisAccount(destinationName);
-
-            byte[] hash = Hex.decodeHex(cashDTO.getChequeHash().toCharArray());
-
-            Response response = contractService
-                    .getOfflineContractForAccount(account)
-                    .call(DEPOSIT, hash, cashDTO.getTokenContractAddress());
-
-            processResponseError(response);
-
-            if (!(Boolean) response.getReturnValues().get(0)) {
-                throw new ChequeIsUsedException();
-            }
-
-            return mapper.mapToTransaction(response);
-        } catch (Exception e) {
-            throw new ErisProcessingException("Can't deposite money." + e.getMessage(), e);
-        }
-    }
-
-    private String withdrawResultMapping(byte[] cheque, String tokenAddress, String offlineAddress, BigInteger amount) {
-        try {
-            String hexCheque = Hex.encodeHexString(cheque);
-            CashDTO cashDTO = new CashDTO(tokenAddress, offlineAddress, hexCheque, amount);
-            return new ObjectMapper().writeValueAsString(cashDTO);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Can't convert CashDTO object to JSON.");
-        }
     }
 
     private void checkEnoughAmount(String accountName, BigDecimal amount) {
@@ -328,21 +219,8 @@ public class CoinService {
         }
     }
 
-    private Response moveByEris(ErisAccount account, String address, BigDecimal amount) {
-        try {
-            Response response = contractService
-                    .getTokenContractForAccount(account)
-                    .call(SEND_MONEY, address, amount.toBigInteger());
-            processResponseError(response);
-            return Optional.ofNullable(response)
-                    .flatMap(r -> Optional.ofNullable(r.getReturnValues()))
-                    .flatMap(v -> Optional.ofNullable(v.get(0)))
-                    .map(v -> (Boolean) v)
-                    .flatMap(v -> v ? Optional.of(response) : Optional.empty())
-                    .orElseThrow(NotEnoughAmountInAccountException::new);
-        } catch (Exception e) {
-            throw new ErisProcessingException("Can't move money for account " + address, e);
-        }
+    private InvokeResponseDTO.Amount move(String from, String to, BigDecimal amount) {
+        return fabricService.invoke(from, "transfer", new String[]{"user_", to, amount.toString()}, InvokeResponseDTO.Amount.class);
     }
 
     @SuppressWarnings("unused")
@@ -356,26 +234,15 @@ public class CoinService {
 
         Account account = removeIsNewStatus(accountName);
 
-        ErisAccount erisAccount = getErisAccount(account);
+        InvokeResponseDTO move = move(account.getEmail(), treasuryAccount, amount);
 
-        Response response = moveByEris(erisAccount, treasuryAccountAddress, amount);
+        Transaction transaction = new Transaction();
+        transaction.setTransactionId(move.getTransactionID());
+        transaction.setAccount(account);
+        transaction.setAmount(amount);
+        transaction.setStatus(TransactionStatus.SUCCESS);
 
-        return mapper.mapToTransaction(response);
-    }
-
-    private ErisAccount getErisAccount(String ldapId) {
-        return Optional
-                .ofNullable(accountsService.getAccount(ldapId))
-                .map(Account::getErisAccount)
-                .orElseThrow(ErisAccountNotFoundException::new);
-
-    }
-
-    private ErisAccount getErisAccount(Account account) {
-        return Optional
-                .ofNullable(account)
-                .map(Account::getErisAccount)
-                .orElseThrow(ErisAccountNotFoundException::new);
+        return transaction;
     }
 
     private Account removeIsNewStatus(String ldapId) {
@@ -394,10 +261,6 @@ public class CoinService {
                 .ofNullable(inAccounts)
                 .map(accounts -> accountsService.changeIsNewStatus(false, accounts))
                 .orElseThrow(() -> new AccountNotFoundException(""));
-    }
-
-    private void processResponseError(Response response) {
-        if (response.getError() != null) throw new ErisProcessingException(response.getError().getMessage());
     }
 
     private boolean isEnoughAmount(@NonNull String from, BigDecimal amount) {
@@ -420,5 +283,8 @@ public class CoinService {
         return accountId;
     }
 
+    public String getTreasuryAccount() {
+        return treasuryAccount;
+    }
 
 }

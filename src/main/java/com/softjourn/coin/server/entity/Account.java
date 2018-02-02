@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Optional;
 
 @Entity
 @Table(name = "accounts")
@@ -30,9 +29,7 @@ public class Account {
     @JsonView(JsonViews.COINS_MANAGER.class)
     private String fullName;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
-    @FilterIgnore
-    private ErisAccount erisAccount;
+    private String email;
 
     @JsonView(JsonViews.REGULAR.class)
     @FilterIgnore
@@ -48,8 +45,9 @@ public class Account {
 
     private boolean deleted;
 
-    public Account(String ldapId, BigDecimal amount) {
+    public Account(String ldapId, String email, BigDecimal amount) {
         this.amount = amount;
+        this.email = email;
         this.ldapId = ldapId;
     }
 
@@ -70,14 +68,6 @@ public class Account {
     @JsonProperty(value = "ldapName", access = JsonProperty.Access.WRITE_ONLY)
     public void setLdapName(String ldapName) {
         ldapId = ldapName;
-    }
-
-    @JsonProperty(value = "address", access = JsonProperty.Access.READ_ONLY)
-    @JsonView({JsonViews.COINS_MANAGER.class})
-    private String getAddress() {
-        return Optional.ofNullable(erisAccount)
-                .map(ErisAccount::getAddress)
-                .orElse("");
     }
 
     @Override

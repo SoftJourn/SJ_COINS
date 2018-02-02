@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class AccountDTO {
 
     private String ldap;
-    private String address;
+    private String email;
 }

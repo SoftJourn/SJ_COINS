@@ -413,7 +413,7 @@ include::{snippets}/distribute/http-response.adoc[]
 
 A `POST` request will try to deploy new contract
  and in case of successful deployment, contract description will be written
- into database and will returned address of new deployed contract
+ into database and will returned email of new deployed contract
 
 [[resources-create-contract-request]]
 ==== Request fields
@@ -471,14 +471,14 @@ include::{snippets}/create-contract-instance-response/response-fields.adoc[]
 include::{snippets}/create-contract-instance-response/http-response.adoc[]
 
 
-=== Get contract by address
+=== Get contract by email
 
 A `GET` request will return contract information
 
-[[resources-get-contract-by-address-request]]
+[[resources-get-contract-by-email-request]]
 ==== Request fields
 
-include::{snippets}/get-contract-by-address-request/path-parameters.adoc[]
+include::{snippets}/get-contract-by-email-request/path-parameters.adoc[]
 
 ==== Example request
 
@@ -489,16 +489,16 @@ Don't forget to add authorization headers to the request
 "Authorization: Bearer <ACCESS_TOKEN>"
 ====
 
-include::{snippets}/get-contract-by-address-request/http-request.adoc[]
+include::{snippets}/get-contract-by-email-request/http-request.adoc[]
 
-[[resources-get-contract-by-address-response]]
+[[resources-get-contract-by-email-response]]
 ==== Response fields
 
-include::{snippets}/get-contract-by-address-response/response-fields.adoc[]
+include::{snippets}/get-contract-by-email-response/response-fields.adoc[]
 
 ==== Example response
 
-include::{snippets}/get-contract-by-address-response/http-response.adoc[]
+include::{snippets}/get-contract-by-email-response/http-response.adoc[]
 
 
 === Get contract types
@@ -545,7 +545,7 @@ Don't forget to add authorization headers to the request
 "Authorization: Bearer <ACCESS_TOKEN>"
 ====
 
-include::{snippets}/get-contract-by-address-request/http-request.adoc[]
+include::{snippets}/get-contract-by-email-request/http-request.adoc[]
 
 [[resources-get-contract-by-type-response]]
 ==== Response fields
