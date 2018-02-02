@@ -41,26 +41,17 @@ spring.datasource.url=jdbc:mysql://127.0.0.1:3306/sj_coins?useUnicode=true&useJD
 spring.datasource.username=user
 spring.datasource.password=somePassword
 
-#ERIS
-eris.token.contract.address=someAddress
-eris.token.contract.file=contractFileName
-
-eris.offline.contract.address=someAddress
-eris.offline.contract.file=contractFileName
-
-eris.treasury.account.address=someAddress
-eris.treasury.account.key.public=somePublicKey
-eris.treasury.account.key.private=somePrivateKey
-
-eris.chain.url=http://hostname:1337
-eris.compiler.url=http://hostname/compile
-eris.chain.version=0.11
-
 #AUTH
 authPublicKeyFile=/home/username/.coins/auth.pub
 auth.server.url=https://hostname
 auth.client.client-id=clientId
 auth.client.client-secret=clientSecret
+
+#FABRIC
+node.fabric.client=https://hostname
+org.name=organazionName
+fabric.peers=peerHostName:port
+treasury.account=someAccount
 
 ```
 

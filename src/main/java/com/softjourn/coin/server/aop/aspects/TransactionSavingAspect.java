@@ -73,7 +73,7 @@ public class TransactionSavingAspect {
         replaceIfNull(transaction::getAmount, transaction::setAmount, amount);
         String comment = getArgOrAnnotationValue(joinPoint, "comment", SaveTransaction::comment, Function.identity());
         replaceIfNull(transaction::getComment, transaction::setComment, comment);
-        TransactionType type = getArg(joinPoint, "type", TransactionType.class);
+        TransactionType type = getArgOrAnnotationValueToObject(joinPoint, "type", SaveTransaction::type, TransactionType.class);
         replaceIfNull(transaction::getType, transaction::setType, type);
         transaction.setCreated(Instant.now());
     }
@@ -93,12 +93,20 @@ public class TransactionSavingAspect {
         }
     }
 
-    private < R> R getArgOrAnnotationValue(ProceedingJoinPoint joinPoint, String argName,
-                                             Function<SaveTransaction, String> transactionGetter, Function<String, R> converter) {
+    private <R> R getArgOrAnnotationValue(ProceedingJoinPoint joinPoint, String argName,
+                                          Function<SaveTransaction, String> transactionGetter, Function<String, R> converter) {
         SaveTransaction annotation = ((MethodSignature) joinPoint.getSignature()).getMethod().getAnnotation(SaveTransaction.class);
         String argValue = getArg(joinPoint, argName, String.class);
         String annotationValue = transactionGetter.apply(annotation);
         return converter.apply(argValue == null ? annotationValue : argValue);
+    }
+
+    private <R> R getArgOrAnnotationValueToObject(ProceedingJoinPoint joinPoint, String argName,
+                                                  Function<SaveTransaction, R> transactionGetter, Class<? extends R> clazz) {
+        SaveTransaction annotation = ((MethodSignature) joinPoint.getSignature()).getMethod().getAnnotation(SaveTransaction.class);
+        R argValue = getArg(joinPoint, argName, clazz);
+        R annotationValue = transactionGetter.apply(annotation);
+        return argValue == null ? annotationValue : argValue;
     }
 
     @SuppressWarnings("unchecked")

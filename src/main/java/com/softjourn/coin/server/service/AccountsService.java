@@ -1,13 +1,17 @@
 package com.softjourn.coin.server.service;
 
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.softjourn.coin.server.dto.BalancesDTO;
+import com.softjourn.coin.server.dto.EnrollResponseDTO;
+import com.softjourn.coin.server.dto.LdapBalanceDTO;
 import com.softjourn.coin.server.dto.MerchantDTO;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
-import com.softjourn.coin.server.entity.ErisAccount;
 import com.softjourn.coin.server.exceptions.*;
 import com.softjourn.coin.server.repository.AccountRepository;
-import com.softjourn.coin.server.repository.ErisAccountRepository;
 import com.softjourn.common.auth.OAuthHelper;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 import lombok.NonNull;
@@ -17,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -26,9 +31,7 @@ import javax.transaction.Transactional;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.file.Files;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -40,10 +43,11 @@ public class AccountsService {
 
     private static final String DEFAULT_IMAGE_NAME = "/account/default";
 
-    private ErisAccountsService erisAccountsService;
+    @Autowired
+    private FabricService fabricService;
+
     private CoinService coinService;
 
-    private ErisAccountRepository erisAccountRepository;
     private AccountRepository accountRepository;
 
     private String authServerUrl;
@@ -52,23 +56,23 @@ public class AccountsService {
     private String imageStoragePath;
     private String defaultAccountImagePath;
 
+    private String monaxBackup;
+
     @Autowired
     public AccountsService(AccountRepository accountRepository,
-                           ErisAccountRepository erisAccountRepository,
                            @Lazy CoinService coinService,
-                           ErisAccountsService erisAccountsService,
                            @Value("${auth.server.url}") String authServerUrl,
                            OAuthHelper oAuthHelper,
                            @Value("${image.storage.path}") String imageStoragePath,
-                           @Value("${image.account.default}") String defaultAccountImagePath) {
+                           @Value("${image.account.default}") String defaultAccountImagePath,
+                           @Value("${monax.backup}") String monaxBackup) {
         this.accountRepository = accountRepository;
-        this.erisAccountRepository = erisAccountRepository;
         this.coinService = coinService;
-        this.erisAccountsService = erisAccountsService;
         this.authServerUrl = authServerUrl;
         this.oAuthHelper = oAuthHelper;
         this.imageStoragePath = imageStoragePath;
         this.defaultAccountImagePath = defaultAccountImagePath;
+        this.monaxBackup = monaxBackup;
     }
 
     public List<Account> getAll() {
@@ -83,16 +87,26 @@ public class AccountsService {
      */
     public List<Account> getAll(AccountType accountType) {
         Sort sort = new Sort(
-            new Sort.Order(Sort.Direction.DESC, "isNew"),
-            new Sort.Order(Sort.Direction.ASC, "fullName"));
+                new Sort.Order(Sort.Direction.DESC, "isNew"),
+                new Sort.Order(Sort.Direction.ASC, "fullName"));
 
         return accountRepository.getAccountsByType(accountType, sort);
     }
 
     public Account getAccount(String ldapId) {
         return Optional
-            .ofNullable(accountRepository.findOneUndeleted(ldapId))
-            .orElseGet(() -> createAccount(ldapId));
+                .ofNullable(accountRepository.findOneUndeleted(ldapId))
+                .orElseGet(() -> createAccount(ldapId));
+    }
+
+    public List<Account> getAmounts(List<Account> accounts) throws IOException {
+        List<BalancesDTO> amounts = coinService.getAmounts(accounts);
+        accounts.forEach(account -> amounts.forEach(amount -> {
+            if (account.getEmail().equals(amount.getUserId())) {
+                account.setAmount(amount.getBalance());
+            }
+        }));
+        return accounts;
     }
 
     public Account add(String ldapId) {
@@ -106,33 +120,30 @@ public class AccountsService {
 
     @Transactional
     public Account addMerchant(MerchantDTO merchantDTO, AccountType accountType) {
-        Account newMerchantAccount = new Account(merchantDTO.getUniqueId(), BigDecimal.ZERO);
+        Account newMerchantAccount = new Account(merchantDTO.getUniqueId(), merchantDTO.getName(), BigDecimal.ZERO);
         newMerchantAccount.setFullName(merchantDTO.getName());
         newMerchantAccount.setAccountType(accountType);
         newMerchantAccount.setNew(true);
-        ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
 
-        if (erisAccount == null) {
-            throw new ErisAccountNotFoundException();
+        EnrollResponseDTO body = fabricService.enroll(newMerchantAccount.getEmail()).getBody();
+        if (body.getSuccess()) {
+            return accountRepository.save(newMerchantAccount);
+        } else {
+            throw new AccountEnrollException("Failure try to enroll account with email " + newMerchantAccount.getEmail());
         }
-
-        newMerchantAccount = accountRepository.save(newMerchantAccount);
-        erisAccount.setAccount(newMerchantAccount);
-        erisAccountRepository.save(erisAccount);
-
-        return newMerchantAccount;
     }
 
     @Transactional
     public boolean delete(String ldapId) {
-        BigDecimal accountAmount = coinService.getAmount(ldapId);
+        Account account = accountRepository.findOne(ldapId);
+        BigDecimal accountAmount = coinService.getAmount(account.getEmail());
 
         if (accountAmount.compareTo(BigDecimal.ZERO) > 0) {
             String comment = String.format(
-                "Withdrawal of all the coins to treasury before delete account %s",
-                ldapId);
+                    "Withdrawal of all the coins to treasury before delete account %s",
+                    ldapId);
 
-            coinService.moveToTreasury(ldapId, accountAmount, comment);
+            coinService.moveToTreasury(account.getEmail(), accountAmount, comment);
         }
 
         return accountRepository.updateIsDeletedByLdapId(ldapId, true) == 1;
@@ -157,7 +168,7 @@ public class AccountsService {
             FileOutputStream out = new FileOutputStream(storedFile);
             out.write(file.getBytes());
         } catch (Exception e) {
-            throw new IllegalArgumentException("Can not create file with "+url +" path", e);
+            throw new IllegalArgumentException("Can not create file with " + url + " path", e);
         }
     }
 
@@ -167,8 +178,8 @@ public class AccountsService {
      */
     private Account checkAccountExists(String accountName) {
         return Optional
-            .ofNullable(accountRepository.findOneUndeleted(accountName))
-            .orElseThrow(() -> new AccountNotFoundException(accountName));
+                .ofNullable(accountRepository.findOneUndeleted(accountName))
+                .orElseThrow(() -> new AccountNotFoundException(accountName));
     }
 
     public byte[] getImage(String uri) {
@@ -192,10 +203,43 @@ public class AccountsService {
         return this.getImage(this.defaultAccountImagePath);
     }
 
+    public void reset() throws IOException {
+        List<Account> accounts = accountRepository.findAll();
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<LdapBalanceDTO> balances = objectMapper.readValue(
+                new FileInputStream(new File(this.monaxBackup)),
+                objectMapper.getTypeFactory().constructCollectionType(
+                        List.class, LdapBalanceDTO.class));
+
+        for (Account account : accounts) {
+            Account accountIfExistInLdapBase = getAccountIfExistInLdapBase(account.getLdapId());
+            if (accountIfExistInLdapBase != null && accountIfExistInLdapBase.getEmail() != null) {
+                Optional<BigDecimal> amountToFill = balances.stream()
+                        .filter(balance -> balance.getLdap().equals(account.getLdapId()))
+                        .findFirst()
+                        .map(LdapBalanceDTO::getBalance);
+                if (amountToFill.isPresent()) {
+                    if (amountToFill.get().compareTo(new BigDecimal(0)) == 1) {
+                        account.setEmail(accountIfExistInLdapBase.getEmail());
+                        accountRepository.save(account);
+                        fabricService.enroll(account.getEmail());
+                        coinService.fillAccount(account.getLdapId(), amountToFill.get(), "Create new account on fabric");
+                    } else {
+                        account.setEmail(accountIfExistInLdapBase.getEmail());
+                        fabricService.enroll(account.getEmail());
+                        accountRepository.save(account);
+                    }
+                }
+            } else {
+                accountRepository.delete(account);
+            }
+        }
+    }
+
     Account getAccountIfExistInLdapBase(String ldapId) {
         try {
             return oAuthHelper
-                .getForEntityWithToken(authServerUrl + "/v1/users/" + ldapId, Account.class).getBody();
+                    .getForEntityWithToken(authServerUrl + "/v1/users/" + ldapId, Account.class).getBody();
         } catch (RestClientException rce) {
             return null;
         }
@@ -214,44 +258,36 @@ public class AccountsService {
     @Transactional
     List<Account> changeIsNewStatus(Boolean isNew, @NonNull Iterable<Account> accounts) {
         List<String> accountsIds = StreamSupport
-            .stream(accounts.spliterator(), false)
-            .filter(account -> account.isNew() != isNew)
-            .map(Account::getLdapId)
-            .collect(Collectors.toList());
+                .stream(accounts.spliterator(), false)
+                .filter(account -> account.isNew() != isNew)
+                .map(Account::getLdapId)
+                .collect(Collectors.toList());
 
         if (Objects.nonNull(accountsIds) && !accountsIds.isEmpty()) {
             accountRepository.changeIsNewStatus(isNew, accountsIds);
         }
 
         return StreamSupport
-            .stream(accounts.spliterator(), false)
-            .peek(account -> checkAndChangeIsNewStatus(isNew, account))
-            .collect(Collectors.toList());
+                .stream(accounts.spliterator(), false)
+                .peek(account -> checkAndChangeIsNewStatus(isNew, account))
+                .collect(Collectors.toList());
     }
 
     @Transactional
     Account createAccount(String ldapId) {
         return Optional.ofNullable(getAccountIfExistInLdapBase(ldapId))
-            .map(a -> buildAccount(a, getNewErisAccount()))
-            .map(a -> accountRepository.save(a))
-            .orElseThrow(() -> new AccountNotFoundException(ldapId));
+                .map(this::buildAccount)
+                .map(a -> accountRepository.save(a))
+                .orElseThrow(() -> new AccountNotFoundException(ldapId));
     }
 
-    private Account buildAccount(Account account, ErisAccount erisAccount) {
+    private Account buildAccount(Account account) {
         account.setAmount(new BigDecimal(0));
         account.setImage(DEFAULT_IMAGE_NAME);
         account.setAccountType(AccountType.REGULAR);
         account.setNew(true);
         account.setAccountType(REGULAR);
-        account.setErisAccount(erisAccount);
-        erisAccount.setAccount(account);
         return account;
-    }
-
-    private ErisAccount getNewErisAccount() {
-        ErisAccount erisAccount = erisAccountsService.bindFreeAccount();
-        if (erisAccount == null) throw new ErisProcessingException("Can't create new ErisAccount");
-        return erisAccount;
     }
 
     private Account checkAndChangeIsNewStatus(Boolean isNew, Account account) {

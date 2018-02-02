@@ -2,18 +2,15 @@ package com.softjourn.coin.server.controller;
 
 
 import com.softjourn.coin.server.dto.AmountDTO;
-import com.softjourn.coin.server.dto.CashDTO;
-import com.softjourn.coin.server.dto.CheckDTO;
-import com.softjourn.coin.server.dto.ResultDTO;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.Transaction;
+import com.softjourn.coin.server.service.AccountsService;
 import com.softjourn.coin.server.service.CoinService;
 import com.softjourn.coin.server.service.FillAccountsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -33,19 +30,20 @@ public class CoinsController {
 
     private final CoinService coinService;
     private final FillAccountsService fillAccountsService;
+    private final AccountsService accountsService;
 
     @Autowired
-    public CoinsController(CoinService coinService, FillAccountsService fillAccountsService) {
+    public CoinsController(CoinService coinService, FillAccountsService fillAccountsService, AccountsService accountsService) {
         this.coinService = coinService;
         this.fillAccountsService = fillAccountsService;
+        this.accountsService = accountsService;
     }
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/amount", method = RequestMethod.GET)
     public Map<String, BigDecimal> getAmount(Principal principal) {
         Map<String, BigDecimal> responseBody = new HashMap<>();
-        responseBody.put("amount", coinService.getAmount(principal.getName()));
-
+        responseBody.put("amount", coinService.getAmount(accountsService.getAccount(principal.getName()).getEmail()));
         return responseBody;
     }
 
@@ -72,24 +70,6 @@ public class CoinsController {
         return coinService.move(principal.getName(), account, amountDTO.getAmount(), amountDTO.getComment());
     }
 
-    @PreAuthorize("authenticated")
-    @RequestMapping(value = "/withdraw", method = RequestMethod.POST)
-    public byte[] withdrawAmount(Principal principal,
-                                 @RequestBody AmountDTO amountDTO,
-                                 @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String accept,
-                                 HttpServletResponse response) {
-        boolean produceImage = MediaType.IMAGE_PNG_VALUE.equals(accept);
-        response.setHeader(HttpHeaders.CONTENT_TYPE, produceImage ? MediaType.IMAGE_PNG_VALUE : MediaType.APPLICATION_JSON_UTF8_VALUE);
-        Transaction<byte[]> transaction = coinService.withdraw(principal.getName(), amountDTO.getAmount(), amountDTO.getComment(), produceImage);
-        return transaction.getValue();
-    }
-
-    @PreAuthorize("authenticated")
-    @RequestMapping(value = "/deposit", method = RequestMethod.POST)
-    public Transaction deposit(Principal principal, @RequestBody CashDTO cashDTO) {
-        return coinService.deposit(cashDTO, principal.getName(), "Deposit cash.", new BigDecimal(cashDTO.getAmount()));
-    }
-
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/move/{account}/treasury", method = RequestMethod.POST)
     public Transaction moveAmountToTreasury(@PathVariable String account, @RequestBody AmountDTO amountDTO) {
@@ -105,14 +85,8 @@ public class CoinsController {
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/add/", method = RequestMethod.POST)
-    public ResultDTO addAmounts(@RequestParam MultipartFile file) throws IOException {
-        return this.fillAccountsService.fillAccounts(file);
-    }
-
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
-    @RequestMapping(value = "/check/{checkHash}", method = RequestMethod.GET)
-    public CheckDTO checkProgress(@PathVariable String checkHash) {
-        return this.fillAccountsService.checkProcessing(checkHash);
+    public void addAmounts(@RequestParam MultipartFile file) {
+        this.fillAccountsService.fillAccounts(file);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")

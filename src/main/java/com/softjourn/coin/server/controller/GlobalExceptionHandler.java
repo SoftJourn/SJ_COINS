@@ -3,7 +3,6 @@ package com.softjourn.coin.server.controller;
 
 import com.softjourn.coin.server.dto.ErrorDetail;
 import com.softjourn.coin.server.exceptions.*;
-import com.softjourn.eris.contract.ContractDeploymentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -29,12 +28,6 @@ public class GlobalExceptionHandler {
         log.info("Request for body with too big amount. " + e.getLocalizedMessage());
     }
 
-    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "No free eris account")
-    @ExceptionHandler(ErisAccountNotFoundException.class)
-    public void handleErisAccountNotFound(Exception e) {
-        log.info("Request for assign free eris account. " + e.getLocalizedMessage());
-    }
-
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(NotEnoughAmountInTreasuryException.class)
     public ErrorDetail handleNotEnoughAmountInTreasuryException(NotEnoughAmountInTreasuryException e) {
@@ -47,6 +40,20 @@ public class GlobalExceptionHandler {
     public ErrorDetail handleChequeIsUsedException(ChequeIsUsedException e) {
         log.warn(e.getLocalizedMessage());
         return buildErrorDetails(e, 40906, e.getMessage());
+    }
+
+    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "No free eris account")
+    @ExceptionHandler(FabricRequestInvokeException.class)
+    public ErrorDetail handleFabricRequestInvokeException(FabricRequestInvokeException e) {
+        log.info("Request for assign free eris account. " + e.getLocalizedMessage());
+        return buildErrorDetails(e, 40907, e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(AccountEnrollException.class)
+    public ErrorDetail handleErisContractInstanceNotFound(AccountEnrollException e) {
+        log.warn(e.getLocalizedMessage());
+        return buildErrorDetails(e, 40908, e.getLocalizedMessage());
     }
 
     // 404 NOT FOUND
@@ -62,27 +69,6 @@ public class GlobalExceptionHandler {
     public ErrorDetail handleNoHandlerFoundException(NoHandlerFoundException e) {
         log.warn(e.getLocalizedMessage());
         return buildErrorDetails(e, 40401, String.format("Endpoint %s not found", e.getRequestURL()));
-    }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(ContractDeploymentException.class)
-    public ErrorDetail handleContractDeploymentException(ContractDeploymentException e) {
-        log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(e, 40904, e.getLocalizedMessage());
-    }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(ErisContractInstanceNotFound.class)
-    public ErrorDetail handleErisContractInstanceNotFound(ErisContractInstanceNotFound e) {
-        log.warn(e.getLocalizedMessage());
-        return (buildErrorDetails(e, 40405, e.getLocalizedMessage()));
-    }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(ContractNotFoundException.class)
-    public ErrorDetail handleContractNotFoundException(ContractNotFoundException e) {
-        log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(e, 40406, e.getLocalizedMessage());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

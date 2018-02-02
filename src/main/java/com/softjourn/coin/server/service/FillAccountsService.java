@@ -1,42 +1,24 @@
 package com.softjourn.coin.server.service;
 
 import com.fasterxml.jackson.databind.MappingIterator;
-import com.softjourn.coin.server.aop.annotations.SaveTransaction;
-import com.softjourn.coin.server.dto.AccountFillDTO;
-import com.softjourn.coin.server.dto.CheckDTO;
-import com.softjourn.coin.server.dto.ResultDTO;
-import com.softjourn.coin.server.entity.Account;
-import com.softjourn.coin.server.entity.AccountType;
-import com.softjourn.coin.server.entity.Transaction;
-import com.softjourn.coin.server.entity.TransactionStatus;
-import com.softjourn.coin.server.entity.TransactionType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.softjourn.coin.server.dto.*;
+import com.softjourn.coin.server.entity.*;
 import com.softjourn.coin.server.exceptions.CouldNotReadFileException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInTreasuryException;
+import com.softjourn.coin.server.repository.TransactionRepository;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.softjourn.coin.server.entity.TransactionType.REGULAR_REPLENISHMENT;
 import static com.softjourn.coin.server.util.Util.dataToCSV;
 import static com.softjourn.coin.server.util.Util.getDataFromCSV;
 import static com.softjourn.coin.server.util.Util.validateMultipartFileMimeType;
@@ -45,25 +27,25 @@ import static com.softjourn.coin.server.util.Util.validateMultipartFileMimeType;
 @Service
 public class FillAccountsService {
 
-    private final Map<String, List<Future<Transaction>>> map;
-
     private final CoinService coinService;
+
+    private final FabricService fabricService;
 
     private final AccountsService accountsService;
 
+    private final TransactionRepository transactionRepository;
+
     @Autowired
-    public FillAccountsService(@Qualifier("transactionResultMap") Map<String, List<Future<Transaction>>> map, CoinService coinService, AccountsService accountsService) {
-        this.map = map;
+    public FillAccountsService(CoinService coinService, FabricService fabricService, AccountsService accountsService, TransactionRepository transactionRepository) {
         this.coinService = coinService;
+        this.fabricService = fabricService;
         this.accountsService = accountsService;
+        this.transactionRepository = transactionRepository;
     }
 
-    public ResultDTO fillAccounts(MultipartFile multipartFile) {
+    public void fillAccounts(MultipartFile multipartFile) {
         // is file valid
         validateMultipartFileMimeType(multipartFile, "text/csv|application/vnd.ms-excel");
-        // List of future actions
-        List<Future<Transaction>> futureTransactions = new ArrayList<>();
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
         try {
             // reading file content
             MappingIterator<AccountFillDTO> iterator = getDataFromCSV(multipartFile.getBytes(), AccountFillDTO.class);
@@ -76,14 +58,14 @@ public class FillAccountsService {
                     .mapToDouble(value -> value.getCoins().doubleValue()).sum()))) {
                 throw new NotEnoughAmountInTreasuryException("Not enough coins in treasury!");
             } else {
-                // if enough - filling accounts one by one
-                for (AccountFillDTO dto : accountsToFill) {
-                    checkAmountIsPositive(dto.getCoins());
-                    futureTransactions.add(executorService.submit(planJob(dto)));
-                }
-                String hash = UUID.randomUUID().toString();
-                this.map.put(hash, futureTransactions);
-                return new ResultDTO(hash);
+                List<BatchTransferDTO> requestArray = accountsToFill.stream().
+                        map(FillAccountsService::apply).collect(Collectors.toList());
+                ObjectMapper mapper = new ObjectMapper();
+                InvokeResponseDTO batchTransfer = fabricService.
+                        invoke(coinService.getTreasuryAccount(),
+                                "batchTransfer",
+                                new String[]{mapper.writeValueAsString(requestArray)}, InvokeResponseDTO.class);
+                saveTransactions(accountsToFill, batchTransfer);
             }
         } catch (IOException e) {
             log.error(e.getLocalizedMessage());
@@ -91,37 +73,32 @@ public class FillAccountsService {
         }
     }
 
-    public CheckDTO checkProcessing(String checkHash) {
-        long done = map.get(checkHash).stream().filter(Future::isDone).count();
-        long total = (long) map.get(checkHash).size();
-        CheckDTO dto = new CheckDTO();
-        dto.setIsDone(done);
-        dto.setTotal(total);
-        if (total == done) {
-            dto.setTransactions(map.get(checkHash).stream().map(this::getTransaction).collect(Collectors.toList()));
-            this.cleanTransactionResultMap(checkHash);
-            return dto;
-        } else {
-            return dto;
-        }
+    private void saveTransactions(List<AccountFillDTO> accountsToFill, InvokeResponseDTO batchTransfer) {
+        accountsService.getAll().forEach(account -> {
+            accountsToFill.forEach(dto -> {
+                if (account.getEmail().equals(dto.getAccount())) {
+                    Transaction transaction = new Transaction();
+                    transaction.setStatus(TransactionStatus.SUCCESS);
+                    transaction.setTransactionId(batchTransfer.getTransactionID());
+                    transaction.setAmount(dto.getCoins());
+                    transaction.setDestination(account);
+                    transaction.setType(TransactionType.REGULAR_REPLENISHMENT);
+                    transactionRepository.save(transaction);
+                }
+            });
+        });
     }
 
     public void getAccountDTOTemplate(Writer writer) throws IOException {
         List<Account> accounts = this.accountsService.getAll(AccountType.REGULAR);
         List<AccountFillDTO> collect = accounts.stream().map((Account a) -> {
             AccountFillDTO dto = new AccountFillDTO();
-            dto.setAccount(a.getLdapId());
+            dto.setAccount(a.getEmail());
             dto.setFullName(a.getFullName());
             dto.setCoins(new BigDecimal(0));
             return dto;
         }).sorted(Comparator.comparing(AccountFillDTO::getAccount)).collect(Collectors.toList());
         dataToCSV(writer, collect, AccountFillDTO.class);
-    }
-
-    @SaveTransaction(comment = "Move money from treasury to account.", type = REGULAR_REPLENISHMENT)
-    private Callable<Transaction> planJob(AccountFillDTO accountDTO) {
-        return () -> this.coinService.fillAccount(accountDTO.getAccount(), accountDTO.getCoins(),
-                String.format("Filling account %s by %.0f coins", accountDTO.getAccount(), accountDTO.getCoins()));
     }
 
     private Boolean isEnoughInTreasury(BigDecimal decimal) {
@@ -139,26 +116,8 @@ public class FillAccountsService {
         }
     }
 
-    private Transaction getTransaction(Future<Transaction> futureTransaction) {
-        try {
-            return futureTransaction.get();
-        } catch (InterruptedException | ExecutionException e) {
-            log.error(e.getLocalizedMessage());
-            Transaction transaction = new Transaction();
-            transaction.setError(e.getLocalizedMessage());
-            transaction.setStatus(TransactionStatus.FAILED);
-            return transaction;
-        }
-    }
-
-    private synchronized void cleanTransactionResultMap(String checkHash) {
-        Timer timer = new Timer();
-        TimerTask action = new TimerTask() {
-            public void run() {
-                map.remove(checkHash);
-            }
-        };
-        timer.schedule(action, 5000);
+    private static BatchTransferDTO apply(AccountFillDTO accountFillDTO) {
+        return new BatchTransferDTO(accountFillDTO.getAccount(), accountFillDTO.getCoins());
     }
 
 }

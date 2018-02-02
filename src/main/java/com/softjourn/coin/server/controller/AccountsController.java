@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +42,7 @@ public class AccountsController {
     @JsonView(JsonViews.REGULAR.class)
     public Account getAccount(Principal principal) {
         Account account = accountsService.getAccount(principal.getName());
-        account.setAmount(coinService.getAmount(account.getLdapId()));
+        account.setAmount(coinService.getAmount(account.getEmail()));
         return account;
     }
 
@@ -55,42 +56,32 @@ public class AccountsController {
 
     @PreAuthorize("permitAll")
     @RequestMapping(value = "/account/default", method = RequestMethod.GET)
-    public byte[] getDefaultImage(){
+    public byte[] getDefaultImage() {
         return accountsService.getDefaultImage();
-    }
-
-    @PreAuthorize("authenticated")
-    @RequestMapping(value = "/eris/account", method = RequestMethod.GET)
-    public AccountDTO getErisAccount(Principal principal) {
-        return new AccountDTO(principal.getName(), accountsService.getAccount(principal.getName()).getErisAccount().getAddress());
     }
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/accounts/all", method = RequestMethod.GET)
     public List<AccountDTO> getAccounts() {
         return accountsService.getAll().stream()
-            .filter(account -> account.getAccountType() == AccountType.REGULAR)
-            .map(account ->
-                new AccountDTO(account.getLdapId(), account.getErisAccount().getAddress()))
-            .collect(Collectors.toList());
+                .filter(account -> account.getAccountType() == AccountType.REGULAR)
+                .map(account ->
+                        new AccountDTO(account.getLdapId(), account.getEmail()))
+                .collect(Collectors.toList());
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/accounts", method = RequestMethod.GET)
     @JsonView(JsonViews.COINS_MANAGER.class)
-    public List<Account> getAllAccounts() {
-        return accountsService.getAll().stream()
-            .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
-            .collect(Collectors.toList());
+    public List<Account> getAllAccounts() throws IOException {
+        return accountsService.getAmounts(accountsService.getAll());
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/accounts/{accountType}", method = RequestMethod.GET)
     @JsonView(JsonViews.COINS_MANAGER.class)
-    public List<Account> getAccountsByType(@PathVariable String accountType) {
-        return accountsService.getAll(AccountType.valueOf(accountType.toUpperCase())).stream()
-            .peek(account -> account.setAmount(coinService.getAmount(account.getLdapId())))
-            .collect(Collectors.toList());
+    public List<Account> getAccountsByType(@PathVariable String accountType) throws IOException {
+        return accountsService.getAmounts(accountsService.getAll(AccountType.valueOf(accountType.toUpperCase())));
     }
 
     // POST
@@ -100,13 +91,6 @@ public class AccountsController {
     @JsonView(JsonViews.ADMIN.class)
     public Account addMerchant(@RequestBody MerchantDTO merchantDTO) {
         return accountsService.addMerchant(merchantDTO, AccountType.MERCHANT);
-    }
-
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','INVENTORY')")
-    @RequestMapping(value = "/account/crowdsale", method = RequestMethod.POST)
-    @JsonView(JsonViews.ADMIN.class)
-    public Account addCrowdSaleAccount(@RequestBody MerchantDTO merchantDTO) {
-        return accountsService.addMerchant(merchantDTO, AccountType.PROJECT);
     }
 
     @PreAuthorize("authenticated")
@@ -122,5 +106,11 @@ public class AccountsController {
     @JsonView(JsonViews.ADMIN.class)
     public Map<String, Boolean> deleteAccount(@PathVariable String ldapId) {
         return Collections.singletonMap("deleted", accountsService.delete(ldapId));
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "/reset", method = RequestMethod.GET)
+    public void reset() throws IOException {
+        accountsService.reset();
     }
 }
