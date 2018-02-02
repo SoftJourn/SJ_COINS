@@ -71,7 +71,7 @@ public class CoinService {
 
             log.info(account.getEmail());
             InvokeResponseDTO.Amount transfer = fabricService.invoke(treasuryAccount, "transfer",
-                    new String[]{"user_", account.getEmail(), amount.toString()}, InvokeResponseDTO.Amount.class);
+                    new String[]{"user_", account.getEmail(), amount.toBigInteger().toString()}, InvokeResponseDTO.Amount.class);
 
             Transaction transaction = new Transaction();
             if (transfer.getTransactionID() != null) {
@@ -221,7 +221,8 @@ public class CoinService {
     }
 
     private InvokeResponseDTO.Amount move(String from, String to, BigDecimal amount) {
-        return fabricService.invoke(from, "transfer", new String[]{"user_", to, amount.toString()}, InvokeResponseDTO.Amount.class);
+        return fabricService.invoke(from, "transfer", new String[]{"user_", to,
+                amount.toBigInteger().toString()}, InvokeResponseDTO.Amount.class);
     }
 
     @SuppressWarnings("unused")
