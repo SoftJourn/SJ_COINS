@@ -125,7 +125,7 @@ public class CoinService {
 
         Account acceptorAccount = removeIsNewStatus(destinationName);
 
-        if (!isEnoughAmount(accountName, amount)) {
+        if (!isEnoughAmount(donorAccount.getEmail(), amount)) {
             throw new NotEnoughAmountInAccountException();
         }
 
@@ -173,9 +173,10 @@ public class CoinService {
     public Transaction buy(@NonNull String destinationName, @NonNull String accountName, @NonNull BigDecimal
             amount, String comment) {
         synchronized (getMonitor(accountName)) {
-            checkEnoughAmount(accountName, amount);
+            Account account = accountsService.getAccount(accountName);
+            checkEnoughAmount(account.getEmail(), amount);
 
-            Account account = removeIsNewStatus(accountName);
+            removeIsNewStatus(accountName);
 
             Account merchantAccount = removeIsNewStatus(destinationName);
             InvokeResponseDTO move = move(account.getEmail(), merchantAccount.getEmail(), amount);
