@@ -110,7 +110,7 @@ public class AccountsController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/reset", method = RequestMethod.GET)
-    public void reset() throws IOException {
+    public void reset() {
         accountsService.reset();
     }
 }

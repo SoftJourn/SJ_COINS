@@ -2,10 +2,7 @@ package com.softjourn.coin.server.service;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.softjourn.coin.server.dto.BalancesDTO;
-import com.softjourn.coin.server.dto.EnrollResponseDTO;
-import com.softjourn.coin.server.dto.LdapBalanceDTO;
-import com.softjourn.coin.server.dto.MerchantDTO;
+import com.softjourn.coin.server.dto.*;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.exceptions.AccountEnrollException;
@@ -205,33 +202,16 @@ public class AccountsService {
         return this.getImage(this.defaultAccountImagePath);
     }
 
-    public void reset() throws IOException {
+    public void reset() {
         List<Account> accounts = accountRepository.findAll();
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<LdapBalanceDTO> balances = objectMapper.readValue(
-                new FileInputStream(new File(this.monaxBackup)),
-                objectMapper.getTypeFactory().constructCollectionType(
-                        List.class, LdapBalanceDTO.class));
 
+        // enroll
         for (Account account : accounts) {
             Account accountIfExistInLdapBase = getAccountIfExistInLdapBase(account.getLdapId());
             if (accountIfExistInLdapBase != null && accountIfExistInLdapBase.getEmail() != null) {
-                Optional<BigDecimal> amountToFill = balances.stream()
-                        .filter(balance -> balance.getLdap().equals(account.getLdapId()))
-                        .findFirst()
-                        .map(LdapBalanceDTO::getBalance);
-                if (amountToFill.isPresent()) {
-                    if (amountToFill.get().compareTo(new BigDecimal(0)) == 1) {
-                        account.setEmail(accountIfExistInLdapBase.getEmail());
-                        accountRepository.save(account);
-                        fabricService.enroll(account.getEmail());
-                        coinService.fillAccount(account.getLdapId(), amountToFill.get(), "Create new account on fabric");
-                    } else {
-                        account.setEmail(accountIfExistInLdapBase.getEmail());
-                        fabricService.enroll(account.getEmail());
-                        accountRepository.save(account);
-                    }
-                }
+                account.setEmail(accountIfExistInLdapBase.getEmail());
+                fabricService.enroll(account.getEmail());
+                accountRepository.save(account);
             } else {
                 accountRepository.delete(account);
             }
