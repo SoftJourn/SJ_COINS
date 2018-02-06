@@ -129,7 +129,7 @@ public class CoinService {
             throw new NotEnoughAmountInAccountException();
         }
 
-        InvokeResponseDTO move = move(donorAccount.getEmail(), acceptorAccount.getEmail(), amount);
+        InvokeResponseDTO.Amount move = move(donorAccount.getEmail(), acceptorAccount.getEmail(), amount);
 
         Transaction transaction = new Transaction();
         transaction.setAmount(amount);
@@ -137,6 +137,7 @@ public class CoinService {
         transaction.setAccount(donorAccount);
         transaction.setDestination(acceptorAccount);
         transaction.setTransactionId(move.getTransactionID());
+        transaction.setRemain(move.getPayload());
 
         return transaction;
     }
@@ -179,7 +180,7 @@ public class CoinService {
             removeIsNewStatus(accountName);
 
             Account merchantAccount = removeIsNewStatus(destinationName);
-            InvokeResponseDTO move = move(account.getEmail(), merchantAccount.getEmail(), amount);
+            InvokeResponseDTO.Amount move = move(account.getEmail(), merchantAccount.getEmail(), amount);
 
 
             Transaction transaction = new Transaction();
@@ -188,6 +189,7 @@ public class CoinService {
             transaction.setStatus(TransactionStatus.SUCCESS);
             transaction.setDestination(merchantAccount);
             transaction.setTransactionId(move.getTransactionID());
+            transaction.setValue(move.getPayload());
 
             return transaction;
         }
@@ -199,7 +201,7 @@ public class CoinService {
         Account user = transaction.getAccount();
         Account merchant = transaction.getDestination();
         BigDecimal amount = transaction.getAmount();
-        InvokeResponseDTO move = move(merchant.getEmail(), user.getEmail(), amount);
+        InvokeResponseDTO.Amount move = move(merchant.getEmail(), user.getEmail(), amount);
         Transaction rollbackTx = new Transaction();
         rollbackTx.setTransactionId(move.getTransactionID());
         rollbackTx.setAccount(merchant);
@@ -207,6 +209,7 @@ public class CoinService {
         rollbackTx.setAmount(amount);
         transaction.setStatus(TransactionStatus.SUCCESS);
         rollbackTx.setComment("Rollback buying transaction. ID: " + txId);
+        transaction.setRemain(move.getPayload());
         return rollbackTx;
     }
 
@@ -236,13 +239,14 @@ public class CoinService {
 
         Account account = removeIsNewStatus(accountName);
 
-        InvokeResponseDTO move = move(account.getEmail(), treasuryAccount, amount);
+        InvokeResponseDTO.Amount move = move(account.getEmail(), treasuryAccount, amount);
 
         Transaction transaction = new Transaction();
         transaction.setTransactionId(move.getTransactionID());
         transaction.setAccount(account);
         transaction.setAmount(amount);
         transaction.setStatus(TransactionStatus.SUCCESS);
+        transaction.setRemain(move.getPayload());
 
         return transaction;
     }
