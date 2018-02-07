@@ -189,7 +189,7 @@ public class CoinService {
             transaction.setStatus(TransactionStatus.SUCCESS);
             transaction.setDestination(merchantAccount);
             transaction.setTransactionId(move.getTransactionID());
-            transaction.setValue(move.getPayload());
+            transaction.setRemain(move.getPayload());
 
             return transaction;
         }
