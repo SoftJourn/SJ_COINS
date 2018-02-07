@@ -4,6 +4,7 @@ import com.softjourn.coin.server.controller.TransactionsController;
 import com.softjourn.coin.server.dto.MobileTransactionDTO;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
+import com.softjourn.coin.server.exceptions.TransactionNotFoundException;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.common.export.ExcelExport;
 import com.softjourn.common.export.ExportDefiner;
@@ -34,7 +35,7 @@ public class TransactionsService implements TransactionMapper {
     }
 
     public Transaction get(Long id) {
-        return repository.findOne(id);
+        return repository.findById(id).orElseThrow(() -> new TransactionNotFoundException(id));
     }
 
     public Page<MobileTransactionDTO> getForUser(String user, Pageable pageable, TransactionsController.Direction direction) {

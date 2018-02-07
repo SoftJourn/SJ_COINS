@@ -6,7 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
@@ -22,19 +22,19 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @EnableJpaRepositories(basePackages = "com.softjourn.coin.server.repository")
 @EntityScan(basePackages = "com.softjourn.coin.server.entity")
 @PropertySources(
-		@PropertySource(value = "file:${user.home}/.coins/application.properties", ignoreResourceNotFound = true)
+        @PropertySource(value = "file:${user.home}/.coins/application.properties", ignoreResourceNotFound = true)
 )
-public class Coins  {
+public class Coins {
 
-	public static void main(String[] args) {
-		SpringApplication.run(Coins.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(Coins.class, args);
+    }
 
-	public static class ServletInit extends SpringBootServletInitializer {
+    public static class ServletInit extends SpringBootServletInitializer {
 
-		@Override
-		protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-			return application.sources(Coins.class);
-		}
-	}
+        @Override
+        protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+            return application.sources(Coins.class);
+        }
+    }
 }

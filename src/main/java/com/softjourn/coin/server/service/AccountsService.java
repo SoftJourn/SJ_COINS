@@ -109,10 +109,8 @@ public class AccountsService {
     }
 
     public Account add(String ldapId) {
-        Account account = accountRepository.findOne(ldapId);
-        if (account == null) {
-            return createAccount(ldapId);
-        } else if (account.isDeleted()) {
+        Account account = accountRepository.findById(ldapId).orElse(createAccount(ldapId));
+        if (account.isDeleted()) {
             throw new AccountWasDeletedException("Account \"" + ldapId + "\" was deleted. Contact administrators.");
         } else return account;
     }
@@ -134,7 +132,7 @@ public class AccountsService {
 
     @Transactional
     public boolean delete(String ldapId) {
-        Account account = accountRepository.findOne(ldapId);
+        Account account = accountRepository.findById(ldapId).orElseThrow(() -> new AccountNotFoundException(ldapId));
         BigDecimal accountAmount = coinService.getAmount(account.getEmail());
 
         if (accountAmount.compareTo(BigDecimal.ZERO) > 0) {

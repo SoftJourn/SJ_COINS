@@ -11,6 +11,7 @@ import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
+import com.softjourn.coin.server.exceptions.TransactionNotFoundException;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -195,7 +196,7 @@ public class CoinService {
 
     @SaveTransaction(comment = "Rollback previous transaction.", type = ROLLBACK)
     public Transaction rollback(Long txId) {
-        Transaction transaction = transactionRepository.findOne(txId);
+        Transaction transaction = transactionRepository.findById(txId).orElseThrow(() -> new TransactionNotFoundException(txId));
         Account user = transaction.getAccount();
         Account merchant = transaction.getDestination();
         BigDecimal amount = transaction.getAmount();

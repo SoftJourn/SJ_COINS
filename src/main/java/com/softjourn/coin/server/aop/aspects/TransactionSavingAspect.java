@@ -65,15 +65,19 @@ public class TransactionSavingAspect {
     }
 
     private void fillTransaction(Transaction transaction, ProceedingJoinPoint joinPoint) {
-        Account accountName = getArgOrAnnotationValue(joinPoint, "accountName", SaveTransaction::accountName, accountRepository::findOne);
+        Account accountName = getArgOrAnnotationValue(joinPoint, "accountName",
+                SaveTransaction::accountName, (id) -> accountRepository.findById(id).get());
         replaceIfNull(transaction::getAccount, transaction::setAccount, accountName);
-        Account destinationName = getArgOrAnnotationValue(joinPoint, "destinationName", SaveTransaction::destinationName, accountRepository::findOne);
+        Account destinationName = getArgOrAnnotationValue(joinPoint, "destinationName",
+                SaveTransaction::destinationName, (id) -> accountRepository.findById(id).get());
         replaceIfNull(transaction::getDestination, transaction::setDestination, destinationName);
         BigDecimal amount = getArg(joinPoint, "amount", BigDecimal.class);
         replaceIfNull(transaction::getAmount, transaction::setAmount, amount);
-        String comment = getArgOrAnnotationValue(joinPoint, "comment", SaveTransaction::comment, Function.identity());
+        String comment = getArgOrAnnotationValue(joinPoint, "comment",
+                SaveTransaction::comment, Function.identity());
         replaceIfNull(transaction::getComment, transaction::setComment, comment);
-        TransactionType type = getArgOrAnnotationValueToObject(joinPoint, "type", SaveTransaction::type, TransactionType.class);
+        TransactionType type = getArgOrAnnotationValueToObject(joinPoint, "type",
+                SaveTransaction::type, TransactionType.class);
         replaceIfNull(transaction::getType, transaction::setType, type);
         transaction.setCreated(Instant.now());
     }
