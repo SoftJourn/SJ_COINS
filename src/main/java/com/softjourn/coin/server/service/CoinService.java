@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.softjourn.coin.server.entity.TransactionType.*;
+import static java.lang.String.format;
 
 @Slf4j
 @Service
@@ -190,7 +191,7 @@ public class CoinService {
             transaction.setDestination(merchantAccount);
             transaction.setTransactionId(move.getTransactionID());
             transaction.setRemain(move.getPayload());
-
+            log.info(format("Remain %s", move.getPayload().toString()));
             return transaction;
         }
     }
