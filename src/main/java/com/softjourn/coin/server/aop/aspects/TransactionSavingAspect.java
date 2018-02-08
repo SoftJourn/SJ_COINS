@@ -86,7 +86,7 @@ public class TransactionSavingAspect {
 
     private void setRemainAmount(ProceedingJoinPoint joinPoint, Transaction transaction) {
         String accName = Optional.ofNullable(transaction.getAccount())
-                .map(Account::getLdapId)
+                .map(Account::getEmail)
                 .orElseGet(() -> getArg(joinPoint, "accountName", String.class));
         if (accName != null) {
             transaction.setRemain(coinService.getAmount(accName));
