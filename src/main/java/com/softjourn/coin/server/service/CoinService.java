@@ -183,7 +183,6 @@ public class CoinService {
             Account merchantAccount = removeIsNewStatus(destinationName);
             InvokeResponseDTO.Amount move = move(account.getEmail(), merchantAccount.getEmail(), amount);
 
-
             Transaction transaction = new Transaction();
             transaction.setAmount(amount);
             transaction.setAccount(account);
@@ -191,7 +190,6 @@ public class CoinService {
             transaction.setDestination(merchantAccount);
             transaction.setTransactionId(move.getTransactionID());
             transaction.setRemain(move.getPayload());
-            log.info(format("Remain %s", move.getPayload().toString()));
             return transaction;
         }
     }
