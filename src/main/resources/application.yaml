@@ -2,14 +2,13 @@
 # For custom endpoint exception handling
 
 spring:
-  profiles:
-    active: test
+  profiles: dev
   mvc:
     throw-exception-if-no-handler-found: true
   resources:
     add-mappings: false
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     tomcat:
       test-while-idle: true
       time-between-eviction-runs-millis: 3600000
@@ -22,10 +21,12 @@ spring:
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
     show-sql: true
+    open-in-view: false
   flyway:
     baseline-on-migrate: true
     ignore-future-migrations: true
     ignore-missing-migrations: true
+    table: schema_version
 
 logging:
   config: file:${HOME}/.coins/logback.xml
@@ -34,3 +35,29 @@ image:
     path: ${HOME}/.coins/images
   account:
     default: /account/default.png
+
+---
+
+spring:
+  profiles: test
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: false
+  datasource:
+    driver-class-name: org.h2.Driver
+    username: sj_coin_test
+    password: sj_coin_test
+    url: jdbc:h2:mem:sj_coin_test;DB_CLOSE_DELAY=-1;MODE=MYSQL
+  jpa:
+    database: H2
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: none
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+    show-sql: true
+    open-in-view: false
+  flyway:
+    enabled: false
