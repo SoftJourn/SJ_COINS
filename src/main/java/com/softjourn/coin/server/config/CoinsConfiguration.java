@@ -27,10 +27,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Future;
 
 @Configuration
 public class CoinsConfiguration extends ResourceServerConfigurerAdapter {

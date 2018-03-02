@@ -29,6 +29,7 @@ public class Account {
     @JsonView(JsonViews.COINS_MANAGER.class)
     private String fullName;
 
+    @JsonView(JsonViews.COINS_MANAGER.class)
     private String email;
 
     @JsonView(JsonViews.REGULAR.class)
@@ -43,6 +44,7 @@ public class Account {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean isNew;
 
+    @JsonView(JsonViews.COINS_MANAGER.class)
     private boolean deleted;
 
     public Account(String ldapId, String email, BigDecimal amount) {

@@ -3,6 +3,8 @@ package com.softjourn.coin.server.repository;
 
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,6 +19,9 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 
     @Query("SELECT a FROM Account a WHERE a.accountType = :accountType AND a.deleted = false")
     List<Account> getAccountsByType(@Param("accountType") AccountType accountType, Sort sort);
+
+    @Query("SELECT a FROM Account a WHERE a.accountType = :accountType")
+    Page<Account> getAccountsByType(@Param("accountType") AccountType accountType, Pageable pageable);
 
     @Query("SELECT a FROM Account a WHERE a.deleted = false")
     List<Account> findAllUndeleted();
@@ -37,4 +42,7 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     @Modifying
     @Query("UPDATE Account a SET a.isNew = :isNew WHERE a.ldapId IN (:ids)")
     int changeIsNewStatus(@Param("isNew") Boolean isNew, @Param("ids") List<String> ids);
+
+    @Query("SELECT a FROM Account a WHERE a.ldapId like %?1% OR a.fullName like %?1% OR a.email like %?1%")
+    Page<Account> findAccountBy(String value, Pageable pageable);
 }

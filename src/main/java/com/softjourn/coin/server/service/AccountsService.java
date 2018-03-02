@@ -1,8 +1,9 @@
 package com.softjourn.coin.server.service;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.softjourn.coin.server.dto.*;
+import com.softjourn.coin.server.dto.BalancesDTO;
+import com.softjourn.coin.server.dto.EnrollResponseDTO;
+import com.softjourn.coin.server.dto.MerchantDTO;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.exceptions.AccountEnrollException;
@@ -19,6 +20,8 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -92,10 +95,24 @@ public class AccountsService {
         return accountRepository.getAccountsByType(accountType, sort);
     }
 
+    public Page<Account> getByPage(Pageable pageable) {
+        return accountRepository.getAccountsByType(AccountType.REGULAR, pageable);
+    }
+
+    public Page<Account> search(String value, Pageable pageable) {
+        return accountRepository.findAccountBy(value, pageable);
+    }
+
+    @Transactional
     public Account getAccount(String ldapId) {
-        return Optional
-                .ofNullable(accountRepository.findOneUndeleted(ldapId))
-                .orElseGet(() -> createAccount(ldapId));
+        Account one = accountRepository.findOne(ldapId);
+        if (one == null) {
+            return createAccount(ldapId);
+        } else if (one.isDeleted()) {
+            one.setDeleted(!one.isDeleted());
+            return accountRepository.save(one);
+        }
+        return one;
     }
 
     public List<Account> getAmounts(List<Account> accounts) throws IOException {
@@ -257,6 +274,7 @@ public class AccountsService {
 
     @Transactional
     Account createAccount(String ldapId) {
+
         return Optional.ofNullable(getAccountIfExistInLdapBase(ldapId))
                 .map(this::buildAccount)
                 .map(a -> accountRepository.save(a))

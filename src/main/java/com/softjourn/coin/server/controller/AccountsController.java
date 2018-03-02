@@ -8,7 +8,12 @@ import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.service.AccountsService;
 import com.softjourn.coin.server.service.CoinService;
 import com.softjourn.coin.server.util.JsonViews;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -78,6 +83,20 @@ public class AccountsController {
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
+    @RequestMapping(value = "/accounts/pages", method = RequestMethod.GET)
+    @JsonView(JsonViews.COINS_MANAGER.class)
+    public Page<Account> getAccountsByPage(Pageable pageable) {
+        return accountsService.getByPage(pageable);
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
+    @RequestMapping(value = "/accounts/search", method = RequestMethod.GET)
+    @JsonView(JsonViews.COINS_MANAGER.class)
+    public Page<Account> findAccounts(@NotEmpty @NotBlank @RequestParam("value") String value, Pageable pageable) {
+        return accountsService.search(value, pageable);
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/accounts/{accountType}", method = RequestMethod.GET)
     @JsonView(JsonViews.COINS_MANAGER.class)
     public List<Account> getAccountsByType(@PathVariable String accountType) throws IOException {
@@ -101,7 +120,7 @@ public class AccountsController {
 
     // DELETE
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','INVENTORY')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/account/{ldapId}", method = RequestMethod.DELETE)
     @JsonView(JsonViews.ADMIN.class)
     public Map<String, Boolean> deleteAccount(@PathVariable String ldapId) {
