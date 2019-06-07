@@ -142,7 +142,7 @@ public class AccountsService {
                     "Withdrawal of all the coins to treasury before delete account %s",
                     ldapId);
 
-            coinService.moveToTreasury(account.getEmail(), accountAmount, comment);
+            coinService.moveToTreasury(account.getLdapId(), accountAmount, comment);
         }
 
         return accountRepository.updateIsDeletedByLdapId(ldapId, true) == 1;

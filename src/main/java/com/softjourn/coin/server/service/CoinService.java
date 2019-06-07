@@ -232,11 +232,11 @@ public class CoinService {
     public synchronized Transaction moveToTreasury(String accountName, BigDecimal amount, String comment) {
         checkAmountIsPositive(amount);
 
-        if (!isEnoughAmount(accountName, amount)) {
+        Account account = removeIsNewStatus(accountName);
+
+        if (!isEnoughAmount(account.getEmail(), amount)) {
             throw new NotEnoughAmountInAccountException();
         }
-
-        Account account = removeIsNewStatus(accountName);
 
         InvokeResponseDTO.Amount move = move(account.getEmail(), treasuryAccount, amount);
 
