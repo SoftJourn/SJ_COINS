@@ -73,14 +73,14 @@ public class AccountsController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/accounts", method = RequestMethod.GET)
     @JsonView(JsonViews.COINS_MANAGER.class)
-    public List<Account> getAllAccounts() throws IOException {
+    public List<Account> getAllAccounts() {
         return accountsService.getAmounts(accountsService.getAll());
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/accounts/{accountType}", method = RequestMethod.GET)
     @JsonView(JsonViews.COINS_MANAGER.class)
-    public List<Account> getAccountsByType(@PathVariable String accountType) throws IOException {
+    public List<Account> getAccountsByType(@PathVariable String accountType) {
         return accountsService.getAmounts(accountsService.getAll(AccountType.valueOf(accountType.toUpperCase())));
     }
 

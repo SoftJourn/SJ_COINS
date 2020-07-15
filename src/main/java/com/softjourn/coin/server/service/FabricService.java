@@ -7,5 +7,7 @@ public interface FabricService {
 
     ResponseEntity<EnrollResponseDTO> enroll(String email);
 
-    <T> T invoke(String email, String function, String[] args, Class<T> responseType);
+    <T> T invoke(String email, String function, Object args, Class<T> responseType);
+
+    <T> T query(String email, String function, Object args, Class<T> responseType);
 }

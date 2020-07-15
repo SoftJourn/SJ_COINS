@@ -1,10 +1,9 @@
 package com.softjourn.coin.server.service;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
 import com.softjourn.coin.server.dto.BalancesDTO;
 import com.softjourn.coin.server.dto.InvokeResponseDTO;
+import com.softjourn.coin.server.dto.TransferRequest;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.Transaction;
@@ -18,24 +17,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.softjourn.coin.server.entity.TransactionType.*;
-import static java.lang.String.format;
 
 @Slf4j
 @Service
 public class CoinService {
-
-    private static final String SEND_MONEY = "transfer";
-    private static final String DISTRIBUTE_MONEY = "distribute";
-    private static final String GET_MONEY = "balanceOf";
-    private static final String WITHDRAW_MONEY = "withdraw";
-    private static final String DEPOSIT = "deposite";
-    private static final String APPROVE_TRANSFER = "approve";
 
     private AccountsService accountsService;
 
@@ -71,8 +64,8 @@ public class CoinService {
             Account account = removeIsNewStatus(destinationName);
 
             log.info(account.getEmail());
-            InvokeResponseDTO.Amount transfer = fabricService.invoke(treasuryAccount, "transfer",
-                    new String[]{"user_", account.getEmail(), amount.toBigInteger().toString()}, InvokeResponseDTO.Amount.class);
+            InvokeResponseDTO transfer = fabricService.invoke(treasuryAccount, "transfer",
+                    new String[]{"user_", account.getEmail(), amount.toBigInteger().toString()}, InvokeResponseDTO.class);
 
             Transaction transaction = new Transaction();
             if (transfer.getTransactionID() != null) {
@@ -97,14 +90,12 @@ public class CoinService {
 
         removeIsNewStatus(accounts);
 
-        List<String> accountsEmails = accounts.stream()
-                .map(Account::getEmail)
+        List<TransferRequest> transferRequests = accounts.stream()
+                .map(account -> new TransferRequest(account.getEmail(), amount))
                 .collect(Collectors.toList());
 
-        accountsEmails.add(amount.toString());
-
-        InvokeResponseDTO.Amount distribute = fabricService.invoke(treasuryAccount, "distribute",
-                accountsEmails.toArray(new String[0]), InvokeResponseDTO.Amount.class);
+        InvokeResponseDTO distribute = fabricService.invoke(treasuryAccount, "batchTransfer",
+                transferRequests, InvokeResponseDTO.class);
 
         Transaction transaction = new Transaction();
         transaction.setTransactionId(distribute.getTransactionID());
@@ -130,7 +121,7 @@ public class CoinService {
             throw new NotEnoughAmountInAccountException();
         }
 
-        InvokeResponseDTO.Amount move = move(donorAccount.getEmail(), acceptorAccount.getEmail(), amount);
+        InvokeResponseDTO.Balance move = move(donorAccount.getEmail(), acceptorAccount.getEmail(), amount);
 
         Transaction transaction = new Transaction();
         transaction.setAmount(amount);
@@ -138,22 +129,25 @@ public class CoinService {
         transaction.setAccount(donorAccount);
         transaction.setDestination(acceptorAccount);
         transaction.setTransactionId(move.getTransactionID());
-        transaction.setRemain(move.getPayload());
+        transaction.setRemain(move.getPayload().getBalance());
 
         return transaction;
     }
 
 
     public BigDecimal getAmount(String email) {
-        InvokeResponseDTO.Amount balanceOf = fabricService.invoke(email, "balanceOf", new String[]{email}, InvokeResponseDTO.Amount.class);
-        return balanceOf.getPayload();
+        InvokeResponseDTO.Balance balanceOf = fabricService.query(email, "balanceOf", new String[]{email},
+            InvokeResponseDTO.Balance.class);
+        return balanceOf.getPayload().getBalance();
     }
 
-    public List<BalancesDTO> getAmounts(List<Account> accounts) throws IOException {
-        List<String> emails = accounts.stream().map(Account::getEmail).collect(Collectors.toList());
-        ObjectMapper mapper = new ObjectMapper();
-        InvokeResponseDTO.Balances balanceOf = fabricService.invoke(treasuryAccount, "batchBalanceOf",
-                new String[]{mapper.writeValueAsString(emails)}, InvokeResponseDTO.Balances.class);
+    public List<BalancesDTO> getAmounts(List<Account> accounts) {
+        List<String> emails = accounts.stream()
+            .map(Account::getEmail)
+            .collect(Collectors.toList());
+
+        InvokeResponseDTO.Balances balanceOf = fabricService.query(treasuryAccount, "batchBalanceOf",
+                emails, InvokeResponseDTO.Balances.class);
         return balanceOf.getPayload();
     }
 
@@ -181,7 +175,7 @@ public class CoinService {
             removeIsNewStatus(accountName);
 
             Account merchantAccount = removeIsNewStatus(destinationName);
-            InvokeResponseDTO.Amount move = move(account.getEmail(), merchantAccount.getEmail(), amount);
+            InvokeResponseDTO.Balance move = move(account.getEmail(), merchantAccount.getEmail(), amount);
 
             Transaction transaction = new Transaction();
             transaction.setAmount(amount);
@@ -189,7 +183,7 @@ public class CoinService {
             transaction.setStatus(TransactionStatus.SUCCESS);
             transaction.setDestination(merchantAccount);
             transaction.setTransactionId(move.getTransactionID());
-            transaction.setRemain(move.getPayload());
+            transaction.setRemain(move.getPayload().getBalance());
             return transaction;
         }
     }
@@ -200,7 +194,7 @@ public class CoinService {
         Account user = transaction.getAccount();
         Account merchant = transaction.getDestination();
         BigDecimal amount = transaction.getAmount();
-        InvokeResponseDTO.Amount move = move(merchant.getEmail(), user.getEmail(), amount);
+        InvokeResponseDTO.Balance move = move(merchant.getEmail(), user.getEmail(), amount);
         Transaction rollbackTx = new Transaction();
         rollbackTx.setTransactionId(move.getTransactionID());
         rollbackTx.setAccount(merchant);
@@ -208,7 +202,7 @@ public class CoinService {
         rollbackTx.setAmount(amount);
         transaction.setStatus(TransactionStatus.SUCCESS);
         rollbackTx.setComment("Rollback buying transaction. ID: " + txId);
-        transaction.setRemain(move.getPayload());
+        transaction.setRemain(move.getPayload().getBalance());
         return rollbackTx;
     }
 
@@ -222,9 +216,9 @@ public class CoinService {
         }
     }
 
-    private InvokeResponseDTO.Amount move(String from, String to, BigDecimal amount) {
+    private InvokeResponseDTO.Balance move(String from, String to, BigDecimal amount) {
         return fabricService.invoke(from, "transfer", new String[]{"user_", to,
-                amount.toBigInteger().toString()}, InvokeResponseDTO.Amount.class);
+                amount.toBigInteger().toString()}, InvokeResponseDTO.Balance.class);
     }
 
     @SuppressWarnings("unused")
@@ -238,14 +232,14 @@ public class CoinService {
             throw new NotEnoughAmountInAccountException();
         }
 
-        InvokeResponseDTO.Amount move = move(account.getEmail(), treasuryAccount, amount);
+        InvokeResponseDTO.Balance move = move(account.getEmail(), treasuryAccount, amount);
 
         Transaction transaction = new Transaction();
         transaction.setTransactionId(move.getTransactionID());
         transaction.setAccount(account);
         transaction.setAmount(amount);
         transaction.setStatus(TransactionStatus.SUCCESS);
-        transaction.setRemain(move.getPayload());
+        transaction.setRemain(move.getPayload().getBalance());
 
         return transaction;
     }

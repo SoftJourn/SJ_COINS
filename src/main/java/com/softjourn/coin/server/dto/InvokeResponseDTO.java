@@ -27,8 +27,8 @@ public class InvokeResponseDTO {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Amount extends InvokeResponseDTO {
-        private BigDecimal payload;
+    public static class Balance extends InvokeResponseDTO {
+        private BalancesDTO payload;
     }
 
     @EqualsAndHashCode(callSuper = true)

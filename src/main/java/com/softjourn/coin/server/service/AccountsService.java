@@ -1,7 +1,6 @@
 package com.softjourn.coin.server.service;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.dto.*;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
@@ -11,7 +10,6 @@ import com.softjourn.coin.server.exceptions.AccountWasDeletedException;
 import com.softjourn.coin.server.exceptions.NotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.common.auth.OAuthHelper;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -55,7 +53,6 @@ public class AccountsService {
     private String imageStoragePath;
     private String defaultAccountImagePath;
 
-    private String monaxBackup;
 
     @Autowired
     public AccountsService(AccountRepository accountRepository,
@@ -63,15 +60,13 @@ public class AccountsService {
                            @Value("${auth.server.url}") String authServerUrl,
                            OAuthHelper oAuthHelper,
                            @Value("${image.storage.path}") String imageStoragePath,
-                           @Value("${image.account.default}") String defaultAccountImagePath,
-                           @Value("${monax.backup}") String monaxBackup) {
+                           @Value("${image.account.default}") String defaultAccountImagePath) {
         this.accountRepository = accountRepository;
         this.coinService = coinService;
         this.authServerUrl = authServerUrl;
         this.oAuthHelper = oAuthHelper;
         this.imageStoragePath = imageStoragePath;
         this.defaultAccountImagePath = defaultAccountImagePath;
-        this.monaxBackup = monaxBackup;
     }
 
     public List<Account> getAll() {
@@ -98,7 +93,7 @@ public class AccountsService {
                 .orElseGet(() -> createAccount(ldapId));
     }
 
-    public List<Account> getAmounts(List<Account> accounts) throws IOException {
+    public List<Account> getAmounts(List<Account> accounts) {
         List<BalancesDTO> amounts = coinService.getAmounts(accounts);
         accounts.forEach(account -> amounts.forEach(amount -> {
             if (account.getEmail().equals(amount.getUserId())) {
@@ -193,7 +188,7 @@ public class AccountsService {
         } catch (IOException e) {
             // Can't read file. Should never happened
             log.error("Method getImage uri. File can't be read", e);
-            throw new InternalException("File can't be read");
+            throw new RuntimeException("File can't be read");
         }
 
     }
@@ -238,7 +233,7 @@ public class AccountsService {
     }
 
     @Transactional
-    List<Account> changeIsNewStatus(Boolean isNew, @NonNull Iterable<Account> accounts) {
+    public List<Account> changeIsNewStatus(Boolean isNew, @NonNull Iterable<Account> accounts) {
         List<String> accountsIds = StreamSupport
                 .stream(accounts.spliterator(), false)
                 .filter(account -> account.isNew() != isNew)
@@ -256,7 +251,7 @@ public class AccountsService {
     }
 
     @Transactional
-    Account createAccount(String ldapId) {
+    public Account createAccount(String ldapId) {
         return Optional.ofNullable(getAccountIfExistInLdapBase(ldapId))
                 .map(this::buildAccount)
                 .map(a -> accountRepository.save(a))

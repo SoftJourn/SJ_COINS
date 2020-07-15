@@ -17,20 +17,17 @@ import java.util.*;
 @Service
 public class FabricServiceImpl implements FabricService {
 
-    private String url;
-    private String organization;
-    private String[] peers;
+    private final String url;
+    private final String organization;
 
-    private RestTemplate template;
+    private final RestTemplate template;
 
     @Autowired
     public FabricServiceImpl(@Value("${node.fabric.client}") String url,
                              @Value("${org.name}") String organization,
-                             @Value("${fabric.peers}") String[] peers,
                              RestTemplate template) {
         this.url = url;
         this.organization = organization;
-        this.peers = peers;
         this.template = template;
 
         List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
@@ -40,6 +37,7 @@ public class FabricServiceImpl implements FabricService {
         template.setMessageConverters(messageConverters);
     }
 
+    @Override
     public ResponseEntity<EnrollResponseDTO> enroll(String email) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -50,32 +48,51 @@ public class FabricServiceImpl implements FabricService {
 
         HttpEntity<?> httpEntity = new HttpEntity<Object>(request, headers);
         try {
-            return template.postForEntity(this.url + "users", httpEntity, EnrollResponseDTO.class);
+            return template.postForEntity(this.url + "enroll", httpEntity, EnrollResponseDTO.class);
         } catch (Exception e) {
             throw new AccountEnrollException(e);
         }
     }
 
     @Override
-    public <T> T invoke(String email, String function, String[] args, Class<T> responseType) {
+    public <T> T invoke(String email, String function, Object args, Class<T> responseType) {
         EnrollResponseDTO body = this.enroll(email).getBody();
 
+        HttpEntity<?> httpEntity = getHttpEntity(function, args, body);
+
+        try {
+            return template.postForEntity(this.url + "invoke", httpEntity, responseType).getBody();
+        } catch (Exception e) {
+            throw new FabricRequestInvokeException(e);
+        }
+    }
+
+    @Override
+    public <T> T query(String email, String function, Object args, Class<T> responseType) {
+        EnrollResponseDTO body = this.enroll(email).getBody();
+
+        HttpEntity<?> httpEntity = getHttpEntity(function, args, body);
+
+        try {
+            return template.postForEntity(this.url + "query", httpEntity, responseType).getBody();
+        } catch (Exception e) {
+            throw new FabricRequestInvokeException(e);
+        }
+    }
+
+    private HttpEntity<?> getHttpEntity(String function, Object args, EnrollResponseDTO body) {
         Map<String, Object> request = new HashMap<>();
-        request.put("peers", this.peers);
         request.put("fcn", function);
         request.put("args", args);
+
+        // If args is a single object instead of set of parameters than isObject = true
+        request.put("isObject", !(args instanceof String[]));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.add("Authorization", "Bearer " + body.getToken());
 
-        HttpEntity<?> httpEntity = new HttpEntity<Object>(request, headers);
-
-        try {
-            return template.postForEntity(this.url + "channels/mychannel/chaincodes/coin", httpEntity, responseType).getBody();
-        } catch (Exception e) {
-            throw new FabricRequestInvokeException(e);
-        }
+        return new HttpEntity<Object>(request, headers);
     }
 
 }
