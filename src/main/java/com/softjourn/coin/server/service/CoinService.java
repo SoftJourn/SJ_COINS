@@ -136,7 +136,7 @@ public class CoinService {
 
 
     public BigDecimal getAmount(String email) {
-        InvokeResponseDTO.Balance balanceOf = fabricService.query(email, "balanceOf", new String[]{email},
+        InvokeResponseDTO.Balance balanceOf = fabricService.query(email, "balanceOf", new String[]{"user_", email},
             InvokeResponseDTO.Balance.class);
         return balanceOf.getPayload().getBalance();
     }
