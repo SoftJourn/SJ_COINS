@@ -86,8 +86,7 @@ public class DonationsService {
 
             removeIsNewStatus(accountName);
 
-            Account projectAccount = createAccountForProject(projectId);
-            InvokeResponseDTO.Balance move = move(account.getEmail(), projectAccount.getEmail(), amount);
+            InvokeResponseDTO.Balance move = move(account.getEmail(), projectId, amount);
 
             Transaction transaction = new Transaction();
 
@@ -124,8 +123,6 @@ public class DonationsService {
     @SuppressWarnings("unused")
     @SaveTransaction(comment = "Move money from project to treasury.", type = TRANSFER)
     public synchronized Transaction closeProject(String projectId) {
-        Account projectAccount = createAccountForProject(projectId);
-
         BigDecimal amount = getAmount(projectId);
 
         checkAmountIsPositive(amount);
@@ -133,7 +130,7 @@ public class DonationsService {
         InvokeResponseDTO.Balance refund = fabricService.invoke(
                 treasuryAccount,
                 "refund",
-                new String[]{projectAccount.getEmail(), treasuryAccount, amount.toBigInteger().toString()},
+                new String[]{projectId, treasuryAccount, amount.toBigInteger().toString()},
                 InvokeResponseDTO.Balance.class
         );
 
@@ -150,8 +147,6 @@ public class DonationsService {
     @SuppressWarnings("unused")
     @SaveTransaction(comment = "Move money from project to treasury.", type = TRANSFER)
     public synchronized Transaction refundProject(String projectId, List<BatchTransferDTO> transfers) {
-        Account projectAccount = createAccountForProject(projectId);
-
         BigDecimal amount = getAmount(projectId);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -170,7 +165,7 @@ public class DonationsService {
         InvokeResponseDTO.Balance batchRefund = fabricService.invoke(
                 treasuryAccount,
                 "batchRefund",
-                new String[]{projectAccount.getEmail(), values},
+                new String[]{projectId, values},
                 InvokeResponseDTO.Balance.class
         );
 
@@ -182,14 +177,6 @@ public class DonationsService {
         transaction.setRemain(batchRefund.getPayload().getBalance());
 
         return transaction;
-    }
-
-    private Account createAccountForProject(String projectId) {
-        Account account = new Account();
-        account.setEmail(projectId);
-        account.setFullName(projectId);
-        account.setAccountType(AccountType.PROJECT);
-        return account;
     }
 
     private Account removeIsNewStatus(String ldapId) {
