@@ -46,14 +46,14 @@ public class DonationsController {
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/{projectId}/refund", method = RequestMethod.POST)
-    public Transaction closeProject(@PathVariable("projectId") String projectId,
+    public Transaction refundProject(@PathVariable("projectId") String projectId,
                                     @RequestBody List<BatchTransferDTO> transfers) {
         return donationsService.refundProject(projectId, transfers);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
     @RequestMapping(value = "/{projectId}/close", method = RequestMethod.POST)
-    public Transaction rollbackProject(@PathVariable("projectId") String projectId) {
+    public Transaction closeProject(@PathVariable("projectId") String projectId) {
         return donationsService.closeProject(projectId);
     }
 }
