@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.softjourn.coin.server")
+@ComponentScan("com.softjourn.coin.server")
 @EnableResourceServer
 @EnableAspectJAutoProxy
 @EnableLoggingAspect

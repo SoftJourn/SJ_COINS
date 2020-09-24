@@ -1,5 +1,7 @@
 package com.softjourn.coin.server.service;
 
+import static com.softjourn.coin.server.service.GenericFilter.Condition.eq;
+
 import com.softjourn.coin.server.controller.TransactionsController;
 import com.softjourn.coin.server.dto.MobileTransactionDTO;
 import com.softjourn.coin.server.entity.Transaction;
@@ -7,27 +9,21 @@ import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.common.export.ExcelExport;
 import com.softjourn.common.export.ExportDefiner;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.softjourn.coin.server.service.GenericFilter.Condition.eq;
-
 @Service
+@RequiredArgsConstructor
 public class TransactionsService implements TransactionMapper {
 
-    TransactionRepository repository;
-
-    @Autowired
-    public TransactionsService(TransactionRepository repository) {
-        this.repository = repository;
-    }
+    private final TransactionRepository repository;
 
     public Page<Transaction> getFiltered(GenericFilter<Transaction> filter, Pageable pageable) {
         return repository.findAll(filter, pageable);
@@ -37,13 +33,17 @@ public class TransactionsService implements TransactionMapper {
         return repository.findOne(id);
     }
 
-    public Page<MobileTransactionDTO> getForUser(String user, Pageable pageable, TransactionsController.Direction direction) {
+    public Page<MobileTransactionDTO> getForUser(
+        String user, Pageable pageable, TransactionsController.Direction direction
+    ) {
         GenericFilter<Transaction> fromFilter = getFilter(direction, user);
         Page<Transaction> transactions = repository.findAll(fromFilter, pageable);
         return transactions.map(MobileTransactionDTO::new);
     }
 
-    private GenericFilter<Transaction> getFilter(TransactionsController.Direction direction, String user) {
+    private GenericFilter<Transaction> getFilter(
+        TransactionsController.Direction direction, String user
+    ) {
         switch (direction) {
             case IN:
                 return GenericFilter.or(eq("destination", user));
@@ -74,18 +74,20 @@ public class TransactionsService implements TransactionMapper {
         definers.add(new ExportDefiner("status", "Status"));
         definers.add(new ExportDefiner("type", "Type"));
 
-        return new ExcelExport().export("Transactions report", transactions.getContent(), definers);
+        return new ExcelExport()
+            .export("Transactions report", transactions.getContent(), definers);
     }
 
     /**
      * Method prepares Transaction object
      *
-     * @param o
-     * @param erisTransactionId
-     * @param comment
-     * @return Transaction
+     * @param o Some object?
+     * @param erisTransactionId Transaction ID.
+     * @param comment Comment for transaction.
+     * @return Transaction.
      */
     public Transaction prepareTransaction(Object o, String erisTransactionId, String comment) {
+        // TODO: Why'd we use parameterized Transaction class? What the purpose of the parameter?
         Transaction<Object> transaction = new Transaction<>(erisTransactionId);
         transaction.setComment(comment);
         transaction.setAmount(null);
@@ -94,5 +96,4 @@ public class TransactionsService implements TransactionMapper {
         transaction.setValue(o);
         return transaction;
     }
-
 }

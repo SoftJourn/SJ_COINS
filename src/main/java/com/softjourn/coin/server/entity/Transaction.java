@@ -1,6 +1,5 @@
 package com.softjourn.coin.server.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -8,14 +7,23 @@ import com.softjourn.coin.server.service.FilterIgnore;
 import com.softjourn.coin.server.util.InstantJsonSerializer;
 import com.softjourn.coin.server.util.JsonViews;
 import com.softjourn.coin.server.util.TransactionAccountJSONSerializer;
-import lombok.Data;
-
-import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import lombok.Builder;
+import lombok.Data;
 
 @Data
+@Builder
 @Entity
 @Table(name = "transactions")
 public class Transaction<T> implements Serializable {
