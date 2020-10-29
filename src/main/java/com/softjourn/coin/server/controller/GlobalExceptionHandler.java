@@ -1,8 +1,17 @@
 package com.softjourn.coin.server.controller;
 
-
 import com.softjourn.coin.server.dto.ErrorDetail;
-import com.softjourn.coin.server.exceptions.*;
+import com.softjourn.coin.server.exceptions.AccountEnrollException;
+import com.softjourn.coin.server.exceptions.AccountNotFoundException;
+import com.softjourn.coin.server.exceptions.ChequeIsUsedException;
+import com.softjourn.coin.server.exceptions.CouldNotReadFileException;
+import com.softjourn.coin.server.exceptions.FabricRequestInvokeException;
+import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
+import com.softjourn.coin.server.exceptions.NotEnoughAmountInTreasuryException;
+import com.softjourn.coin.server.exceptions.NotFoundException;
+import com.softjourn.coin.server.exceptions.TypeNotFoundException;
+import com.softjourn.coin.server.exceptions.WrongMimeTypeException;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -12,8 +21,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.NoHandlerFoundException;
-
-import java.util.Objects;
 
 @Slf4j
 @ControllerAdvice
@@ -30,7 +37,9 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(NotEnoughAmountInTreasuryException.class)
-    public ErrorDetail handleNotEnoughAmountInTreasuryException(NotEnoughAmountInTreasuryException e) {
+    public ErrorDetail handleNotEnoughAmountInTreasuryException(
+        NotEnoughAmountInTreasuryException e
+    ) {
         log.warn(e.getLocalizedMessage());
         return buildErrorDetails(e, 40905, e.getMessage());
     }
@@ -68,7 +77,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     public ErrorDetail handleNoHandlerFoundException(NoHandlerFoundException e) {
         log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(e, 40401, String.format("Endpoint %s not found", e.getRequestURL()));
+        return buildErrorDetails(
+            e,
+            40401,
+            String.format("Endpoint %s not found", e.getRequestURL()));
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -137,5 +149,4 @@ public class GlobalExceptionHandler {
         errorDetail.setDeveloperMessage(e.getClass().getName());
         return errorDetail;
     }
-
 }

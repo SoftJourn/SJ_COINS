@@ -1,6 +1,5 @@
 package com.softjourn.coin.server.aop.aspects;
 
-
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.Transaction;
@@ -9,38 +8,29 @@ import com.softjourn.coin.server.entity.TransactionType;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.coin.server.service.CoinService;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import lombok.RequiredArgsConstructor;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Service;
 
 @Aspect
 @Order(value = 100)
 @Service
+@RequiredArgsConstructor
 public class TransactionSavingAspect {
 
-    private TransactionRepository transactionRepository;
-
-    private AccountRepository accountRepository;
-
-    private CoinService coinService;
-
-    @Autowired
-    public TransactionSavingAspect(TransactionRepository transactionRepository, AccountRepository accountRepository, CoinService coinService) {
-        this.transactionRepository = transactionRepository;
-        this.accountRepository = accountRepository;
-        this.coinService = coinService;
-    }
+    private final TransactionRepository transactionRepository;
+    private final AccountRepository accountRepository;
+    private final CoinService coinService;
 
     @Around("@annotation(com.softjourn.coin.server.aop.annotations.SaveTransaction)")
     public Object saveTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -53,7 +43,9 @@ public class TransactionSavingAspect {
             fillTransaction(transaction, joinPoint);
             transaction.setStatus(TransactionStatus.SUCCESS);
             setRemainAmount(joinPoint, transaction);
-            return callingResult instanceof Transaction ? transactionRepository.save(transaction) : callingResult;
+            return callingResult instanceof Transaction
+                ? transactionRepository.save(transaction)
+                : callingResult;
         } catch (Throwable e) {
             transaction.setStatus(TransactionStatus.FAILED);
             transaction.setError(e.getLocalizedMessage());
@@ -65,15 +57,31 @@ public class TransactionSavingAspect {
     }
 
     private void fillTransaction(Transaction transaction, ProceedingJoinPoint joinPoint) {
-        Account accountName = getArgOrAnnotationValue(joinPoint, "accountName", SaveTransaction::accountName, accountRepository::findOne);
+        Account accountName = getArgOrAnnotationValue(
+            joinPoint,
+            "accountName",
+            SaveTransaction::accountName,
+            accountRepository::findOne);
         replaceIfNull(transaction::getAccount, transaction::setAccount, accountName);
-        Account destinationName = getArgOrAnnotationValue(joinPoint, "destinationName", SaveTransaction::destinationName, accountRepository::findOne);
+        Account destinationName = getArgOrAnnotationValue(
+            joinPoint,
+            "destinationName",
+            SaveTransaction::destinationName,
+            accountRepository::findOne);
         replaceIfNull(transaction::getDestination, transaction::setDestination, destinationName);
         BigDecimal amount = getArg(joinPoint, "amount", BigDecimal.class);
         replaceIfNull(transaction::getAmount, transaction::setAmount, amount);
-        String comment = getArgOrAnnotationValue(joinPoint, "comment", SaveTransaction::comment, Function.identity());
+        String comment = getArgOrAnnotationValue(
+            joinPoint,
+            "comment",
+            SaveTransaction::comment,
+            Function.identity());
         replaceIfNull(transaction::getComment, transaction::setComment, comment);
-        TransactionType type = getArgOrAnnotationValueToObject(joinPoint, "type", SaveTransaction::type, TransactionType.class);
+        TransactionType type = getArgOrAnnotationValueToObject(
+            joinPoint,
+            "type",
+            SaveTransaction::type,
+            TransactionType.class);
         replaceIfNull(transaction::getType, transaction::setType, type);
         transaction.setCreated(Instant.now());
     }

@@ -1,13 +1,11 @@
 package com.softjourn.coin.server.aop.annotations;
 
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import com.softjourn.coin.server.entity.TransactionType;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Annotation mark methods for which {@see com.softjourn.coin.server.entity.Transaction} should be saved.
@@ -34,5 +32,4 @@ public @interface SaveTransaction {
     String comment();
 
     TransactionType type();
-
 }
