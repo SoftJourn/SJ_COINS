@@ -33,17 +33,12 @@ import static com.softjourn.coin.server.entity.TransactionType.*;
 @Service
 public class DonationsService {
 
-    private AccountsService accountsService;
-
-    private Map<String, String> monitors = new HashMap<>();
-
     @Value("${treasury.account}")
     private String treasuryAccount;
-
     private TransactionRepository transactionRepository;
-
     private FabricService fabricService;
-
+    private AccountsService accountsService;
+    private Map<String, String> monitors = new HashMap<>();
 
     @SuppressWarnings("unused")
     @Autowired

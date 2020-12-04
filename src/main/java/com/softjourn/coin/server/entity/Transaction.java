@@ -19,6 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -26,6 +27,7 @@ import lombok.Data;
 @Builder
 @Entity
 @Table(name = "transactions")
+@AllArgsConstructor
 public class Transaction<T> implements Serializable {
 
     @FilterIgnore
