@@ -13,12 +13,21 @@ public class FoundationService {
 
   private final FabricService fabricService;
 
-  public FoundationProjectDTO create(String account, FoundationProjectDTO project) {
-    return fabricService.query(
+  public String create(String account, FoundationProjectDTO project) {
+    return fabricService.invoke(
         account,
         "createFoundation",
         project,
-        InvokeResponseDTO.FoundationProject.class
-    ).getPayload();
+        InvokeResponseDTO.class
+    ).getTransactionID();
+  }
+
+  public String getAll(String account) {
+    return fabricService.query(
+        account,
+        "getFoundations",
+        new String[]{},
+        InvokeResponseDTO.class
+    ).getTransactionID();
   }
 }

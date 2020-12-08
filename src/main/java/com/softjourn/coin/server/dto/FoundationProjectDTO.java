@@ -1,6 +1,6 @@
 package com.softjourn.coin.server.dto;
 
-import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,11 +13,12 @@ import lombok.Setter;
 public class FoundationProjectDTO {
 
   private String name;
-  private String adminAccount;
-  private String creatorAccount;
-  private Integer goal;
-  private Integer deadlineInMinutes;
+  private String adminId;
+  private String creatorId;
+  private Integer fundingGoal;
+  private String deadline;
   private boolean closeOnGoalReached;
   private boolean withdrawAllowed;
-  private List<String> currencies;
+  private String mainCurrency;
+  private Map<String, Boolean> acceptCurrencies;
 }
