@@ -20,7 +20,15 @@ public class InvokeResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class General extends InvokeResponseDTO {
-        private String payload;
+        private byte[] payload;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class StringList extends InvokeResponseDTO {
+        private List<String> payload;
     }
 
     @EqualsAndHashCode(callSuper = true)

@@ -16,7 +16,7 @@ public class FoundationProjectDTO {
   private String adminId;
   private String creatorId;
   private Integer fundingGoal;
-  private String deadline;
+  private Integer deadline;
   private boolean closeOnGoalReached;
   private boolean withdrawAllowed;
   private String mainCurrency;

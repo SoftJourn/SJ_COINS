@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum FabricFunction {
+public enum FabricCoinsFunction {
   BALANCE_OF("balanceOf"),
   BATCH_TRANSFER("batchTransfer"),
   BATCH_BALANCE_OF("batchBalanceOf"),

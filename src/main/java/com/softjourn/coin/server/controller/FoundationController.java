@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +38,13 @@ public class FoundationController {
 
   @GetMapping
   @PreAuthorize("authenticated")
-  public String getAll(Principal principal) {
+  public List<String> getAll(Principal principal) {
+    return foundationService.getAll(principal.getName());
+  }
+
+  @GetMapping("/{name}")
+  @PreAuthorize("authenticated")
+  public List<String> getOneByName(@PathVariable("name") String name, Principal principal) {
     return foundationService.getAll(principal.getName());
   }
 
@@ -57,8 +65,7 @@ public class FoundationController {
     project.setFundingGoal(1000);
     project.setCloseOnGoalReached(true);
 
-    SimpleDateFormat destFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z07:00'");
-    project.setDeadline(destFormat.format(Timestamp.valueOf(LocalDateTime.now().plus(60, ChronoUnit.MINUTES))));
+    project.setDeadline(60);
     project.setWithdrawAllowed(true);
     project.setMainCurrency("coin");
 
@@ -67,10 +74,9 @@ public class FoundationController {
     project.setAcceptCurrencies(currencyMap);
 
     Principal principal = new BasicUserPrincipal("vzaichuk");
-    String txid = create(project, principal);
-    System.out.println("TXID: " + txid);
+//    String txid = create(project, principal);
+//    System.out.println("TXID: " + txid);
 
-    txid = getAll(principal);
-    System.out.println(txid);
+    System.out.println(getAll(principal));
   }
 }

@@ -14,7 +14,7 @@ import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
-import com.softjourn.coin.server.entity.enums.FabricFunction;
+import com.softjourn.coin.server.entity.enums.FabricCoinsFunction;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
 import com.softjourn.coin.server.repository.TransactionRepository;
@@ -69,7 +69,7 @@ public class CoinService {
             log.info(account.getEmail());
             InvokeResponseDTO transfer = fabricService.invoke(
                 treasuryAccount,
-                FabricFunction.TRANSFER.getName(),
+                FabricCoinsFunction.TRANSFER.getName(),
                 new String[]{USER_PREFIX, account.getEmail(), amount.toBigInteger().toString()},
                 InvokeResponseDTO.class);
 
@@ -106,7 +106,7 @@ public class CoinService {
 
         InvokeResponseDTO distribute = fabricService.invoke(
             treasuryAccount,
-            FabricFunction.BATCH_TRANSFER.getName(),
+            FabricCoinsFunction.BATCH_TRANSFER.getName(),
             transferRequests,
             InvokeResponseDTO.class);
 
@@ -165,7 +165,7 @@ public class CoinService {
     public BigDecimal getAmount(String email) {
         InvokeResponseDTO.Balance balanceOf = fabricService.query(
             email,
-            FabricFunction.BALANCE_OF.getName(),
+            FabricCoinsFunction.BALANCE_OF.getName(),
             new String[]{USER_PREFIX, email},
             InvokeResponseDTO.Balance.class);
         return balanceOf.getPayload().getBalance();
@@ -184,7 +184,7 @@ public class CoinService {
 
         InvokeResponseDTO.Balances balanceOf = fabricService.query(
             treasuryAccount,
-            FabricFunction.BATCH_BALANCE_OF.getName(),
+            FabricCoinsFunction.BATCH_BALANCE_OF.getName(),
             emails,
             InvokeResponseDTO.Balances.class);
         return balanceOf.getPayload();
@@ -333,7 +333,7 @@ public class CoinService {
     private InvokeResponseDTO.Balance move(String from, String to, BigDecimal amount) {
         return fabricService.invoke(
             from,
-            FabricFunction.TRANSFER.getName(),
+            FabricCoinsFunction.TRANSFER.getName(),
             new String[]{USER_PREFIX, to, amount.toBigInteger().toString()},
             InvokeResponseDTO.Balance.class);
     }
