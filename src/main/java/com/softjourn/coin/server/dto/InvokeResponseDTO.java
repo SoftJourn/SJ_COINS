@@ -27,6 +27,14 @@ public class InvokeResponseDTO {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class Uint extends InvokeResponseDTO {
+        private Integer payload;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class StringList extends InvokeResponseDTO {
         private List<String> payload;
     }

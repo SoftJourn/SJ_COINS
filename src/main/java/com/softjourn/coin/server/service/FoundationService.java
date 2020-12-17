@@ -3,6 +3,7 @@ package com.softjourn.coin.server.service;
 import com.softjourn.coin.server.dto.DonationDTO;
 import com.softjourn.coin.server.dto.FoundationProjectDTO;
 import com.softjourn.coin.server.dto.InvokeResponseDTO;
+import com.softjourn.coin.server.entity.enums.Chaincode;
 import com.softjourn.coin.server.entity.enums.FabricFoundationsFunction;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class FoundationService {
   public String create(String account, FoundationProjectDTO project) {
     return fabricService.invoke(
         account,
+        Chaincode.FOUNDATION,
         FabricFoundationsFunction.CREATE.getName(),
         project,
         InvokeResponseDTO.class
@@ -42,6 +44,7 @@ public class FoundationService {
   public List<String> getAll(String account) {
     InvokeResponseDTO.StringList response = fabricService.query(
         account,
+        Chaincode.FOUNDATION,
         FabricFoundationsFunction.GET_ALL.getName(),
         new String[]{},
         InvokeResponseDTO.StringList.class
@@ -59,6 +62,7 @@ public class FoundationService {
   public FoundationProjectDTO getOneByName(String account, String name) {
     InvokeResponseDTO.FoundationProject response = fabricService.query(
         account,
+        Chaincode.FOUNDATION,
         FabricFoundationsFunction.GET_ONE.getName(),
         new String[]{name},
         InvokeResponseDTO.FoundationProject.class
@@ -87,15 +91,15 @@ public class FoundationService {
    *
    * @param account Account name.
    * @param projectName Project name.
-   * @return
+   * @return Remained amount of funds on project.
    */
-  public String close(String account, String projectName) {
+  public Integer close(String account, String projectName) {
     return fabricService.invoke(
         account,
         FabricFoundationsFunction.CLOSE.getName(),
         new String[]{projectName},
-        InvokeResponseDTO.class
-    ).getTransactionID();
+        InvokeResponseDTO.Uint.class
+    ).getPayload();
   }
 
   /**

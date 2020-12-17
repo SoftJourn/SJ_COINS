@@ -2,6 +2,7 @@ package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.dto.EnrollResponseDTO;
 import com.softjourn.coin.server.dto.InvokeResponseDTO;
+import com.softjourn.coin.server.entity.enums.Chaincode;
 import com.softjourn.coin.server.exceptions.AccountEnrollException;
 import com.softjourn.coin.server.exceptions.FabricRequestInvokeException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,23 @@ public class FabricServiceImpl implements FabricService {
     }
 
     @Override
+    public <T> T invoke(
+        String email, Chaincode chaincode, String function, Object args, Class<T> responseType
+    ) {
+        EnrollResponseDTO body = this.enroll(email).getBody();
+
+        try {
+            return template.postForEntity(
+                this.url + "invoke/" + chaincode.getName(),
+                getHttpEntity(function, args, body),
+                responseType
+            ).getBody();
+        } catch (Exception e) {
+            throw new FabricRequestInvokeException(e);
+        }
+    }
+
+    @Override
     public <T> T query(String email, String function, Object args, Class<T> responseType) {
         EnrollResponseDTO body = this.enroll(email).getBody();
 
@@ -75,6 +93,23 @@ public class FabricServiceImpl implements FabricService {
 
         try {
             return template.postForEntity(this.url + "query", httpEntity, responseType).getBody();
+        } catch (Exception e) {
+            throw new FabricRequestInvokeException(e);
+        }
+    }
+
+    @Override
+    public <T> T query(
+        String email, Chaincode chaincode, String function, Object args, Class<T> responseType
+    ) {
+        EnrollResponseDTO body = this.enroll(email).getBody();
+
+        try {
+            return template.postForEntity(
+                this.url + "query/" + chaincode.getName(),
+                getHttpEntity(function, args, body),
+                responseType
+            ).getBody();
         } catch (Exception e) {
             throw new FabricRequestInvokeException(e);
         }

@@ -21,4 +21,19 @@ public class FoundationProjectDTO {
   private boolean withdrawAllowed;
   private String mainCurrency;
   private Map<String, Boolean> acceptCurrencies;
+
+  @Override
+  public String toString() {
+    return "[" +
+        "name=" + getName() + ", " +
+        "adminId=" + getAdminId() + ", " +
+        "creatorId=" + getCreatorId() + ", " +
+        "fundingGoal=" + getFundingGoal() + ", " +
+        "deadline=" + getDeadline() + ", " +
+        "closeOnGoalReached=" + isCloseOnGoalReached() + ", " +
+        "withdrawAllowed=" + isWithdrawAllowed() + ", " +
+        "mainCurrency=" + getMainCurrency() + ", " +
+        "acceptCurrencies=" + getAcceptCurrencies() +
+        "]";
+  }
 }
