@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.service.AutocompleteService;
 import com.softjourn.common.auth.OAuthHelper;
+import java.io.IOException;
+import java.io.InputStream;
+import javax.persistence.EntityManager;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,14 +26,6 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.web.client.RestTemplate;
-
-import javax.persistence.EntityManager;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Future;
 
 @Configuration
 public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
@@ -110,7 +105,7 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 .and()

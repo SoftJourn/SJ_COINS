@@ -1,14 +1,8 @@
 package com.softjourn.coin.server.controller;
 
 import com.softjourn.coin.server.dto.FoundationProjectDTO;
-import com.softjourn.coin.server.service.DonationsService;
 import com.softjourn.coin.server.service.FoundationService;
 import java.security.Principal;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,13 +13,13 @@ import org.apache.http.auth.BasicUserPrincipal;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -38,32 +32,33 @@ public class FoundationController {
   private final FoundationService foundationService;
 
   @PostMapping("/create")
-  @PreAuthorize("authenticated")
+//  @PreAuthorize("authenticated")
   public String create(
       @RequestBody @Valid FoundationProjectDTO project, Principal principal
   ) {
     return foundationService.create(principal.getName(), project);
   }
 
-  @GetMapping
-  @PreAuthorize("authenticated")
-  public List<String> getAll(Principal principal) {
+  @GetMapping("projects/byUser")
+//  @PreAuthorize("authenticated")
+  public List<String> getAll(@RequestParam Integer userId, Principal principal) {
+    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.getAll(principal.getName());
   }
 
   @GetMapping("/{name}")
-  @PreAuthorize("authenticated")
+//  @PreAuthorize("authenticated")
   public FoundationProjectDTO getOneByName(@PathVariable("name") String name, Principal principal) {
     return foundationService.getOneByName(principal.getName(), name);
   }
 
   @PutMapping("/{name}")
-  @PreAuthorize("authenticated")
+//  @PreAuthorize("authenticated")
   public Integer close(@PathVariable("name") String name, Principal principal) {
     return foundationService.close(principal.getName(), name);
   }
 
-  @Scheduled(fixedDelay = 300000, initialDelay = 10000)
+//  @Scheduled(fixedDelay = 300000, initialDelay = 10000)
   public void scheduleFixedRateWithInitialDelayTask() {
     final String projectName = "TestProject";
     final String accountName = "vzaichuk@softjourn.com";
@@ -83,10 +78,9 @@ public class FoundationController {
     project.setAcceptCurrencies(currencyMap);
 
     Principal principal = new BasicUserPrincipal(accountName);
-    String txid = create(project, principal);
-    System.out.println("TXID: " + txid);
-    System.out.println(getAll(principal));
-    System.out.println(getOneByName(projectName, principal));
-    System.out.println(close(projectName, principal));
+    System.out.println("TXID: " + create(project, principal));
+//    System.out.println(getAll(principal));
+//    System.out.println(getOneByName(projectName, principal));
+//    System.out.println(close(projectName, principal));
   }
 }

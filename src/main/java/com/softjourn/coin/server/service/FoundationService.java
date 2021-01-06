@@ -96,6 +96,7 @@ public class FoundationService {
   public Integer close(String account, String projectName) {
     return fabricService.invoke(
         account,
+        Chaincode.FOUNDATION,
         FabricFoundationsFunction.CLOSE.getName(),
         new String[]{projectName},
         InvokeResponseDTO.Uint.class
