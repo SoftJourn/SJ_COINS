@@ -3,6 +3,8 @@ package com.softjourn.coin.server.controller;
 import com.softjourn.coin.server.dto.FoundationProjectDTO;
 import com.softjourn.coin.server.service.FoundationService;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,17 +33,16 @@ public class FoundationController {
 
   private final FoundationService foundationService;
 
-  @PostMapping("/create")
+  @PostMapping("/projects")
 //  @PreAuthorize("authenticated")
-  public String create(
-      @RequestBody @Valid FoundationProjectDTO project, Principal principal
-  ) {
+  public String create(@RequestBody @Valid FoundationProjectDTO project, Principal principal) {
+    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.create(principal.getName(), project);
   }
 
-  @GetMapping("projects/byUser")
+  @GetMapping("/projects/byUser")
 //  @PreAuthorize("authenticated")
-  public List<String> getAll(@RequestParam Integer userId, Principal principal) {
+  public List<FoundationProjectDTO> getAll(@RequestParam Integer userId, Principal principal) {
     principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.getAll(principal.getName());
   }
@@ -49,38 +50,34 @@ public class FoundationController {
   @GetMapping("/{name}")
 //  @PreAuthorize("authenticated")
   public FoundationProjectDTO getOneByName(@PathVariable("name") String name, Principal principal) {
+    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.getOneByName(principal.getName(), name);
   }
 
   @PutMapping("/{name}")
 //  @PreAuthorize("authenticated")
   public Integer close(@PathVariable("name") String name, Principal principal) {
+    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.close(principal.getName(), name);
   }
 
-//  @Scheduled(fixedDelay = 300000, initialDelay = 10000)
-  public void scheduleFixedRateWithInitialDelayTask() {
-    final String projectName = "TestProject";
-    final String accountName = "vzaichuk@softjourn.com";
-    FoundationProjectDTO project = new FoundationProjectDTO();
-    project.setName(projectName);
-    project.setCreatorId("vzaichuk@softjourn.com");
-    project.setAdminId("vzaichuk@softjourn.com");
-    project.setFundingGoal(1000);
-    project.setCloseOnGoalReached(true);
+  @GetMapping("/categories")
+  public List<Map<String, Object>> getCategories() {
+    List<Map<String, Object>> list = new ArrayList<>();
+    list.add(new HashMap<String, Object>() {{ put("id", 1); put("name", "Technology"); }});
+    list.add(new HashMap<String, Object>() {{ put("id", 2); put("name", "Health"); }});
+    list.add(new HashMap<String, Object>() {{ put("id", 3); put("name", "Science"); }});
 
-    project.setDeadline(60);
-    project.setWithdrawAllowed(true);
-    project.setMainCurrency("coin");
+    return list;
+  }
 
-    Map<String, Boolean> currencyMap = new HashMap<>();
-    currencyMap.put("coin", true);
-    project.setAcceptCurrencies(currencyMap);
+  @GetMapping("/wallet/donations")
+  public List<Object> getDonations() {
+    return Collections.emptyList();
+  }
 
-    Principal principal = new BasicUserPrincipal(accountName);
-    System.out.println("TXID: " + create(project, principal));
-//    System.out.println(getAll(principal));
-//    System.out.println(getOneByName(projectName, principal));
-//    System.out.println(close(projectName, principal));
+  @GetMapping("/admin/getUserRoles")
+  public List<Object> getUserRoles() {
+    return Collections.emptyList();
   }
 }

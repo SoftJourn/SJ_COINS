@@ -5,7 +5,9 @@ import com.softjourn.coin.server.dto.FoundationProjectDTO;
 import com.softjourn.coin.server.dto.InvokeResponseDTO;
 import com.softjourn.coin.server.entity.enums.Chaincode;
 import com.softjourn.coin.server.entity.enums.FabricFoundationsFunction;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,13 @@ public class FoundationService {
    * @return
    */
   public String create(String account, FoundationProjectDTO project) {
+    Map<String, Boolean> currencies = new HashMap<>();
+    currencies.put("coin", true);
+    project.setAdminId("vzaichuk@softjourn.com");
+    project.setCreatorId("vzaichuk@softjourn.com");
+    project.setMainCurrency("coin");
+    project.setAcceptCurrencies(currencies);
+    project.setDeadline(200L);
     return fabricService.invoke(
         account,
         Chaincode.FOUNDATION,
@@ -41,13 +50,13 @@ public class FoundationService {
    * @param account Account name.
    * @return List on names of projects.
    */
-  public List<String> getAll(String account) {
-    InvokeResponseDTO.StringList response = fabricService.query(
+  public List<FoundationProjectDTO> getAll(String account) {
+    InvokeResponseDTO.ProjectList response = fabricService.query(
         account,
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.GET_ALL.getName(),
         new String[]{},
-        InvokeResponseDTO.StringList.class
+        InvokeResponseDTO.ProjectList.class
     );
     return response.getPayload();
   }

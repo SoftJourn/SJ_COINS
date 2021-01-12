@@ -43,6 +43,14 @@ public class InvokeResponseDTO {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class ProjectList extends InvokeResponseDTO {
+        private List<FoundationProjectDTO> payload;
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Balance extends InvokeResponseDTO {
         private BalancesDTO payload;
     }
