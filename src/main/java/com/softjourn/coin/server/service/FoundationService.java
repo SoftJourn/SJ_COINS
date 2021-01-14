@@ -2,6 +2,7 @@ package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.dto.DonationDTO;
 import com.softjourn.coin.server.dto.FoundationProjectDTO;
+import com.softjourn.coin.server.dto.FoundationViewDTO;
 import com.softjourn.coin.server.dto.InvokeResponseDTO;
 import com.softjourn.coin.server.entity.enums.Chaincode;
 import com.softjourn.coin.server.entity.enums.FabricFoundationsFunction;
@@ -50,13 +51,13 @@ public class FoundationService {
    * @param account Account name.
    * @return List on names of projects.
    */
-  public List<FoundationProjectDTO> getAll(String account) {
-    InvokeResponseDTO.ProjectList response = fabricService.query(
+  public List<FoundationViewDTO> getAll(String account) {
+    InvokeResponseDTO.FoundationViewList response = fabricService.query(
         account,
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.GET_ALL.getName(),
         new String[]{},
-        InvokeResponseDTO.ProjectList.class
+        InvokeResponseDTO.FoundationViewList.class
     );
     return response.getPayload();
   }

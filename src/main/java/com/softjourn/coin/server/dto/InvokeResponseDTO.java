@@ -70,4 +70,12 @@ public class InvokeResponseDTO {
     public static class FoundationProject extends InvokeResponseDTO {
         private FoundationProjectDTO payload;
     }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class FoundationViewList extends InvokeResponseDTO {
+        private List<FoundationViewDTO> payload;
+    }
 }

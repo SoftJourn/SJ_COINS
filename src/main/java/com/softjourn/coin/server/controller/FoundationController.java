@@ -1,6 +1,7 @@
 package com.softjourn.coin.server.controller;
 
 import com.softjourn.coin.server.dto.FoundationProjectDTO;
+import com.softjourn.coin.server.dto.FoundationViewDTO;
 import com.softjourn.coin.server.service.FoundationService;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class FoundationController {
 
   @GetMapping("/projects/byUser")
 //  @PreAuthorize("authenticated")
-  public List<FoundationProjectDTO> getAll(@RequestParam Integer userId, Principal principal) {
+  public List<FoundationViewDTO> getAll(@RequestParam Integer userId, Principal principal) {
     principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.getAll(principal.getName());
   }
