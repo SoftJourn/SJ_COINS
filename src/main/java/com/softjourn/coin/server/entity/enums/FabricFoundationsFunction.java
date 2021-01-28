@@ -12,6 +12,7 @@ public enum FabricFoundationsFunction {
   GET_ONE("getFoundationByName"),
   DONATE("donate"),
   CLOSE("closeFoundation"),
+  SET_ALLOWANCE("setAllowance"),
   WITHDRAW("withdraw");
 
   private final String name;

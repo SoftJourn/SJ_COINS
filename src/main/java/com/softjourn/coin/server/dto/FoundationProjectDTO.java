@@ -13,6 +13,7 @@ import lombok.Setter;
 public class FoundationProjectDTO {
 
   private String name;
+  private String image;
   private String adminId;
   private String creatorId;
   private Integer fundingGoal;

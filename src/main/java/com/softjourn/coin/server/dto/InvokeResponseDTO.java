@@ -67,8 +67,8 @@ public class InvokeResponseDTO {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class FoundationProject extends InvokeResponseDTO {
-        private FoundationProjectDTO payload;
+    public static class FoundationView extends InvokeResponseDTO {
+        private FoundationViewDTO payload;
     }
 
     @EqualsAndHashCode(callSuper = true)

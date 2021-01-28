@@ -1,7 +1,10 @@
 package com.softjourn.coin.server.controller;
 
-import com.softjourn.coin.server.dto.FoundationProjectDTO;
+import com.softjourn.coin.server.dto.AllowanceRequestDTO;
+import com.softjourn.coin.server.dto.CreateFoundationProjectDTO;
+import com.softjourn.coin.server.dto.FoundationDonationDTO;
 import com.softjourn.coin.server.dto.FoundationViewDTO;
+import com.softjourn.coin.server.dto.WithdrawRequestDTO;
 import com.softjourn.coin.server.service.FoundationService;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -14,12 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.auth.BasicUserPrincipal;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,7 +36,9 @@ public class FoundationController {
 
   @PostMapping("/projects")
 //  @PreAuthorize("authenticated")
-  public String create(@RequestBody @Valid FoundationProjectDTO project, Principal principal) {
+  public String create(
+      @RequestBody @Valid CreateFoundationProjectDTO project, Principal principal
+  ) {
     principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.create(principal.getName(), project);
   }
@@ -48,14 +50,32 @@ public class FoundationController {
     return foundationService.getAll(principal.getName());
   }
 
-  @GetMapping("/{name}")
+  @GetMapping("/projects/{name}")
 //  @PreAuthorize("authenticated")
-  public FoundationProjectDTO getOneByName(@PathVariable("name") String name, Principal principal) {
+  public FoundationViewDTO getOneByName(@PathVariable("name") String name, Principal principal) {
     principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.getOneByName(principal.getName(), name);
   }
 
-  @PutMapping("/{name}")
+  @PostMapping("/wallet/donation")
+  public String donate(@RequestBody FoundationDonationDTO donation, Principal principal) {
+    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
+    return foundationService.donate(principal.getName(), donation);
+  }
+
+  @PostMapping("/projects/withdraw")
+  public String withdraw(@RequestBody WithdrawRequestDTO request, Principal principal) {
+    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
+    return foundationService.withdraw(principal.getName(), request);
+  }
+
+  @PostMapping("/projects/setAllowance")
+  public String setAllowance(@RequestBody AllowanceRequestDTO request, Principal principal) {
+    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
+    return foundationService.setAllowance(principal.getName(), request);
+  }
+
+  @PostMapping("/project/{name}/close")
 //  @PreAuthorize("authenticated")
   public Integer close(@PathVariable("name") String name, Principal principal) {
     principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
@@ -80,5 +100,10 @@ public class FoundationController {
   @GetMapping("/admin/getUserRoles")
   public List<Object> getUserRoles() {
     return Collections.emptyList();
+  }
+
+  @GetMapping("/images/{image:.+\\..+}")
+  public byte[] getImage(@PathVariable String image) {
+    return foundationService.getImage(image);
   }
 }

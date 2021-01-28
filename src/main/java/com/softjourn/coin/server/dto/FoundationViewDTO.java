@@ -13,6 +13,7 @@ import lombok.Setter;
 public class FoundationViewDTO {
 
   private String name;
+  private String image;
   private String adminId;
   private String creatorId;
   private Integer fundingGoal;
@@ -22,10 +23,11 @@ public class FoundationViewDTO {
   private boolean closeOnGoalReached;
   private boolean withdrawAllowed;
   private String mainCurrency;
-  private Map<String, Boolean> acceptCurrencies;
   private boolean fundingGoalReached;
   private boolean isContractClosed;
   private boolean isDonationReturned;
+  private Map<String, Boolean> acceptCurrencies;
+  private Map<String, Integer> allowanceMap;
 
   @Override
   public String toString() {

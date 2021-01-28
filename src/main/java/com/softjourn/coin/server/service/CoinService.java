@@ -14,6 +14,7 @@ import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
+import com.softjourn.coin.server.entity.enums.Chaincode;
 import com.softjourn.coin.server.entity.enums.FabricCoinsFunction;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
@@ -69,6 +70,7 @@ public class CoinService {
             log.info(account.getEmail());
             InvokeResponseDTO transfer = fabricService.invoke(
                 treasuryAccount,
+                Chaincode.COINS,
                 FabricCoinsFunction.TRANSFER.getName(),
                 new String[]{USER_PREFIX, account.getEmail(), amount.toBigInteger().toString()},
                 InvokeResponseDTO.class);
