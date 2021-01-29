@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 public class Account {
 
     @Id
-    @JsonView(JsonViews.COINS_MANAGER.class)
+    @JsonView({JsonViews.COINS_MANAGER.class, JsonViews.REGULAR.class})
     private String ldapId;
 
     @Transient
@@ -29,6 +29,7 @@ public class Account {
     @JsonView(JsonViews.COINS_MANAGER.class)
     private String fullName;
 
+    @JsonView(JsonViews.REGULAR.class)
     private String email;
 
     @JsonView(JsonViews.REGULAR.class)

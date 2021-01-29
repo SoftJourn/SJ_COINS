@@ -15,8 +15,8 @@ import java.util.Map;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.auth.BasicUserPrincipal;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,50 +35,51 @@ public class FoundationController {
   private final FoundationService foundationService;
 
   @PostMapping("/projects")
-//  @PreAuthorize("authenticated")
+  @PreAuthorize("authenticated")
   public String create(
       @RequestBody @Valid CreateFoundationProjectDTO project, Principal principal
   ) {
-    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.create(principal.getName(), project);
   }
 
+  @GetMapping("/projects")
+  public List<FoundationViewDTO> getAll() {
+    return foundationService.getAll();
+  }
+
   @GetMapping("/projects/byUser")
-//  @PreAuthorize("authenticated")
-  public List<FoundationViewDTO> getAll(@RequestParam Integer userId, Principal principal) {
-    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
-    return foundationService.getAll(principal.getName());
+  @PreAuthorize("authenticated")
+  public List<FoundationViewDTO> getAllByUser(@RequestParam String userId, Principal principal) {
+    return foundationService.getAllByUser(principal.getName());
   }
 
   @GetMapping("/projects/{name}")
-//  @PreAuthorize("authenticated")
+  @PreAuthorize("authenticated")
   public FoundationViewDTO getOneByName(@PathVariable("name") String name, Principal principal) {
-    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.getOneByName(principal.getName(), name);
   }
 
   @PostMapping("/wallet/donation")
+  @PreAuthorize("authenticated")
   public String donate(@RequestBody FoundationDonationDTO donation, Principal principal) {
-    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.donate(principal.getName(), donation);
   }
 
   @PostMapping("/projects/withdraw")
+  @PreAuthorize("authenticated")
   public String withdraw(@RequestBody WithdrawRequestDTO request, Principal principal) {
-    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.withdraw(principal.getName(), request);
   }
 
   @PostMapping("/projects/setAllowance")
+  @PreAuthorize("authenticated")
   public String setAllowance(@RequestBody AllowanceRequestDTO request, Principal principal) {
-    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.setAllowance(principal.getName(), request);
   }
 
   @PostMapping("/project/{name}/close")
-//  @PreAuthorize("authenticated")
+  @PreAuthorize("authenticated")
   public Integer close(@PathVariable("name") String name, Principal principal) {
-    principal = new BasicUserPrincipal("vzaichuk@softjourn.com");
     return foundationService.close(principal.getName(), name);
   }
 

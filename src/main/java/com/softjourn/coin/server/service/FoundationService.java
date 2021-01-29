@@ -36,6 +36,9 @@ public class FoundationService {
 
   private final FabricService fabricService;
 
+  @Value("${treasury.account}")
+  private String treasuryAccount;
+
   @Value("${image.path:/static/images/project}")
   private String imagePath;
 
@@ -82,8 +85,8 @@ public class FoundationService {
     project.setFundingGoal(createDto.getFundingGoal());
     project.setCloseOnGoalReached(createDto.isCloseOnGoalReached());
     project.setDeadline(createDto.getDeadline());
-    project.setAdminId("vzaichuk@softjourn.com");
-    project.setCreatorId("vzaichuk@softjourn.com");
+    project.setAdminId(account);
+    project.setCreatorId(account);
     project.setMainCurrency("coins");
     project.setAcceptCurrencies(currencies);
     project.setDeadline(200L);
@@ -98,12 +101,28 @@ public class FoundationService {
   }
 
   /**
-   * Get names of existed projects.
+   * Get list of existed projects.
    *
-   * @param account Account name.
    * @return List on names of projects.
    */
-  public List<FoundationViewDTO> getAll(String account) {
+  public List<FoundationViewDTO> getAll() {
+    InvokeResponseDTO.FoundationViewList response = fabricService.query(
+        treasuryAccount,
+        Chaincode.FOUNDATION,
+        FabricFoundationsFunction.GET_ALL.getName(),
+        new String[]{},
+        InvokeResponseDTO.FoundationViewList.class
+    );
+    return response.getPayload();
+  }
+
+  /**
+   * Get list of existed projects.
+   *
+   * @param account Account name.
+   * @return List of projects.
+   */
+  public List<FoundationViewDTO> getAllByUser(String account) {
     InvokeResponseDTO.FoundationViewList response = fabricService.query(
         account,
         Chaincode.FOUNDATION,
