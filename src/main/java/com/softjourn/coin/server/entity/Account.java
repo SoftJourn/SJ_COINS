@@ -1,15 +1,18 @@
 package com.softjourn.coin.server.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.softjourn.coin.server.service.FilterIgnore;
 import com.softjourn.coin.server.util.JsonViews;
+import java.math.BigDecimal;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "accounts")
@@ -18,7 +21,7 @@ import java.math.BigDecimal;
 public class Account {
 
     @Id
-    @JsonView(JsonViews.COINS_MANAGER.class)
+    @JsonView({JsonViews.COINS_MANAGER.class, JsonViews.REGULAR.class})
     private String ldapId;
 
     @Transient
@@ -29,6 +32,7 @@ public class Account {
     @JsonView(JsonViews.COINS_MANAGER.class)
     private String fullName;
 
+    @JsonView(JsonViews.REGULAR.class)
     private String email;
 
     @JsonView(JsonViews.REGULAR.class)
