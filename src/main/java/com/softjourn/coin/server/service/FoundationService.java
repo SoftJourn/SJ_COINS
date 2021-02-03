@@ -7,8 +7,12 @@ import com.softjourn.coin.server.dto.FoundationProjectDTO;
 import com.softjourn.coin.server.dto.FoundationViewDTO;
 import com.softjourn.coin.server.dto.InvokeResponseDTO;
 import com.softjourn.coin.server.dto.WithdrawRequestDTO;
+import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.enums.Chaincode;
+import com.softjourn.coin.server.entity.enums.Currency;
 import com.softjourn.coin.server.entity.enums.FabricFoundationsFunction;
+import com.softjourn.coin.server.entity.enums.ProjectStatus;
+import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.NotFoundException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +40,7 @@ import org.springframework.stereotype.Service;
 public class FoundationService {
 
   private final FabricService fabricService;
+  private final AccountsService accountsService;
 
   @Value("${treasury.account}")
   private String treasuryAccount;
@@ -46,11 +52,13 @@ public class FoundationService {
    * Create new foundation project.
    *
    * TODO: Change return type to foundation object.
-   * @param account Account name.
+   * @param accountName Account name.
    * @param createDto Create project dto.
    * @return
    */
-  public String create(String account, CreateFoundationProjectDTO createDto) {
+  public String create(String accountName, CreateFoundationProjectDTO createDto) {
+    Account account = getAccount(accountName);
+
     StringBuffer imageFilename = new StringBuffer();
     imageFilename.append(UUID.randomUUID().toString().replaceAll("-", ""));
 
@@ -78,21 +86,23 @@ public class FoundationService {
     }
 
     Map<String, Boolean> currencies = new HashMap<>();
-    currencies.put("coins", true);
+    currencies.put(Currency.COINS.getValue(), true);
     FoundationProjectDTO project = new FoundationProjectDTO();
     project.setName(createDto.getName());
     project.setImage(imageFilename.toString());
     project.setFundingGoal(createDto.getFundingGoal());
     project.setCloseOnGoalReached(createDto.isCloseOnGoalReached());
     project.setDeadline(createDto.getDeadline());
-    project.setAdminId(account);
-    project.setCreatorId(account);
-    project.setMainCurrency("coins");
+    project.setAdminId(account.getEmail());
+    project.setCreatorId(account.getEmail());
+    project.setMainCurrency(Currency.COINS.getValue());
     project.setAcceptCurrencies(currencies);
-    project.setDeadline(200L);
+    project.setDeadline(createDto.getDeadline());
     project.setWithdrawAllowed(true);
+    project.setCategoryId(createDto.getCategoryId());
+    project.setStatus(ProjectStatus.REVIEW.getValue());
     return fabricService.invoke(
-        account,
+        account.getEmail(),
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.CREATE.getName(),
         project,
@@ -119,12 +129,14 @@ public class FoundationService {
   /**
    * Get list of existed projects.
    *
-   * @param account Account name.
+   * @param accountName Account name.
    * @return List of projects.
    */
-  public List<FoundationViewDTO> getAllByUser(String account) {
+  public List<FoundationViewDTO> getAllByUser(String accountName) {
+    Account account = getAccount(accountName);
+
     InvokeResponseDTO.FoundationViewList response = fabricService.query(
-        account,
+        account.getEmail(),
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.GET_ALL.getName(),
         new String[]{},
@@ -136,14 +148,15 @@ public class FoundationService {
   /**
    * Get one project by its name.
    *
-   * @param account Account name.
+   * @param accountName Account name.
    * @param name Foundation project name.
    * @return Foundation project object.
    */
-  public FoundationViewDTO getOneByName(String account, String name) {
-//    coinService.fillAccount("vzaichuk@softjourn.com", new BigDecimal(100), null);
+  public FoundationViewDTO getOneByName(String accountName, String name) {
+    Account account = getAccount(accountName);
+
     InvokeResponseDTO.FoundationView response = fabricService.query(
-        account,
+        account.getEmail(),
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.GET_ONE.getName(),
         new String[]{name},
@@ -155,13 +168,15 @@ public class FoundationService {
   /**
    * Donate to project.
    *
-   * @param account Account name.
+   * @param accountName Account name.
    * @param donation Dotation data.
    * @return Transaction id.
    */
-  public String donate(String account, FoundationDonationDTO donation) {
+  public String donate(String accountName, FoundationDonationDTO donation) {
+    Account account = getAccount(accountName);
+
     return fabricService.invoke(
-        account,
+        account.getEmail(),
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.DONATE.getName(),
         donation,
@@ -172,13 +187,15 @@ public class FoundationService {
   /**
    * Close foundation project.
    *
-   * @param account Account name.
+   * @param accountName Account name.
    * @param projectName Project name.
    * @return Remained amount of funds on project.
    */
-  public Integer close(String account, String projectName) {
+  public Integer close(String accountName, String projectName) {
+    Account account = getAccount(accountName);
+
     return fabricService.invoke(
-        account,
+        account.getEmail(),
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.CLOSE.getName(),
         new String[]{projectName},
@@ -189,13 +206,15 @@ public class FoundationService {
   /**
    * Set withdraw allowance for project.
    *
-   * @param account Account name.
+   * @param accountName Account name.
    * @param request Allowance request payload.
    * @return Transaction id.
    */
-  public String setAllowance(String account, AllowanceRequestDTO request) {
+  public String setAllowance(String accountName, AllowanceRequestDTO request) {
+    Account account = getAccount(accountName);
+
     return fabricService.invoke(
-        account,
+        account.getEmail(),
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.SET_ALLOWANCE.getName(),
         request,
@@ -206,13 +225,15 @@ public class FoundationService {
   /**
    * Withdraw foundation project.
    *
-   * @param account Account name.
+   * @param accountName Account name.
    * @param request Withdraw request payload.
    * @return Transaction id.
    */
-  public String withdraw(String account, WithdrawRequestDTO request) {
+  public String withdraw(String accountName, WithdrawRequestDTO request) {
+    Account account = getAccount(accountName);
+
     return fabricService.invoke(
-        account,
+        account.getEmail(),
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.WITHDRAW.getName(),
         request,
@@ -240,5 +261,10 @@ public class FoundationService {
       log.error("Method getImage uri. File can't be read", e);
       throw new RuntimeException("File can't be read");
     }
+  }
+
+  private Account getAccount(String name) {
+    return Optional.of(accountsService.getAccount(name))
+        .orElseThrow(() -> new AccountNotFoundException(name));
   }
 }

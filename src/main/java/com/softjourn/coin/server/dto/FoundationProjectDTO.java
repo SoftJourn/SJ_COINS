@@ -22,6 +22,8 @@ public class FoundationProjectDTO {
   private boolean withdrawAllowed;
   private String mainCurrency;
   private Map<String, Boolean> acceptCurrencies;
+  private Integer categoryId;
+  private Integer status;
 
   @Override
   public String toString() {

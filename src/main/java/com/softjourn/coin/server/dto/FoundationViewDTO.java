@@ -28,6 +28,8 @@ public class FoundationViewDTO {
   private boolean isDonationReturned;
   private Map<String, Boolean> acceptCurrencies;
   private Map<String, Integer> allowanceMap;
+  private Integer categoryId;
+  private Integer status;
 
   @Override
   public String toString() {

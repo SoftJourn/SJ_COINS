@@ -16,4 +16,5 @@ public class CreateFoundationProjectDTO {
   private Integer fundingGoal;
   private Long deadline;
   private boolean closeOnGoalReached;
+  private Integer categoryId;
 }
