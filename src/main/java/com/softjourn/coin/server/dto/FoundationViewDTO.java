@@ -30,18 +30,7 @@ public class FoundationViewDTO {
   private Map<String, Integer> allowanceMap;
   private Integer categoryId;
   private Integer status;
-
-  @Override
-  public String toString() {
-    return "[" +
-        "name=" + getName() + ", " +
-        "adminId=" + getAdminId() + ", " +
-        "creatorId=" + getCreatorId() + ", " +
-        "fundingGoal=" + getFundingGoal() + ", " +
-        "closeOnGoalReached=" + isCloseOnGoalReached() + ", " +
-        "withdrawAllowed=" + isWithdrawAllowed() + ", " +
-        "mainCurrency=" + getMainCurrency() + ", " +
-        "acceptCurrencies=" + getAcceptCurrencies() +
-        "]";
-  }
+  private String description;
+  private Map<String, DonationDTO> donationsMap;
+  private Map<String, WithdrawalDTO> withdrawalsMap;
 }

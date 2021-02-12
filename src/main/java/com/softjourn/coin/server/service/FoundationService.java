@@ -2,6 +2,7 @@ package com.softjourn.coin.server.service;
 
 import com.softjourn.coin.server.dto.AllowanceRequestDTO;
 import com.softjourn.coin.server.dto.CreateFoundationProjectDTO;
+import com.softjourn.coin.server.dto.FilterDTO;
 import com.softjourn.coin.server.dto.FoundationDonationDTO;
 import com.softjourn.coin.server.dto.FoundationProjectDTO;
 import com.softjourn.coin.server.dto.FoundationViewDTO;
@@ -101,6 +102,7 @@ public class FoundationService {
     project.setWithdrawAllowed(true);
     project.setCategoryId(createDto.getCategoryId());
     project.setStatus(ProjectStatus.REVIEW.getValue());
+    project.setDescription(createDto.getDescription());
     return fabricService.invoke(
         account.getEmail(),
         Chaincode.FOUNDATION,
@@ -120,7 +122,7 @@ public class FoundationService {
         treasuryAccount,
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.GET_ALL.getName(),
-        new String[]{},
+        new FilterDTO(),
         InvokeResponseDTO.FoundationViewList.class
     );
     return response.getPayload();
@@ -139,7 +141,7 @@ public class FoundationService {
         account.getEmail(),
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.GET_ALL.getName(),
-        new String[]{},
+        new FilterDTO(account.getEmail()),
         InvokeResponseDTO.FoundationViewList.class
     );
     return response.getPayload();

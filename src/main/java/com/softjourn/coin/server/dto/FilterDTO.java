@@ -7,11 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DonationDTO {
+public class FilterDTO {
 
-  private String userId;
-  private String userAccountType;
-  private String currency;
-  private Integer amount;
-  private String createdAt;
+  private String creatorId;
 }

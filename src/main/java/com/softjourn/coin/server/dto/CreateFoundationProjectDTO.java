@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,4 +18,7 @@ public class CreateFoundationProjectDTO {
   private Long deadline;
   private boolean closeOnGoalReached;
   private Integer categoryId;
+
+  @Length(min = 50)
+  private String description;
 }

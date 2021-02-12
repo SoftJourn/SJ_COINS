@@ -1,10 +1,12 @@
 package com.softjourn.coin.server.dto;
 
 import java.util.Map;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,6 +26,7 @@ public class FoundationProjectDTO {
   private Map<String, Boolean> acceptCurrencies;
   private Integer categoryId;
   private Integer status;
+  private String description;
 
   @Override
   public String toString() {
