@@ -52,17 +52,17 @@ public class FoundationService {
   /**
    * Create new foundation project.
    *
-   * TODO: Change return type to foundation object.
    * @param accountName Account name.
    * @param createDto Create project dto.
-   * @return
+   * @return Transaction id.
    */
   public String create(String accountName, CreateFoundationProjectDTO createDto) {
     Account account = getAccount(accountName);
 
-    StringBuffer imageFilename = new StringBuffer();
+    StringBuilder imageFilename = new StringBuilder();
     imageFilename.append(UUID.randomUUID().toString().replaceAll("-", ""));
 
+    // Check main image data.
     if (Objects.isNull(createDto.getImage()) || createDto.getImage().isEmpty()) {
       throw new ValidationException("Image is not uploaded");
     } else if (createDto.getImage().contains("data:image/png;")) {
@@ -101,7 +101,8 @@ public class FoundationService {
     project.setDeadline(createDto.getDeadline());
     project.setWithdrawAllowed(true);
     project.setCategoryId(createDto.getCategoryId());
-    project.setStatus(ProjectStatus.REVIEW.getValue());
+    project.setStatus(
+        createDto.isDraft() ? ProjectStatus.DRAFT.getValue() : ProjectStatus.REVIEW.getValue());
     project.setDescription(createDto.getDescription());
     return fabricService.invoke(
         account.getEmail(),
@@ -122,7 +123,9 @@ public class FoundationService {
         treasuryAccount,
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.GET_ALL.getName(),
-        new FilterDTO(),
+        new FilterDTO(
+            null,
+            ProjectStatus.ACTIVE.getValue() | ProjectStatus.CLOSED.getValue()),
         InvokeResponseDTO.FoundationViewList.class
     );
     return response.getPayload();
@@ -141,7 +144,28 @@ public class FoundationService {
         account.getEmail(),
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.GET_ALL.getName(),
-        new FilterDTO(account.getEmail()),
+        new FilterDTO(
+            account.getEmail(),
+            ProjectStatus.ACTIVE.getValue() | ProjectStatus.CLOSED.getValue()),
+        InvokeResponseDTO.FoundationViewList.class
+    );
+    return response.getPayload();
+  }
+
+  /**
+   * Get list of existed projects.
+   *
+   * @param accountName Account name.
+   * @return List of projects.
+   */
+  public List<FoundationViewDTO> getMy(String accountName) {
+    Account account = getAccount(accountName);
+
+    InvokeResponseDTO.FoundationViewList response = fabricService.query(
+        account.getEmail(),
+        Chaincode.FOUNDATION,
+        FabricFoundationsFunction.GET_ALL.getName(),
+        new FilterDTO(account.getEmail(), 0),
         InvokeResponseDTO.FoundationViewList.class
     );
     return response.getPayload();

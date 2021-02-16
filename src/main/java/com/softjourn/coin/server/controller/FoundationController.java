@@ -53,6 +53,12 @@ public class FoundationController {
     return foundationService.getAllByUser(principal.getName());
   }
 
+  @GetMapping("/projects/my")
+  @PreAuthorize("authenticated")
+  public List<FoundationViewDTO> getMy(Principal principal) {
+    return foundationService.getMy(principal.getName());
+  }
+
   @GetMapping("/projects/{name}")
   @PreAuthorize("authenticated")
   public FoundationViewDTO getOneByName(@PathVariable("name") String name, Principal principal) {

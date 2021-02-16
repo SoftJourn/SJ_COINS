@@ -18,6 +18,7 @@ public class CreateFoundationProjectDTO {
   private Long deadline;
   private boolean closeOnGoalReached;
   private Integer categoryId;
+  private boolean isDraft;
 
   @Length(min = 50)
   private String description;

@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class FilterDTO {
 
   private String creatorId;
+  private int status;
 }
