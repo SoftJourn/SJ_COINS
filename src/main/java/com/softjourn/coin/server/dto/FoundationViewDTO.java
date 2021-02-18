@@ -12,6 +12,7 @@ import lombok.Setter;
 @Setter
 public class FoundationViewDTO {
 
+  private String id;
   private String name;
   private String image;
   private String adminId;

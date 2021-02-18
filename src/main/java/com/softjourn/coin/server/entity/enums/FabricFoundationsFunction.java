@@ -9,7 +9,7 @@ public enum FabricFoundationsFunction {
 
   CREATE("createFoundation"),
   GET_ALL("getFoundations"),
-  GET_ONE("getFoundationByName"),
+  GET_ONE("getFoundation"),
   DONATE("donate"),
   CLOSE("closeFoundation"),
   SET_ALLOWANCE("setAllowance"),

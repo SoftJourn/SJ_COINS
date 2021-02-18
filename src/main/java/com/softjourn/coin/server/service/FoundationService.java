@@ -95,7 +95,6 @@ public class FoundationService {
     project.setCloseOnGoalReached(createDto.isCloseOnGoalReached());
     project.setDeadline(createDto.getDeadline());
     project.setAdminId(account.getEmail());
-    project.setCreatorId(account.getEmail());
     project.setMainCurrency(Currency.COINS.getValue());
     project.setAcceptCurrencies(currencies);
     project.setDeadline(createDto.getDeadline());
