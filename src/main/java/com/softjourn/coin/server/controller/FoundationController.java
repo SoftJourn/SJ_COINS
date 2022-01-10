@@ -4,6 +4,7 @@ import com.softjourn.coin.server.dto.AllowanceRequestDTO;
 import com.softjourn.coin.server.dto.CreateFoundationProjectDTO;
 import com.softjourn.coin.server.dto.FoundationDonationDTO;
 import com.softjourn.coin.server.dto.FoundationViewDTO;
+import com.softjourn.coin.server.dto.UpdateFoundationDTO;
 import com.softjourn.coin.server.dto.WithdrawRequestDTO;
 import com.softjourn.coin.server.service.FoundationService;
 import java.security.Principal;
@@ -20,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,6 +42,12 @@ public class FoundationController {
       @RequestBody @Valid CreateFoundationProjectDTO project, Principal principal
   ) {
     return foundationService.create(principal.getName(), project);
+  }
+
+  @PutMapping("/projects")
+  @PreAuthorize("authenticated")
+  public String update(@RequestBody @Valid UpdateFoundationDTO updateDTO, Principal principal) {
+    return foundationService.update(principal.getName(), updateDTO);
   }
 
   @GetMapping("/projects")

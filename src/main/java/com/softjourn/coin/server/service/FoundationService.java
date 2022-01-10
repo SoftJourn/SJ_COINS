@@ -7,6 +7,7 @@ import com.softjourn.coin.server.dto.FoundationDonationDTO;
 import com.softjourn.coin.server.dto.FoundationProjectDTO;
 import com.softjourn.coin.server.dto.FoundationViewDTO;
 import com.softjourn.coin.server.dto.InvokeResponseDTO;
+import com.softjourn.coin.server.dto.UpdateFoundationDTO;
 import com.softjourn.coin.server.dto.WithdrawRequestDTO;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.enums.Chaincode;
@@ -20,6 +21,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +38,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Service
@@ -75,7 +80,8 @@ public class FoundationService {
       throw new ValidationException("Image has not supported type.");
     }
 
-    String path = getClass().getResource("/static/images/project").getPath();
+    String imagePath = "/static/images/project";
+    String path = getClass().getResource(imagePath).getPath();
     String filename = imageFilename.toString();
     File file = new File(path, filename);
     byte[] fileBytes = Base64.getDecoder().decode(createDto.getImage());
@@ -110,6 +116,33 @@ public class FoundationService {
         project,
         InvokeResponseDTO.class
     ).getTransactionID();
+  }
+
+  /**
+   * Update existing project with new data.
+   *
+   * @param accountName Current account name.
+   * @param updateDto Update DTO with new data.
+   * @return Transaction id.
+   */
+  public String update(String accountName, UpdateFoundationDTO updateDto) {
+    Account account = getAccount(accountName);
+
+    if (StringUtils.hasText(updateDto.getImage())) {
+      updateDto.setImage(saveImage(updateDto.getImage()).getName());
+    }
+
+    String txid = fabricService.invoke(
+        account.getEmail(),
+        Chaincode.FOUNDATION,
+        FabricFoundationsFunction.UPDATE.getName(),
+        updateDto,
+        InvokeResponseDTO.class
+    ).getTransactionID();
+
+    // TODO: Add deleting old image.
+
+    return txid;
   }
 
   /**
@@ -291,5 +324,41 @@ public class FoundationService {
   private Account getAccount(String name) {
     return Optional.of(accountsService.getAccount(name))
         .orElseThrow(() -> new AccountNotFoundException(name));
+  }
+
+  /**
+   * Save image and return file of image.
+   *
+   * @param image Image data.
+   * @return File of saved image.
+   */
+  private File saveImage(String image) {
+    StringBuilder imageFilename = new StringBuilder();
+    imageFilename.append(UUID.randomUUID().toString().replaceAll("-", ""));
+
+    // Check main image data.
+    if (image.contains("data:image/png;")) {
+      image = image.replace("data:image/png;base64,", "");
+      imageFilename.append(".png");
+    } else if (image.contains("data:image/jpeg;")) {
+      image = image.replace("data:image/jpeg;base64,", "");
+      imageFilename.append(".jpeg");
+    } else {
+      throw new ValidationException("Image has not supported type.");
+    }
+
+    String imagePath = "/static/images/project";
+    String path = getClass().getResource(imagePath).getPath();
+    String filename = imageFilename.toString();
+    File file = new File(path, filename);
+    byte[] fileBytes = Base64.getDecoder().decode(image);
+    try {
+      FileUtils.writeByteArrayToFile(file, fileBytes);
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new ValidationException(e.getMessage());
+    }
+
+    return file;
   }
 }

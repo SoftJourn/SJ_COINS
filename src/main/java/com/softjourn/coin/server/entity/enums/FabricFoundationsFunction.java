@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum FabricFoundationsFunction {
 
   CREATE("createFoundation"),
+  UPDATE("updateFoundation"),
   GET_ALL("getFoundations"),
   GET_ONE("getFoundation"),
   DONATE("donate"),
