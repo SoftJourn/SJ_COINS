@@ -1,6 +1,5 @@
 package com.softjourn.coin.server;
 
-
 import com.softjourn.common.spring.aspects.logging.EnableLoggingAspect;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,7 +21,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @EnableJpaRepositories(basePackages = "com.softjourn.coin.server.repository")
 @EntityScan(basePackages = "com.softjourn.coin.server.entity")
 @PropertySources(
-		@PropertySource(value = "file:${user.home}/.coins/application.properties", ignoreResourceNotFound = true)
+		@PropertySource(value = "file:${user.home}/.coins/application.properties", ignoreResourceNotFound = true) // TODO: Do we need this property source. If yes - add variable for path.
 )
 public class Coins  {
 

@@ -1,0 +1,72 @@
+#seconds
+eris:
+  transaction:
+    collector:
+      interval: 2
+
+# Spring
+# For custom endpoint exception handling
+spring:
+  # Profile
+  profiles:
+    active: dev
+  # Datasource
+  datasource:
+    # Database
+    url: jdbc:mysql://localhost:3306/sj_coins?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false # TODO: Add variable for this.
+    username: sj # TODO: Add variable for this.
+    password: password # TODO: Add variable for this.
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    tomcat:
+      test-while-idle: true
+      time-between-eviction-runs-millis: 3600000
+      validation-query: SELECT 1
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5Dialect
+    hibernate:
+      ddl-auto: validate
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+    show-sql: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: false
+
+logging:
+  config: file:/Users/vlad/Job/.config/coins/logback.xml # TODO: Add configuration variable for config file.
+
+image:
+  storage:
+    path: /Users/vlad/Job/.config/coins/images
+  account:
+    default: /account/default.png
+
+flyway:
+  baseline-on-migrate: true
+  ignore-future-migration: true
+  ignore-missing-migration: true
+
+# Auth
+auth:
+  server:
+    url: http://127.0.0.1:8081 # TODO: Add variable for this.
+  client:
+    client-id: coins_server # TODO: Add variable for this.
+    client-secret: x5VLts24E63Q5TXU23dMrSeU # TODO: Add variable for this.
+
+node:
+  fabric:
+    client: http://localhost:4000/ # TODO: Add variable for this.
+org:
+  name: coins
+treasury:
+  account: sj_coin
+
+monax:
+  backup: /Users/vlad/Job/.config/coins/account_balance.json # TODO: Do we still need this?
+
+# Auth
+authPublicKeyFile: /Users/vlad/Job/.config/coins/auth.pub # TODO: Add variable for this.
