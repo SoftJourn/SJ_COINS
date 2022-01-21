@@ -10,19 +10,19 @@ import org.springframework.data.domain.Sort;
 
 public class SortJsonDeserializer extends JsonDeserializer<Sort> {
 
-    @Override
-    public Sort deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        ArrayNode node = jp.getCodec().readTree(jp);
-        Sort.Order[] orders = new Sort.Order[node.size()];
-        int i = 0;
-        for(JsonNode obj : node){
-            orders[i] =  new Sort.Order(Sort.Direction.valueOf(obj.get("direction").asText()), obj.get("property").asText());
-            i++;
-        }
-        if (orders.length == 0) {
-            return null;
-        }
-        return Sort.by(orders);
+  @Override
+  public Sort deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    ArrayNode node = jp.getCodec().readTree(jp);
+    Sort.Order[] orders = new Sort.Order[node.size()];
+    int i = 0;
+    for(JsonNode obj : node){
+      orders[i] = new Sort.Order(
+          Sort.Direction.valueOf(obj.get("direction").asText()), obj.get("property").asText());
+      i++;
     }
-
+    if (orders.length == 0) {
+      return null;
+    }
+    return Sort.by(orders);
+  }
 }

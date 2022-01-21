@@ -1,13 +1,11 @@
 package com.softjourn.coin.server.dto;
 
-import lombok.Data;
-
 import java.math.BigDecimal;
+import lombok.Data;
 
 @Data
 public class LdapBalanceDTO {
 
-    private String ldap;
-    private BigDecimal balance;
-
+  private String ldap;
+  private BigDecimal balance;
 }

@@ -14,16 +14,17 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor
 public class PageRequestImpl {
 
-    private int size;
-    private int page;
-    @JsonDeserialize(using = SortJsonDeserializer.class)
-    private Sort sort;
+  private int size;
+  private int page;
 
-    public Pageable toPageable() {
-        if (sort == null) {
-            return PageRequest.of(page, size);
-        } else {
-            return PageRequest.of(page, size, sort);
-        }
+  @JsonDeserialize(using = SortJsonDeserializer.class)
+  private Sort sort;
+
+  public Pageable toPageable() {
+    if (sort == null) {
+      return PageRequest.of(page, size);
+    } else {
+      return PageRequest.of(page, size, sort);
     }
+  }
 }

@@ -1,5 +1,6 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
+
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -29,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `accounts` (
   `deleted` bit(1) NOT NULL DEFAULT b'0',
   PRIMARY KEY (`ldap_id`),
   KEY `ldap_id` (`ldap_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 -- --------------------------------------------------------
 
@@ -47,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `contracts` (
   `active` bit(1) NOT NULL DEFAULT b'1',
   PRIMARY KEY (`id`),
   KEY `FKhr2kxnlv3eb3x30dm2l9fpvkh` (`type`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
+) ENGINE = InnoDB AUTO_INCREMENT = 30 DEFAULT CHARSET = utf8;
 
 -- --------------------------------------------------------
 
@@ -59,7 +60,7 @@ DROP TABLE IF EXISTS `contract_type`;
 CREATE TABLE IF NOT EXISTS `contract_type` (
   `type` varchar(255) NOT NULL,
   PRIMARY KEY (`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 -- --------------------------------------------------------
 
@@ -205,6 +206,13 @@ ALTER TABLE `transactions`
 ALTER TABLE `tx_calling_data`
   ADD CONSTRAINT `FKcdwwj4qxq3unv7cveilenig5d` FOREIGN KEY (`tx_id`) REFERENCES `transaction_history` (`id`);
 COMMIT;
+
+--
+-- Data for accounts.
+--
+INSERT INTO `accounts` (ldap_id, full_name, image, is_new, account_type, deleted, email) VALUES ('newmachine', 'New Machine', '/', 0, 'MERCHANT', 0, 'newmachine@softjourn.com');
+-- Regular account
+-- INSERT INTO `accounts` (ldap_id, full_name, image, is_new, account_type, deleted, email) VALUES ('username', 'User Name', '/', 0, 'REGULAR', 0, 'username@softjourn.com');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

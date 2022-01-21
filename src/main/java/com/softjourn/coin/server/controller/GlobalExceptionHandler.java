@@ -27,126 +27,126 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @ResponseBody
 public class GlobalExceptionHandler {
 
-    // 409 CONFLICT
+  // 409 CONFLICT
 
-    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Not enough amount of coins oin account.")
-    @ExceptionHandler(NotEnoughAmountInAccountException.class)
-    public void handleNotEnoughAmount(Exception e) {
-        log.info("Request for body with too big amount. " + e.getLocalizedMessage());
-    }
+  @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Not enough amount of coins oin account.")
+  @ExceptionHandler(NotEnoughAmountInAccountException.class)
+  public void handleNotEnoughAmount(Exception e) {
+    log.info("Request for body with too big amount. " + e.getLocalizedMessage());
+  }
 
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(NotEnoughAmountInTreasuryException.class)
-    public ErrorDetail handleNotEnoughAmountInTreasuryException(
-        NotEnoughAmountInTreasuryException e
-    ) {
-        log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(e, 40905, e.getMessage());
-    }
+  @ResponseStatus(HttpStatus.CONFLICT)
+  @ExceptionHandler(NotEnoughAmountInTreasuryException.class)
+  public ErrorDetail handleNotEnoughAmountInTreasuryException(
+      NotEnoughAmountInTreasuryException e
+  ) {
+    log.warn(e.getLocalizedMessage());
+    return buildErrorDetails(e, 40905, e.getMessage());
+  }
 
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(ChequeIsUsedException.class)
-    public ErrorDetail handleChequeIsUsedException(ChequeIsUsedException e) {
-        log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(e, 40906, e.getMessage());
-    }
+  @ResponseStatus(HttpStatus.CONFLICT)
+  @ExceptionHandler(ChequeIsUsedException.class)
+  public ErrorDetail handleChequeIsUsedException(ChequeIsUsedException e) {
+    log.warn(e.getLocalizedMessage());
+    return buildErrorDetails(e, 40906, e.getMessage());
+  }
 
-    @ResponseStatus(value = HttpStatus.CONFLICT, reason = "No free eris account")
-    @ExceptionHandler(FabricRequestInvokeException.class)
-    public ErrorDetail handleFabricRequestInvokeException(FabricRequestInvokeException e) {
-        log.info("Request for assign free eris account. " + e.getLocalizedMessage());
-        return buildErrorDetails(e, 40907, e.getMessage());
-    }
+  @ResponseStatus(value = HttpStatus.CONFLICT, reason = "No free eris account")
+  @ExceptionHandler(FabricRequestInvokeException.class)
+  public ErrorDetail handleFabricRequestInvokeException(FabricRequestInvokeException e) {
+    log.info("Request for assign free eris account. " + e.getLocalizedMessage());
+    return buildErrorDetails(e, 40907, e.getMessage());
+  }
 
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(AccountEnrollException.class)
-    public ErrorDetail handleErisContractInstanceNotFound(AccountEnrollException e) {
-        log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(e, 40908, e.getLocalizedMessage());
-    }
+  @ResponseStatus(HttpStatus.CONFLICT)
+  @ExceptionHandler(AccountEnrollException.class)
+  public ErrorDetail handleErisContractInstanceNotFound(AccountEnrollException e) {
+    log.warn(e.getLocalizedMessage());
+    return buildErrorDetails(e, 40908, e.getLocalizedMessage());
+  }
 
-    // 404 NOT FOUND
+  // 404 NOT FOUND
 
-    @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Account not found.")
-    @ExceptionHandler(AccountNotFoundException.class)
-    public void handleNotFound(Exception e) {
-        log.warn("Request for not existed account. " + e.getLocalizedMessage());
-    }
+  @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Account not found.")
+  @ExceptionHandler(AccountNotFoundException.class)
+  public void handleNotFound(Exception e) {
+    log.warn("Request for not existed account. " + e.getLocalizedMessage());
+  }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ErrorDetail handleNoHandlerFoundException(NoHandlerFoundException e) {
-        log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(
-            e,
-            40401,
-            String.format("Endpoint %s not found", e.getRequestURL()));
-    }
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(NoHandlerFoundException.class)
+  public ErrorDetail handleNoHandlerFoundException(NoHandlerFoundException e) {
+    log.warn(e.getLocalizedMessage());
+    return buildErrorDetails(
+        e,
+        40401,
+        String.format("Endpoint %s not found", e.getRequestURL()));
+  }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(TypeNotFoundException.class)
-    public ErrorDetail handleTypeNotFoundException(TypeNotFoundException e) {
-        log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(e, 40407, e.getLocalizedMessage());
-    }
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(TypeNotFoundException.class)
+  public ErrorDetail handleTypeNotFoundException(TypeNotFoundException e) {
+    log.warn(e.getLocalizedMessage());
+    return buildErrorDetails(e, 40407, e.getLocalizedMessage());
+  }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(NotFoundException.class)
-    public ErrorDetail handleNotFoundException(Exception e) {
-        log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(e, 40408, "Record does not exists");
-    }
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(NotFoundException.class)
+  public ErrorDetail handleNotFoundException(Exception e) {
+    log.warn(e.getLocalizedMessage());
+    return buildErrorDetails(e, 40408, "Record does not exists");
+  }
 
-    // 400 BAD REQUEST
+  // 400 BAD REQUEST
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(CouldNotReadFileException.class)
-    public ErrorDetail handleCouldNotReadFileException(CouldNotReadFileException e) {
-        log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(e, 40001, e.getMessage());
-    }
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(CouldNotReadFileException.class)
+  public ErrorDetail handleCouldNotReadFileException(CouldNotReadFileException e) {
+    log.warn(e.getLocalizedMessage());
+    return buildErrorDetails(e, 40001, e.getMessage());
+  }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(WrongMimeTypeException.class)
-    public ErrorDetail handleWrongMimeTypeException(WrongMimeTypeException e) {
-        log.warn(e.getLocalizedMessage());
-        return buildErrorDetails(e, 40002, e.getMessage());
-    }
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(WrongMimeTypeException.class)
+  public ErrorDetail handleWrongMimeTypeException(WrongMimeTypeException e) {
+    log.warn(e.getLocalizedMessage());
+    return buildErrorDetails(e, 40002, e.getMessage());
+  }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ErrorDetail handleIllegalArgumentException(IllegalArgumentException e) {
-        log.warn(e.getLocalizedMessage(), e);
-        return buildErrorDetails(e, 40003, e.getMessage());
-    }
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ErrorDetail handleIllegalArgumentException(IllegalArgumentException e) {
+    log.warn(e.getLocalizedMessage(), e);
+    return buildErrorDetails(e, 40003, e.getMessage());
+  }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ErrorDetail handle(MethodArgumentNotValidException e) {
-        log.info(e.getMessage());
-        String message = e.getBindingResult().getAllErrors().stream()
-                .findFirst()
-                .filter(Objects::nonNull)
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .orElse("");
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ErrorDetail handle(MethodArgumentNotValidException e) {
+    log.info(e.getMessage());
+    String message = e.getBindingResult().getAllErrors().stream()
+        .findFirst()
+        .filter(Objects::nonNull)
+        .map(DefaultMessageSourceResolvable::getDefaultMessage)
+        .orElse("");
 
-        return buildErrorDetails(e, null, message);
-    }
+    return buildErrorDetails(e, null, message);
+  }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(ReflectiveOperationException.class)
-    public ErrorDetail handle(ReflectiveOperationException e) {
-        log.info(e.getMessage());
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  @ExceptionHandler(ReflectiveOperationException.class)
+  public ErrorDetail handle(ReflectiveOperationException e) {
+    log.info(e.getMessage());
 
-        return buildErrorDetails(e, null, e.getLocalizedMessage());
-    }
+    return buildErrorDetails(e, null, e.getLocalizedMessage());
+  }
 
-    private ErrorDetail buildErrorDetails(Exception e, Integer code, String message) {
-        ErrorDetail errorDetail = new ErrorDetail();
-        errorDetail.setTitle("Error");
-        errorDetail.setDetail(message);
-        errorDetail.setCode(code);
-        errorDetail.setDeveloperMessage(e.getClass().getName());
-        return errorDetail;
-    }
+  private ErrorDetail buildErrorDetails(Exception e, Integer code, String message) {
+    ErrorDetail errorDetail = new ErrorDetail();
+    errorDetail.setTitle("Error");
+    errorDetail.setDetail(message);
+    errorDetail.setCode(code);
+    errorDetail.setDeveloperMessage(e.getClass().getName());
+    return errorDetail;
+  }
 }

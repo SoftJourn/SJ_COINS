@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorDetail {
-    private String title;
-    private String detail;
-    private Integer code;
-    private String developerMessage;
+
+  private String title;
+  private String detail;
+  private Integer code;
+  private String developerMessage;
 }

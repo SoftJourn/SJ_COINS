@@ -1,16 +1,13 @@
 package com.softjourn.coin.server.dto;
 
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
 public class BatchTransferDTO {
 
-    private String userId;
-
-    private BigDecimal amount;
-
+  private String userId;
+  private BigDecimal amount;
 }

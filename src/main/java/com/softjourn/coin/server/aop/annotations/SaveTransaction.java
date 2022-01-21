@@ -25,11 +25,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface SaveTransaction {
 
-    String accountName() default "";
+  String accountName() default "";
 
-    String destinationName() default "";
+  String destinationName() default "";
 
-    String comment();
+  String comment();
 
-    TransactionType type();
+  TransactionType type();
 }
