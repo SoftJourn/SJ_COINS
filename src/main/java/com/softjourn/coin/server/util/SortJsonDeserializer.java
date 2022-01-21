@@ -5,9 +5,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.springframework.data.domain.Sort;
-
 import java.io.IOException;
+import org.springframework.data.domain.Sort;
 
 public class SortJsonDeserializer extends JsonDeserializer<Sort> {
 
@@ -23,7 +22,7 @@ public class SortJsonDeserializer extends JsonDeserializer<Sort> {
         if (orders.length == 0) {
             return null;
         }
-        return new Sort(orders);
+        return Sort.by(orders);
     }
 
 }

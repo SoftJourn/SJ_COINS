@@ -1,7 +1,11 @@
 package com.softjourn.coin.server.service;
 
 
-import com.softjourn.coin.server.dto.*;
+import static com.softjourn.coin.server.entity.AccountType.REGULAR;
+
+import com.softjourn.coin.server.dto.BalancesDTO;
+import com.softjourn.coin.server.dto.EnrollResponseDTO;
+import com.softjourn.coin.server.dto.MerchantDTO;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.exceptions.AccountEnrollException;
@@ -10,6 +14,20 @@ import com.softjourn.coin.server.exceptions.AccountWasDeletedException;
 import com.softjourn.coin.server.exceptions.NotFoundException;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.common.auth.OAuthHelper;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -21,18 +39,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.transaction.Transactional;
-import java.io.*;
-import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import static com.softjourn.coin.server.entity.AccountType.REGULAR;
 
 @Service
 @Slf4j
@@ -80,7 +86,7 @@ public class AccountsService {
      * @return list of accounts
      */
     public List<Account> getAll(AccountType accountType) {
-        Sort sort = new Sort(
+        Sort sort = Sort.by(
                 new Sort.Order(Sort.Direction.DESC, "isNew"),
                 new Sort.Order(Sort.Direction.ASC, "fullName"));
 

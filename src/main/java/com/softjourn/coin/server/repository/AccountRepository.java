@@ -15,6 +15,9 @@ import java.util.List;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, String> {
 
+    @Query("SELECT a FROM Account a WHERE a.ldapId = :id")
+    Account findOne(@Param("id") String id);
+
     @Query("SELECT a FROM Account a WHERE a.accountType = :accountType AND a.deleted = false")
     List<Account> getAccountsByType(@Param("accountType") AccountType accountType, Sort sort);
 

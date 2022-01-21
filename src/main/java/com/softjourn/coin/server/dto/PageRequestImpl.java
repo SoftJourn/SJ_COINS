@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PageRequestImpl {
+
     private int size;
     private int page;
     @JsonDeserialize(using = SortJsonDeserializer.class)
@@ -20,9 +21,9 @@ public class PageRequestImpl {
 
     public Pageable toPageable() {
         if (sort == null) {
-            return new PageRequest(page, size);
+            return PageRequest.of(page, size);
         } else {
-            return new PageRequest(page, size, sort);
+            return PageRequest.of(page, size, sort);
         }
     }
 }
