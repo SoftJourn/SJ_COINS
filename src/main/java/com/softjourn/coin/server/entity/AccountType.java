@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.entity;
 
 public enum AccountType {
-    MERCHANT, REGULAR, PROJECT, CURRENCY
+
+  MERCHANT, REGULAR, PROJECT, CURRENCY
 }

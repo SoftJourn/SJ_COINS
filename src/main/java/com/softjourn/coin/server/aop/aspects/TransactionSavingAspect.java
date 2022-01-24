@@ -1,6 +1,5 @@
 package com.softjourn.coin.server.aop.aspects;
 
-
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.Transaction;
@@ -9,116 +8,151 @@ import com.softjourn.coin.server.entity.TransactionType;
 import com.softjourn.coin.server.repository.AccountRepository;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.coin.server.service.CoinService;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import lombok.RequiredArgsConstructor;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Service;
 
 @Aspect
-@Order(value = 100)
 @Service
+@Order(value = 100)
+@RequiredArgsConstructor
 public class TransactionSavingAspect {
 
-    private TransactionRepository transactionRepository;
+  private final TransactionRepository transactionRepository;
+  private final AccountRepository accountRepository;
+  private final CoinService coinService;
 
-    private AccountRepository accountRepository;
+  @Around("@annotation(com.softjourn.coin.server.aop.annotations.SaveTransaction)")
+  public Object saveTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
+    Transaction transaction = new Transaction();
+    try {
+      Object callingResult = joinPoint.proceed();
+      if (callingResult instanceof Transaction) {
+        transaction = (Transaction) callingResult;
+      }
 
-    private CoinService coinService;
+      fillTransaction(transaction, joinPoint);
+      transaction.setStatus(TransactionStatus.SUCCESS);
+      setRemainAmount(joinPoint, transaction);
 
-    @Autowired
-    public TransactionSavingAspect(TransactionRepository transactionRepository, AccountRepository accountRepository, CoinService coinService) {
-        this.transactionRepository = transactionRepository;
-        this.accountRepository = accountRepository;
-        this.coinService = coinService;
+      return callingResult instanceof Transaction
+          ? transactionRepository.save(transaction)
+          : callingResult;
+    } catch (Throwable e) {
+      transaction.setStatus(TransactionStatus.FAILED);
+      transaction.setError(e.getLocalizedMessage());
+      fillTransaction(transaction, joinPoint);
+      throw e;
+    } finally {
+      transactionRepository.save(transaction);
     }
+  }
 
-    @Around("@annotation(com.softjourn.coin.server.aop.annotations.SaveTransaction)")
-    public Object saveTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
-        Transaction transaction = new Transaction();
-        try {
-            Object callingResult = joinPoint.proceed();
-            if (callingResult instanceof Transaction) {
-                transaction = (Transaction) callingResult;
-            }
-            fillTransaction(transaction, joinPoint);
-            transaction.setStatus(TransactionStatus.SUCCESS);
-            setRemainAmount(joinPoint, transaction);
-            return callingResult instanceof Transaction ? transactionRepository.save(transaction) : callingResult;
-        } catch (Throwable e) {
-            transaction.setStatus(TransactionStatus.FAILED);
-            transaction.setError(e.getLocalizedMessage());
-            fillTransaction(transaction, joinPoint);
-            throw e;
-        } finally {
-            transactionRepository.save(transaction);
-        }
-    }
+  /**
+   * Fill transaction with data, determined from joint point data.
+   *
+   * @param transaction Transaction to mutate.
+   * @param joinPoint Joint point to read data from.
+   */
+  private void fillTransaction(Transaction transaction, ProceedingJoinPoint joinPoint) {
+    Account accountName = getArgOrAnnotationValue(
+        joinPoint,
+        "accountName",
+        SaveTransaction::accountName,
+        accountRepository::findOne);
+    replaceIfNull(transaction::getAccount, transaction::setAccount, accountName);
 
-    private void fillTransaction(Transaction transaction, ProceedingJoinPoint joinPoint) {
-        Account accountName = getArgOrAnnotationValue(joinPoint, "accountName", SaveTransaction::accountName, accountRepository::findOne);
-        replaceIfNull(transaction::getAccount, transaction::setAccount, accountName);
-        Account destinationName = getArgOrAnnotationValue(joinPoint, "destinationName", SaveTransaction::destinationName, accountRepository::findOne);
-        replaceIfNull(transaction::getDestination, transaction::setDestination, destinationName);
-        BigDecimal amount = getArg(joinPoint, "amount", BigDecimal.class);
-        replaceIfNull(transaction::getAmount, transaction::setAmount, amount);
-        String comment = getArgOrAnnotationValue(joinPoint, "comment", SaveTransaction::comment, Function.identity());
-        replaceIfNull(transaction::getComment, transaction::setComment, comment);
-        TransactionType type = getArgOrAnnotationValueToObject(joinPoint, "type", SaveTransaction::type, TransactionType.class);
-        replaceIfNull(transaction::getType, transaction::setType, type);
-        transaction.setCreated(Instant.now());
-    }
+    Account destinationName = getArgOrAnnotationValue(
+        joinPoint,
+        "destinationName",
+        SaveTransaction::destinationName,
+        accountRepository::findOne);
+    replaceIfNull(transaction::getDestination, transaction::setDestination, destinationName);
 
-    private <T> void replaceIfNull(Supplier<T> getter, Consumer<T> setter, T value) {
-        if (getter.get() == null) {
-            setter.accept(value);
-        }
-    }
+    BigDecimal amount = getArg(joinPoint, "amount", BigDecimal.class);
+    replaceIfNull(transaction::getAmount, transaction::setAmount, amount);
 
-    private void setRemainAmount(ProceedingJoinPoint joinPoint, Transaction transaction) {
-        String accName = Optional.ofNullable(transaction.getAccount())
-                .map(Account::getEmail)
-                .orElseGet(() -> getArg(joinPoint, "accountName", String.class));
-        if (accName != null) {
-            transaction.setRemain(coinService.getAmount(accName));
-        }
-    }
+    String comment = getArgOrAnnotationValue(
+        joinPoint,
+        "comment",
+        SaveTransaction::comment,
+        Function.identity());
+    replaceIfNull(transaction::getComment, transaction::setComment, comment);
 
-    private <R> R getArgOrAnnotationValue(ProceedingJoinPoint joinPoint, String argName,
-                                          Function<SaveTransaction, String> transactionGetter, Function<String, R> converter) {
-        SaveTransaction annotation = ((MethodSignature) joinPoint.getSignature()).getMethod().getAnnotation(SaveTransaction.class);
-        String argValue = getArg(joinPoint, argName, String.class);
-        String annotationValue = transactionGetter.apply(annotation);
-        return converter.apply(argValue == null ? annotationValue : argValue);
-    }
+    TransactionType type = getArgOrAnnotationValueToObject(
+        joinPoint,
+        "type",
+        SaveTransaction::type,
+        TransactionType.class);
+    replaceIfNull(transaction::getType, transaction::setType, type);
 
-    private <R> R getArgOrAnnotationValueToObject(ProceedingJoinPoint joinPoint, String argName,
-                                                  Function<SaveTransaction, R> transactionGetter, Class<? extends R> clazz) {
-        SaveTransaction annotation = ((MethodSignature) joinPoint.getSignature()).getMethod().getAnnotation(SaveTransaction.class);
-        R argValue = getArg(joinPoint, argName, clazz);
-        R annotationValue = transactionGetter.apply(annotation);
-        return argValue == null ? annotationValue : argValue;
-    }
+    transaction.setCreated(Instant.now());
+  }
 
-    @SuppressWarnings("unchecked")
-    private <T> T getArg(ProceedingJoinPoint joinPoint, String name, Class<? extends T> clazz) {
-        MethodSignature signature = ((MethodSignature) joinPoint.getSignature());
-        String[] names = signature.getParameterNames();
-        Object[] arguments = joinPoint.getArgs();
-        for (int i = 0; i < arguments.length; i++) {
-            if (names[i].equalsIgnoreCase(name) && clazz.isInstance(arguments[i])) {
-                return (T) arguments[i];
-            }
-        }
-        return null;
+  private <T> void replaceIfNull(Supplier<T> getter, Consumer<T> setter, T value) {
+    if (Objects.isNull(getter.get())) {
+      setter.accept(value);
     }
+  }
+
+  private void setRemainAmount(ProceedingJoinPoint joinPoint, Transaction transaction) {
+    String accName = Optional.ofNullable(transaction.getAccount())
+        .map(Account::getEmail)
+        .orElseGet(() -> getArg(joinPoint, "accountName", String.class));
+    if (Objects.nonNull(accName)) {
+      transaction.setRemain(coinService.getAmount(accName));
+    }
+  }
+
+  /**
+   * Get entity by arg name or through SaveTransaction annotation properties.
+   *
+   * @param joinPoint Joint point.
+   * @param argName Argument name.
+   * @param transactionGetter Getter for SaveTransaction.
+   * @param converter Converter from entity identifier to entity object.
+   * @param <R> Derived return type.
+   * @return Object got from converter.
+   */
+  private <R> R getArgOrAnnotationValue(ProceedingJoinPoint joinPoint, String argName,
+      Function<SaveTransaction, String> transactionGetter, Function<String, R> converter) {
+    SaveTransaction annotation = ((MethodSignature) joinPoint
+        .getSignature()).getMethod().getAnnotation(SaveTransaction.class);
+    String argValue = getArg(joinPoint, argName, String.class);
+    String annotationValue = transactionGetter.apply(annotation);
+    return converter.apply(argValue == null ? annotationValue : argValue);
+  }
+
+  private <R> R getArgOrAnnotationValueToObject(ProceedingJoinPoint joinPoint, String argName,
+      Function<SaveTransaction, R> transactionGetter, Class<? extends R> clazz) {
+    SaveTransaction annotation = ((MethodSignature) joinPoint
+        .getSignature()).getMethod().getAnnotation(SaveTransaction.class);
+    R argValue = getArg(joinPoint, argName, clazz);
+    R annotationValue = transactionGetter.apply(annotation);
+    return argValue == null ? annotationValue : argValue;
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> T getArg(ProceedingJoinPoint joinPoint, String name, Class<? extends T> clazz) {
+    MethodSignature signature = ((MethodSignature) joinPoint.getSignature());
+    String[] names = signature.getParameterNames();
+    Object[] arguments = joinPoint.getArgs();
+    for (int i = 0; i < arguments.length; i++) {
+      if (names[i].equalsIgnoreCase(name) && clazz.isInstance(arguments[i])) {
+        return (T) arguments[i];
+      }
+    }
+    return null;
+  }
 }

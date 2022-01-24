@@ -1,5 +1,33 @@
 # SJ Coin server
 
+## Prepare stage
+#### Setup environment variables.
+```
+SJ_COINS_SERVER_DATASOURCE_URL=jdbc:mysql://localhost:3306/sj_coins?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false
+SJ_COINS_SERVER_DATASOURCE_USERNAME=sj
+SJ_COINS_SERVER_DATASOURCE_PASSWORD=password
+SJ_COINS_SERVER_LOGGING_CONFIG_FILE=/path/to/coins/logback.xml
+SJ_COINS_SERVER_IMAGE_PATH=/path/to/coins/images
+SJ_COINS_SERVER_AUTH_SERVER_URL=http://127.0.0.1:8081
+SJ_COINS_SERVER_AUTH_CLIENT_ID=coins_server
+SJ_COINS_SERVER_AUTH_CLIENT_SECRET=x5VLts24E63Q5TXU23dMrSeU
+SJ_COINS_SERVER_FABRIC_CLIENT_URL=http://localhost:4000/
+SJ_COINS_SERVER_AUTH_PUBKEY_PATH=/path/to/coins/auth.pub
+```
+Or with export:
+```
+export SJ_COINS_SERVER_DATASOURCE_URL='jdbc:mysql://localhost:3306/sj_coins?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false'
+export SJ_COINS_SERVER_DATASOURCE_USERNAME='sj'
+export SJ_COINS_SERVER_DATASOURCE_PASSWORD='password'
+export SJ_COINS_SERVER_LOGGING_CONFIG_FILE='/path/to/coins/logback.xml'
+export SJ_COINS_SERVER_IMAGE_PATH='/path/to/coins/images'
+export SJ_COINS_SERVER_AUTH_SERVER_URL='http://127.0.0.1:8081'
+export SJ_COINS_SERVER_AUTH_CLIENT_ID='coins_server'
+export SJ_COINS_SERVER_AUTH_CLIENT_SECRET='x5VLts24E63Q5TXU23dMrSeU'
+export SJ_COINS_SERVER_FABRIC_CLIENT_URL='http://localhost:4000/'
+export SJ_COINS_SERVER_AUTH_PUBKEY_PATH='/path/to/coins/auth.pub'
+```
+
 ## Start up documentation
 
 ### Step 1: Create databases structure

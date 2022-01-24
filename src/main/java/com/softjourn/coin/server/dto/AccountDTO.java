@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AccountDTO {
 
-    private String ldap;
-    private String email;
+  private String ldap;
+  private String email;
 }

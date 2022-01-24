@@ -5,360 +5,580 @@
 
 	<groupId>com.softjourn</groupId>
 	<artifactId>coin-server</artifactId>
-    <version>2.0.0</version>
+  <version>2.1.0</version>
 	<packaging>war</packaging>
 
-	<name>coin-server</name>
-	<description>Demo project for Spring Boot</description>
+  <name>coin-server</name>
+	<description>Coin server</description>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
-        <spring.boot.version>1.4.1.RELEASE</spring.boot.version>
-    </properties>
+  <properties>
+    <com.fasterxml.jackson.version>2.13.1</com.fasterxml.jackson.version>
+    <com.google.zxing.core.version>3.4.1</com.google.zxing.core.version>
+    <com.jayway.jsonpath.json-path.version>2.6.0</com.jayway.jsonpath.json-path.version>
+    <com.neovisionaries.nv-websocket-client.version>2.14</com.neovisionaries.nv-websocket-client.version>
+    <com.softjourn.common.version>0.4.4</com.softjourn.common.version>
+    <commons-codec.commons-codec.version>1.15</commons-codec.commons-codec.version>
+    <commons-fileupload.commons-fileupload.version>1.4</commons-fileupload.commons-fileupload.version>
+    <java.version>11</java.version>
+    <mysql.mysql-connector-java.version>8.0.28</mysql.mysql-connector-java.version>
+    <org.apache.commons.commons-io.version>1.3.2</org.apache.commons.commons-io.version>
+    <org.apache.httpcomponents.httpclient.version>4.5.13</org.apache.httpcomponents.httpclient.version>
+    <org.apache.poi.poi.version>5.2.0</org.apache.poi.poi.version>
+    <org.codehaus.groovy.groovy.verion>2.4.7</org.codehaus.groovy.groovy.verion>
+    <org.flywaydb.version>8.4.1</org.flywaydb.version>
+    <org.hibernate.validator.hibernate-validator.version>7.0.2.Final</org.hibernate.validator.hibernate-validator.version>
+    <org.hibernate.version>5.6.4.Final</org.hibernate.version>
+    <org.hsqldb.hsqldb.version>2.6.1</org.hsqldb.hsqldb.version>
+    <org.mockito.mockito-all.version>1.10.19</org.mockito.mockito-all.version>
+    <org.powermock.powermock-api-mockito.version>1.7.4</org.powermock.powermock-api-mockito.version>
+    <org.powermock.powermock-module-junit4.version>2.0.9</org.powermock.powermock-module-junit4.version>
+    <org.projectlombok.version>1.18.22</org.projectlombok.version>
+    <org.skyscreamer.jsonassert.version>1.5.0</org.skyscreamer.jsonassert.version>
+    <org.springframework.boot.version>2.6.3</org.springframework.boot.version>
+    <org.springframework.restdocs.version>2.0.6.RELEASE</org.springframework.restdocs.version>
+    <org.springframework.security.spring-security-jwt.version>1.1.1.RELEASE</org.springframework.security.spring-security-jwt.version>
+    <org.springframework.security.spring-security-test.version>5.6.1</org.springframework.security.spring-security-test.version>
+    <org.springframework.security.oauth.spring-security-oauth2.version>2.5.1.RELEASE</org.springframework.security.oauth.spring-security-oauth2.version>
+    <org.springframework.version>5.3.14</org.springframework.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
 	<parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.4.1.RELEASE</version>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.6.2</version>
 	</parent>
 
-
+  <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${com.fasterxml.jackson.version}</version>
+      </dependency>
 
-		<dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${com.fasterxml.jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${com.fasterxml.jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-csv</artifactId>
+        <version>${com.fasterxml.jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.zxing</groupId>
+        <artifactId>core</artifactId>
+        <version>${com.google.zxing.core.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.jayway.jsonpath</groupId>
+        <artifactId>json-path</artifactId>
+        <version>${com.jayway.jsonpath.json-path.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.neovisionaries</groupId>
+        <artifactId>nv-websocket-client</artifactId>
+        <version>${com.neovisionaries.nv-websocket-client.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.softjourn</groupId>
+        <artifactId>common</artifactId>
+        <version>${com.softjourn.common.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons-codec.commons-codec.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>${commons-fileupload.commons-fileupload.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${mysql.mysql-connector-java.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${org.apache.commons.commons-io.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${org.apache.httpcomponents.httpclient.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi</artifactId>
+        <version>${org.apache.poi.poi.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy</artifactId>
+        <version>${org.codehaus.groovy.groovy.verion}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+        <version>${org.flywaydb.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-mysql</artifactId>
+        <version>${org.flywaydb.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>${org.hibernate.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-entitymanager</artifactId>
+        <version>${org.hibernate.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hibernate.validator</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>${org.hibernate.validator.hibernate-validator.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hsqldb</groupId>
+        <artifactId>hsqldb</artifactId>
+        <version>${org.hsqldb.hsqldb.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-all</artifactId>
+        <version>${org.mockito.mockito-all.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-module-junit4</artifactId>
+        <version>${org.powermock.powermock-module-junit4.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-api-mockito</artifactId>
+        <version>${org.powermock.powermock-api-mockito.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${org.projectlombok.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.skyscreamer</groupId>
+        <artifactId>jsonassert</artifactId>
+        <version>${org.skyscreamer.jsonassert.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+        <version>${org.springframework.boot.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+        <version>${org.springframework.boot.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <version>${org.springframework.boot.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-tomcat</artifactId>
+        <version>${org.springframework.boot.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <version>${org.springframework.boot.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.restdocs</groupId>
+        <artifactId>spring-restdocs-core</artifactId>
+        <version>${org.springframework.restdocs.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.restdocs</groupId>
+        <artifactId>spring-restdocs-mockmvc</artifactId>
+        <version>${org.springframework.restdocs.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-jwt</artifactId>
+        <version>${org.springframework.security.spring-security-jwt.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-test</artifactId>
+        <version>${org.springframework.security.spring-security-test.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security.oauth</groupId>
+        <artifactId>spring-security-oauth2</artifactId>
+        <version>${org.springframework.security.oauth.spring-security-oauth2.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-csv</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.zxing</groupId>
+      <artifactId>core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.jayway.jsonpath</groupId>
+      <artifactId>json-path</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.neovisionaries</groupId>
+      <artifactId>nv-websocket-client</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.softjourn</groupId>
+      <artifactId>common</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-mysql</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-            <version>1.16.6</version>
 		</dependency>
 
+    <dependency>
+      <groupId>org.skyscreamer</groupId>
+      <artifactId>jsonassert</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>${org.springframework.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-entitymanager</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-tomcat</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.restdocs</groupId>
+      <artifactId>spring-restdocs-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.restdocs</groupId>
+      <artifactId>spring-restdocs-mockmvc</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-jwt</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcpkix-jdk15on</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security.oauth</groupId>
+      <artifactId>spring-security-oauth2</artifactId>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>dev</id>
+      <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-            <version>${spring.boot.version}</version>
-            <scope>provided</scope>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
         </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 
-        <dependency>
-            <groupId>com.softjourn</groupId>
-            <artifactId>common</artifactId>
-            <version>0.4.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>core</artifactId>
-            <version>3.3.0</version>
-        </dependency>
-
-        <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-csv</artifactId>
-        </dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.hibernate</groupId>
-					<artifactId>hibernate-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.hibernate</groupId>
-					<artifactId>hibernate-entitymanager</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>5.1.0.Final</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>5.1.0.Final</version>
-		</dependency>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-java8</artifactId>
-            <version>5.1.0.Final</version>
-        </dependency>
-
-		<dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-            <version>4.2.6.RELEASE</version>
-        </dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
-        <dependency>
-            <groupId>org.springframework.security.oauth</groupId>
-            <artifactId>spring-security-oauth2</artifactId>
-            <version>2.0.11.RELEASE</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-jwt</artifactId>
-            <version>1.0.2.RELEASE</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.8.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.8.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.8.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.10</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.3.6</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>1.3.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.3.2</version>
-        </dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<version>${spring.boot.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.3.3</version>
-			<scope>test</scope>
-		</dependency>
-
-        <dependency>
-            <groupId>com.neovisionaries</groupId>
-            <artifactId>nv-websocket-client</artifactId>
-            <version>1.30</version>
-        </dependency>
-
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>6.0.5</version>
-		</dependency>
-
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
-            <version>2.4.7</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.skyscreamer</groupId>
-            <artifactId>jsonassert</artifactId>
-            <version>1.2.3</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>1.6.5</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>1.6.5</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.restdocs</groupId>
-            <artifactId>spring-restdocs-core</artifactId>
-            <version>1.1.0.RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.restdocs</groupId>
-            <artifactId>spring-restdocs-mockmvc</artifactId>
-            <version>1.1.0.RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <version>4.1.1.RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>4.1.2</version>
-        </dependency>
-
-    </dependencies>
-
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
-
-
-    <build>
+  <build>
 		<plugins>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>2.6</version>
+				<version>3.3.2</version>
 				<configuration>
 					<warName>coins</warName>
 				</configuration>
 			</plugin>
 
-            <plugin>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok-maven-plugin</artifactId>
-                <version>1.16.6.1</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>delombok</goal>
-                        </goals>
-                        <configuration>
-                            <encoding>utf8</encoding>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+      <plugin>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok-maven-plugin</artifactId>
+        <version>1.18.20.0</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>delombok</goal>
+            </goals>
+            <configuration>
+              <encoding>utf8</encoding>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
-            <plugin>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctor-maven-plugin</artifactId>
-                <version>1.5.3</version>
-                <executions>
-                    <execution>
-                        <id>generate-docs</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>process-asciidoc</goal>
-                        </goals>
-                        <configuration>
-                            <backend>html</backend>
-                            <doctype>book</doctype>
-                            <attributes>
-                                <snippets>${project.build.directory}/generated-snippets</snippets>
-                            </attributes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+      <plugin>
+        <groupId>org.asciidoctor</groupId>
+        <artifactId>asciidoctor-maven-plugin</artifactId>
+        <version>2.2.1</version>
+        <executions>
+          <execution>
+            <id>generate-docs</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>process-asciidoc</goal>
+            </goals>
+            <configuration>
+              <backend>html</backend>
+              <doctype>book</doctype>
+              <attributes>
+                <snippets>${project.build.directory}/generated-snippets</snippets>
+              </attributes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <copy file="${project.build.directory}/generated-docs/coin-api.html" tofile="src/main/docs/coins.html" overwrite="true"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+              <target>
+                <copy file="${project.build.directory}/generated-docs/coin-api.html" tofile="src/main/docs/coins.html" overwrite="true"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.5</version>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>addTestSources</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>1.13.1</version>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <goals>
+              <goal>addTestSources</goal>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
 	</build>
-
-
 </project>

@@ -1,0 +1,73 @@
+# Spring
+# For custom endpoint exception handling
+spring:
+  # Profile
+  profiles:
+    active: dev
+  # Datasource
+  datasource:
+    # Database
+    url: ${SJ_COINS_SERVER_DATASOURCE_URL}
+    username: ${SJ_COINS_SERVER_DATASOURCE_USERNAME}
+    password: ${SJ_COINS_SERVER_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    tomcat:
+      test-while-idle: true
+      time-between-eviction-runs-millis: 3600000
+      validation-query: SELECT 1
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5Dialect
+    hibernate:
+      ddl-auto: validate
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+    show-sql: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: false
+  flyway:
+    baseline-on-migrate: true
+    ignore-future-migration: true
+    ignore-missing-migration: true
+
+#seconds
+eris:
+  transaction:
+    collector:
+      interval: 2
+
+logging:
+  config: file:${SJ_COINS_SERVER_LOGGING_CONFIG_FILE}
+
+image:
+  storage:
+    path: ${SJ_COINS_SERVER_IMAGE_PATH}
+  account:
+    default: /account/default.png
+
+# Auth
+auth:
+  server:
+    url: ${SJ_COINS_SERVER_AUTH_SERVER_URL}
+  client:
+    client-id: ${SJ_COINS_SERVER_AUTH_CLIENT_ID}
+    client-secret: ${SJ_COINS_SERVER_AUTH_CLIENT_SECRET}
+
+node:
+  fabric:
+    client: ${SJ_COINS_SERVER_FABRIC_CLIENT_URL}
+
+org:
+  name: coins # Note: It can be placed in environment variable.
+
+treasury:
+  account: sj_coin # Note: It can be placed in environment variable.
+
+monax:
+  backup: /Users/vlad/Job/.config/coins/account_balance.json # TODO: Do we still need this?
+
+# Auth
+authPublicKeyFile: ${SJ_COINS_SERVER_AUTH_PUBKEY_PATH}

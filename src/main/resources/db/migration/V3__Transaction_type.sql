@@ -1,9 +1,9 @@
-ALTER TABLE transactions ADD COLUMN type varchar(32);
+-- ALTER TABLE transactions ADD COLUMN type varchar(32);
 
-UPDATE transactions
-SET type = 'EXPENSE'
-WHERE transactions.destination_ldap_id in (SELECT account_ldap_id from instances) and transactions.type IS NULL
-and transactions.account_ldap_id IS NOT NULL;
+-- UPDATE transactions
+-- SET type = 'EXPENSE'
+-- WHERE transactions.destination_ldap_id in (SELECT account_ldap_id from instances) and transactions.type IS NULL
+-- and transactions.account_ldap_id IS NOT NULL;
 
 UPDATE transactions
 SET type = 'EXPENSE'
