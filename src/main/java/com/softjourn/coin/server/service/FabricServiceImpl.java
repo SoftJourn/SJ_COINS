@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.service;
 
+import com.softjourn.coin.server.config.ApplicationProperties;
 import com.softjourn.coin.server.dto.EnrollResponseDTO;
 import com.softjourn.coin.server.entity.enums.Chaincode;
 import com.softjourn.coin.server.exceptions.AccountEnrollException;
@@ -11,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,22 +25,19 @@ import org.springframework.web.client.RestTemplate;
 public class FabricServiceImpl implements FabricService {
 
   private final String url;
-  private final String organization;
-
   private final RestTemplate template;
+  private final ApplicationProperties applicationProperties;
 
   @Autowired
-  public FabricServiceImpl(
-      @Value("${node.fabric.client}") String url, @Value("${org.name}") String organization,
-      RestTemplate template
-  ) {
-    this.url = url;
-    this.organization = organization;
+  public FabricServiceImpl(RestTemplate template, ApplicationProperties applicationProperties) {
     this.template = template;
+    this.applicationProperties = applicationProperties;
+    this.url = applicationProperties.getFabric().getClientUrl();
 
     List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
     MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-    converter.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON_UTF8));
+    converter.setSupportedMediaTypes(
+        Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON_UTF8));
     messageConverters.add(converter);
     template.setMessageConverters(messageConverters);
   }
@@ -52,7 +49,7 @@ public class FabricServiceImpl implements FabricService {
 
     Map<String, String> request = new HashMap<>();
     request.put("username", email);
-    request.put("orgName", organization);
+    request.put("orgName", applicationProperties.getOrganisation().getName());
 
     HttpEntity<?> httpEntity = new HttpEntity<Object>(request, headers);
     try {

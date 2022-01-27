@@ -11,9 +11,9 @@ import com.softjourn.common.auth.OAuthHelper;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.UrlResource;
@@ -29,10 +29,10 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
+@RequiredArgsConstructor
 public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
 
-  @Value("${authPublicKeyFile}")
-  private String authPublicKeyFile;
+  private final ApplicationProperties applicationProperties;
 
   @Bean
   public Module springDataPageModule() {
@@ -63,16 +63,18 @@ public class CoinsConfiguration extends ResourceServerConfigurerAdapter {
   }
 
   @Bean
-  public OAuthHelper oAuthHelper(@Value("${auth.client.client-id}") String clientId,
-      @Value("${auth.client.client-secret}") String clientSecret,
-      @Value("${auth.server.url}") String authServerUrl) {
-    return new OAuthHelper(clientId, clientSecret, authServerUrl, new RestTemplate());
+  public OAuthHelper oAuthHelper() {
+    return new OAuthHelper(
+        applicationProperties.getAuth().getClient().getId(),
+        applicationProperties.getAuth().getClient().getSecret(),
+        applicationProperties.getAuth().getServer().getUrl(),
+        new RestTemplate());
   }
 
   @Bean
   public JwtAccessTokenConverter accessTokenConverter() {
     JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-    String publicKey = readPublicKey(authPublicKeyFile);
+    String publicKey = readPublicKey(applicationProperties.getAuth().getPublicKeyFile());
     converter.setVerifierKey(publicKey);
     return converter;
   }

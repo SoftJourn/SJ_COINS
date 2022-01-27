@@ -5,6 +5,7 @@ import static com.softjourn.coin.server.entity.TransactionType.TRANSFER;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
+import com.softjourn.coin.server.config.ApplicationProperties;
 import com.softjourn.coin.server.dto.BatchTransferDTO;
 import com.softjourn.coin.server.dto.InvokeResponseDTO;
 import com.softjourn.coin.server.entity.Account;
@@ -12,7 +13,6 @@ import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
-import com.softjourn.coin.server.repository.TransactionRepository;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -22,7 +22,6 @@ import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -30,16 +29,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DonationsService {
 
-  @Value("${treasury.account}")
-  private String treasuryAccount;
+  private final ApplicationProperties applicationProperties;
   private final AccountsService accountsService;
   private final FabricService fabricService;
-  private final TransactionRepository transactionRepository;
   private final Map<String, String> monitors = new HashMap<>();
 
   public BigDecimal getAmount(String projectId) {
     InvokeResponseDTO.Balance balanceOf = fabricService.query(
-        treasuryAccount,
+        applicationProperties.getTreasury().getAccount(),
         "balanceOf",
         new String[]{"project_", projectId},
         InvokeResponseDTO.Balance.class
@@ -111,9 +108,12 @@ public class DonationsService {
     checkAmountIsPositive(amount);
 
     InvokeResponseDTO.Balance refund = fabricService.invoke(
-        treasuryAccount,
+        applicationProperties.getTreasury().getAccount(),
         "refund",
-        new String[]{projectId, treasuryAccount, amount.toBigInteger().toString()},
+        new String[]{
+            projectId,
+            applicationProperties.getTreasury().getAccount(),
+            amount.toBigInteger().toString()},
         InvokeResponseDTO.Balance.class
     );
 
@@ -148,7 +148,7 @@ public class DonationsService {
     }
 
     InvokeResponseDTO.Balance batchRefund = fabricService.invoke(
-        treasuryAccount,
+        applicationProperties.getTreasury().getAccount(),
         "batchRefund",
         new String[]{projectId, values},
         InvokeResponseDTO.Balance.class

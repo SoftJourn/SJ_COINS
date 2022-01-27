@@ -7,6 +7,7 @@ import static com.softjourn.coin.server.entity.TransactionType.SINGLE_REPLENISHM
 import static com.softjourn.coin.server.entity.TransactionType.TRANSFER;
 
 import com.softjourn.coin.server.aop.annotations.SaveTransaction;
+import com.softjourn.coin.server.config.ApplicationProperties;
 import com.softjourn.coin.server.dto.BalancesDTO;
 import com.softjourn.coin.server.dto.InvokeResponseDTO;
 import com.softjourn.coin.server.dto.TransferRequest;
@@ -30,7 +31,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -44,10 +44,8 @@ public class CoinService {
   private final AccountsService accountsService;
   private final FabricService fabricService;
   private final TransactionRepository transactionRepository;
-
-  @Value("${treasury.account}")
-  private String treasuryAccount;
-  private Map<String, String> monitors = new HashMap<>();
+  private final ApplicationProperties applicationProperties;
+  private final Map<String, String> monitors = new HashMap<>();
 
   /**
    * Fill account.
@@ -69,7 +67,7 @@ public class CoinService {
 
       log.info(account.getEmail());
       InvokeResponseDTO transfer = fabricService.invoke(
-          treasuryAccount,
+          applicationProperties.getTreasury().getAccount(),
           Chaincode.COINS,
           FabricCoinsFunction.TRANSFER.getName(),
           new String[]{USER_PREFIX, account.getEmail(), amount.toBigInteger().toString()},
@@ -107,7 +105,7 @@ public class CoinService {
         .collect(Collectors.toList());
 
     InvokeResponseDTO distribute = fabricService.invoke(
-        treasuryAccount,
+        applicationProperties.getTreasury().getAccount(),
         FabricCoinsFunction.BATCH_TRANSFER.getName(),
         transferRequests,
         InvokeResponseDTO.class);
@@ -185,7 +183,7 @@ public class CoinService {
         .collect(Collectors.toList());
 
     InvokeResponseDTO.Balances balanceOf = fabricService.query(
-        treasuryAccount,
+        applicationProperties.getTreasury().getAccount(),
         FabricCoinsFunction.BATCH_BALANCE_OF.getName(),
         emails,
         InvokeResponseDTO.Balances.class);
@@ -198,7 +196,7 @@ public class CoinService {
    * @return Treasury amount.
    */
   public BigDecimal getTreasuryAmount() {
-    return getAmount(treasuryAccount);
+    return getAmount(applicationProperties.getTreasury().getAccount());
   }
 
   /**
@@ -297,7 +295,8 @@ public class CoinService {
       throw new NotEnoughAmountInAccountException();
     }
 
-    InvokeResponseDTO.Balance move = move(account.getEmail(), treasuryAccount, amount);
+    InvokeResponseDTO.Balance move =
+        move(account.getEmail(), applicationProperties.getTreasury().getAccount(), amount);
 
     return Transaction.builder()
         .transactionId(move.getTransactionID())

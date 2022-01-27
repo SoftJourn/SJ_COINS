@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.service;
 
+import com.softjourn.coin.server.config.ApplicationProperties;
 import com.softjourn.coin.server.dto.AllowanceRequestDTO;
 import com.softjourn.coin.server.dto.CreateFoundationProjectDTO;
 import com.softjourn.coin.server.dto.FilterDTO;
@@ -33,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -44,12 +44,7 @@ public class FoundationService {
 
   private final FabricService fabricService;
   private final AccountsService accountsService;
-
-  @Value("${treasury.account}")
-  private String treasuryAccount;
-
-  @Value("${image.path:/static/images/project}")
-  private String imagePath;
+  private final ApplicationProperties applicationProperties;
 
   /**
    * Create new foundation project.
@@ -149,7 +144,7 @@ public class FoundationService {
    */
   public List<FoundationViewDTO> getAll() {
     InvokeResponseDTO.FoundationViewList response = fabricService.query(
-        treasuryAccount,
+        applicationProperties.getTreasury().getAccount(),
         Chaincode.FOUNDATION,
         FabricFoundationsFunction.GET_ALL.getName(),
         new FilterDTO(
@@ -303,7 +298,8 @@ public class FoundationService {
    * @return
    */
   public byte[] getImage(String uri) {
-    String fullPath = getClass().getResource(imagePath).getPath() + "/" + uri;
+    String fullPath = getClass()
+        .getResource(applicationProperties.getImage().getStorage().getPath()).getPath() + "/" + uri;
     File file = new File(fullPath);
     InputStream in;
     try {

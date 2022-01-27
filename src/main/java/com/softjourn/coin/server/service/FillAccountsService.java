@@ -6,6 +6,7 @@ import static com.softjourn.coin.server.util.Util.validateMultipartFileMimeType;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.softjourn.coin.server.config.ApplicationProperties;
 import com.softjourn.coin.server.dto.AccountFillDTO;
 import com.softjourn.coin.server.dto.BatchTransferDTO;
 import com.softjourn.coin.server.dto.InvokeResponseDTO;
@@ -26,7 +27,6 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,6 +39,7 @@ public class FillAccountsService {
   private final FabricService fabricService;
   private final AccountsService accountsService;
   private final TransactionRepository transactionRepository;
+  private final ApplicationProperties applicationProperties;
 
   public void fillAccounts(MultipartFile multipartFile) {
     // is file valid
@@ -60,7 +61,7 @@ public class FillAccountsService {
             map(FillAccountsService::apply).collect(Collectors.toList());
         ObjectMapper mapper = new ObjectMapper();
         InvokeResponseDTO batchTransfer = fabricService.
-            invoke(coinService.getTreasuryAccount(),
+            invoke(applicationProperties.getTreasury().getAccount(),
                 "batchTransfer",
                 new String[]{mapper.writeValueAsString(requestArray)}, InvokeResponseDTO.class);
         saveTransactions(accountsToFill, batchTransfer);
