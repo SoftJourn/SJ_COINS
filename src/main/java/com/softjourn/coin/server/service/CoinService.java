@@ -47,7 +47,7 @@ public class CoinService {
 
   @Value("${treasury.account}")
   private String treasuryAccount;
-  private Map<String, String> monitors = new HashMap<>();
+  private final Map<String, String> monitors = new HashMap<>();
 
   /**
    * Fill account.
@@ -70,7 +70,7 @@ public class CoinService {
       log.info(account.getEmail());
       InvokeResponseDTO transfer = fabricService.invoke(
           treasuryAccount,
-          Chaincode.COINS,
+//          Chaincode.COINS, //TODO Uncomment when SJ_COINS_FABRIC API will support chaincode parameter
           FabricCoinsFunction.TRANSFER.getName(),
           new String[]{USER_PREFIX, account.getEmail(), amount.toBigInteger().toString()},
           InvokeResponseDTO.class);

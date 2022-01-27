@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `accounts` (
   `is_new` bit(1) NOT NULL DEFAULT b'1',
   `account_type` varchar(255) DEFAULT NULL,
   `deleted` bit(1) NOT NULL DEFAULT b'0',
+  `email` varchar(255) NOT NULL,
   PRIMARY KEY (`ldap_id`),
   KEY `ldap_id` (`ldap_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
@@ -116,7 +117,8 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   `status` varchar(32) NOT NULL,
   `error` text,
   `remain` decimal(19,2) DEFAULT NULL,
-  `eris_transaction_id` varchar(255) DEFAULT NULL,
+  `transaction_id` varchar(255) DEFAULT NULL,
+  `type` varchar(32) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK20w7wsg13u9srbq3bd7chfxdh` (`account_ldap_id`),
   KEY `FKcsb0kdvsdj55hikqj3unk926t` (`destination_ldap_id`)
