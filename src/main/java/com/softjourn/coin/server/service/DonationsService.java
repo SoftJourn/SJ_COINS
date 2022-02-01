@@ -11,6 +11,8 @@ import com.softjourn.coin.server.dto.InvokeResponseDTO;
 import com.softjourn.coin.server.entity.Account;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
+import com.softjourn.coin.server.entity.enums.Chaincode;
+import com.softjourn.coin.server.entity.enums.FabricCoinsFunction;
 import com.softjourn.coin.server.exceptions.AccountNotFoundException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInAccountException;
 import java.io.IOException;
@@ -37,7 +39,8 @@ public class DonationsService {
   public BigDecimal getAmount(String projectId) {
     InvokeResponseDTO.Balance balanceOf = fabricService.query(
         applicationProperties.getTreasury().getAccount(),
-        "balanceOf",
+        Chaincode.COINS,
+        FabricCoinsFunction.BALANCE_OF,
         new String[]{"project_", projectId},
         InvokeResponseDTO.Balance.class
     );
@@ -47,7 +50,8 @@ public class DonationsService {
   public BigDecimal getUserAmount(String email) {
     InvokeResponseDTO.Balance balanceOf = fabricService.query(
         email,
-        "balanceOf",
+        Chaincode.COINS,
+        FabricCoinsFunction.BALANCE_OF,
         new String[]{"user_", email},
         InvokeResponseDTO.Balance.class
     );
@@ -94,7 +98,8 @@ public class DonationsService {
   private InvokeResponseDTO.Balance move(String from, String to, BigDecimal amount) {
     return fabricService.invoke(
         from,
-        "transfer",
+        Chaincode.COINS,
+        FabricCoinsFunction.TRANSFER,
         new String[]{"project_", to, amount.toBigInteger().toString()},
         InvokeResponseDTO.Balance.class
     );
@@ -109,7 +114,8 @@ public class DonationsService {
 
     InvokeResponseDTO.Balance refund = fabricService.invoke(
         applicationProperties.getTreasury().getAccount(),
-        "refund",
+        Chaincode.COINS,
+        FabricCoinsFunction.REFUND,
         new String[]{
             projectId,
             applicationProperties.getTreasury().getAccount(),
@@ -149,7 +155,8 @@ public class DonationsService {
 
     InvokeResponseDTO.Balance batchRefund = fabricService.invoke(
         applicationProperties.getTreasury().getAccount(),
-        "batchRefund",
+        Chaincode.COINS,
+        FabricCoinsFunction.BATCH_REFUND,
         new String[]{projectId, values},
         InvokeResponseDTO.Balance.class
     );

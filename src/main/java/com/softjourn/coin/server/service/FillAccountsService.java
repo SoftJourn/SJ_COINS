@@ -15,6 +15,8 @@ import com.softjourn.coin.server.entity.AccountType;
 import com.softjourn.coin.server.entity.Transaction;
 import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.entity.TransactionType;
+import com.softjourn.coin.server.entity.enums.Chaincode;
+import com.softjourn.coin.server.entity.enums.FabricCoinsFunction;
 import com.softjourn.coin.server.exceptions.CouldNotReadFileException;
 import com.softjourn.coin.server.exceptions.NotEnoughAmountInTreasuryException;
 import com.softjourn.coin.server.repository.TransactionRepository;
@@ -62,7 +64,8 @@ public class FillAccountsService {
         ObjectMapper mapper = new ObjectMapper();
         InvokeResponseDTO batchTransfer = fabricService.
             invoke(applicationProperties.getTreasury().getAccount(),
-                "batchTransfer",
+                Chaincode.COINS,
+                FabricCoinsFunction.BATCH_TRANSFER,
                 new String[]{mapper.writeValueAsString(requestArray)}, InvokeResponseDTO.class);
         saveTransactions(accountsToFill, batchTransfer);
       }

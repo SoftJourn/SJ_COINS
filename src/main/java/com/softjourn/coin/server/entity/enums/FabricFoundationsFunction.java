@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum FabricFoundationsFunction {
+public enum FabricFoundationsFunction implements ChaincodeFunction {
 
   CREATE("createFoundation"),
   UPDATE("updateFoundation"),

@@ -69,7 +69,7 @@ public class CoinService {
       InvokeResponseDTO transfer = fabricService.invoke(
           applicationProperties.getTreasury().getAccount(),
           Chaincode.COINS,
-          FabricCoinsFunction.TRANSFER.getName(),
+          FabricCoinsFunction.TRANSFER,
           new String[]{USER_PREFIX, account.getEmail(), amount.toBigInteger().toString()},
           InvokeResponseDTO.class);
 
@@ -106,7 +106,8 @@ public class CoinService {
 
     InvokeResponseDTO distribute = fabricService.invoke(
         applicationProperties.getTreasury().getAccount(),
-        FabricCoinsFunction.BATCH_TRANSFER.getName(),
+        Chaincode.COINS,
+        FabricCoinsFunction.BATCH_TRANSFER,
         transferRequests,
         InvokeResponseDTO.class);
 
@@ -165,7 +166,8 @@ public class CoinService {
   public BigDecimal getAmount(String email) {
     InvokeResponseDTO.Balance balanceOf = fabricService.query(
         email,
-        FabricCoinsFunction.BALANCE_OF.getName(),
+        Chaincode.COINS,
+        FabricCoinsFunction.BALANCE_OF,
         new String[]{USER_PREFIX, email},
         InvokeResponseDTO.Balance.class);
     return balanceOf.getPayload().getBalance();
@@ -184,7 +186,8 @@ public class CoinService {
 
     InvokeResponseDTO.Balances balanceOf = fabricService.query(
         applicationProperties.getTreasury().getAccount(),
-        FabricCoinsFunction.BATCH_BALANCE_OF.getName(),
+        Chaincode.COINS,
+        FabricCoinsFunction.BATCH_BALANCE_OF,
         emails,
         InvokeResponseDTO.Balances.class);
     return balanceOf.getPayload();
@@ -334,7 +337,8 @@ public class CoinService {
   private InvokeResponseDTO.Balance move(String from, String to, BigDecimal amount) {
     return fabricService.invoke(
         from,
-        FabricCoinsFunction.TRANSFER.getName(),
+        Chaincode.COINS,
+        FabricCoinsFunction.TRANSFER,
         new String[]{USER_PREFIX, to, amount.toBigInteger().toString()},
         InvokeResponseDTO.Balance.class);
   }
