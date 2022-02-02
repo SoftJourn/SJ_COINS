@@ -58,29 +58,6 @@ Please read the "Getting started" tutorial [here](https://monax.io/docs/getting-
 ```bash
 mkdir $HOME/.coins
 mkdir $HOME/.coins/images
-touch application.properties
-```
-
-Add this properties to the previously created file
-
-```properties
-#DATABASE
-spring.datasource.url=jdbc:mysql://127.0.0.1:3306/sj_coins?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false
-spring.datasource.username=user
-spring.datasource.password=somePassword
-
-#AUTH
-authPublicKeyFile=/home/username/.coins/auth.pub
-auth.server.url=https://hostname
-auth.client.client-id=clientId
-auth.client.client-secret=clientSecret
-
-#FABRIC
-node.fabric.client=https://hostname
-org.name=organazionName
-fabric.peers=peerHostName:port
-treasury.account=someAccount
-
 ```
 
 ### Step 4: Add logback configuration

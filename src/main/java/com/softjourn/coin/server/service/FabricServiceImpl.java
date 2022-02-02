@@ -3,8 +3,10 @@ package com.softjourn.coin.server.service;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.type.LogicalType;
+import com.softjourn.coin.server.config.ApplicationProperties;
 import com.softjourn.coin.server.dto.EnrollResponseDTO;
 import com.softjourn.coin.server.entity.enums.Chaincode;
+import com.softjourn.coin.server.entity.enums.ChaincodeFunction;
 import com.softjourn.coin.server.exceptions.AccountEnrollException;
 import com.softjourn.coin.server.exceptions.FabricRequestInvokeException;
 import java.util.ArrayList;
@@ -13,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,23 +30,25 @@ import org.springframework.web.client.RestTemplate;
 public class FabricServiceImpl implements FabricService {
 
   private final String url;
-  private final String organization;
-
   private final RestTemplate template;
+  private final ApplicationProperties applicationProperties;
 
   @Autowired
   public FabricServiceImpl(
-      @Value("${node.fabric.client}") String url, @Value("${org.name}") String organization,
       RestTemplate template,
+      ApplicationProperties applicationProperties,
       Jackson2ObjectMapperBuilder builder
   ) {
-    this.url = url;
-    this.organization = organization;
     this.template = template;
+    this.applicationProperties = applicationProperties;
+    this.url = applicationProperties.getFabric().getClientUrl();
 
     List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
-    builder.postConfigurer(objectMapper -> objectMapper.coercionConfigFor(LogicalType.Collection).setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty));
-    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(builder.build());
+    builder.postConfigurer(objectMapper ->
+        objectMapper.coercionConfigFor(LogicalType.Collection)
+            .setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty));
+    MappingJackson2HttpMessageConverter converter =
+        new MappingJackson2HttpMessageConverter(builder.build());
     converter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON));
     messageConverters.add(converter);
     template.setMessageConverters(messageConverters);
@@ -58,7 +61,7 @@ public class FabricServiceImpl implements FabricService {
 
     Map<String, String> request = new HashMap<>();
     request.put("username", email);
-    request.put("orgName", organization);
+    request.put("orgName", applicationProperties.getOrganisation().getName());
 
     HttpEntity<?> httpEntity = new HttpEntity<>(request, headers);
     try {
@@ -69,31 +72,16 @@ public class FabricServiceImpl implements FabricService {
   }
 
   @Override
-  public <T> T invoke(String email, String function, Object args, Class<T> responseType) {
-    ResponseEntity<EnrollResponseDTO> response = this.enroll(email);
-    if (response != null) {
-      EnrollResponseDTO body = response.getBody();
-      HttpEntity<?> httpEntity = getHttpEntity(function, args, body);
-      try {
-        return template.postForEntity(this.url + "invoke", httpEntity, responseType).getBody();
-      } catch (Exception e) {
-        throw new FabricRequestInvokeException(e);
-      }
-    } else {
-      return null;
-    }
-  }
-
-  @Override
   public <T> T invoke(
-      String email, Chaincode chaincode, String function, Object args, Class<T> responseType
+      String email, Chaincode chaincode, ChaincodeFunction function,
+      Object args, Class<T> responseType
   ) {
     EnrollResponseDTO body = this.enroll(email).getBody();
 
     try {
       return template.postForEntity(
           this.url + "invoke/" + chaincode.getName(),
-          getHttpEntity(function, args, body),
+          getHttpEntity(function.getName(), args, body),
           responseType
       ).getBody();
     } catch (Exception e) {
@@ -102,30 +90,16 @@ public class FabricServiceImpl implements FabricService {
   }
 
   @Override
-  public <T> T query(String email, String function, Object args, Class<T> responseType) {
-    ResponseEntity<EnrollResponseDTO> response = this.enroll(email);
-    if (response != null) {
-      EnrollResponseDTO body = response.getBody();
-      HttpEntity<?> httpEntity = getHttpEntity(function, args, body);
-      try {
-        return template.postForEntity(this.url + "query", httpEntity, responseType).getBody();
-      } catch (Exception e) {
-        throw new FabricRequestInvokeException(e);
-      }
-    }
-    return null;
-}
-
-  @Override
   public <T> T query(
-      String email, Chaincode chaincode, String function, Object args, Class<T> responseType
+      String email, Chaincode chaincode, ChaincodeFunction function,
+      Object args, Class<T> responseType
   ) {
     EnrollResponseDTO body = this.enroll(email).getBody();
 
     try {
       return template.postForEntity(
           this.url + "query/" + chaincode.getName(),
-          getHttpEntity(function, args, body),
+          getHttpEntity(function.getName(), args, body),
           responseType
       ).getBody();
     } catch (Exception e) {

@@ -2,6 +2,7 @@ package com.softjourn.coin.server.service;
 
 import static com.softjourn.coin.server.entity.AccountType.REGULAR;
 
+import com.softjourn.coin.server.config.ApplicationProperties;
 import com.softjourn.coin.server.dto.BalancesDTO;
 import com.softjourn.coin.server.dto.EnrollResponseDTO;
 import com.softjourn.coin.server.dto.MerchantDTO;
@@ -32,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -47,27 +47,22 @@ public class AccountsService {
 
   private final CoinService coinService;
   private final AccountRepository accountRepository;
-  private final String authServerUrl;
   private final OAuthHelper oAuthHelper;
-  private final String imageStoragePath;
-  private final String defaultAccountImagePath;
+  private final ApplicationProperties applicationProperties;
+  private final FabricService fabricService;
 
   @Autowired
-  private FabricService fabricService;
-
-  @Autowired
-  public AccountsService(AccountRepository accountRepository,
+  public AccountsService(
+      AccountRepository accountRepository,
       @Lazy CoinService coinService,
-      @Value("${auth.server.url}") String authServerUrl,
       OAuthHelper oAuthHelper,
-      @Value("${image.storage.path}") String imageStoragePath,
-      @Value("${image.account.default}") String defaultAccountImagePath) {
+      FabricService fabricService,
+      ApplicationProperties applicationProperties) {
     this.accountRepository = accountRepository;
     this.coinService = coinService;
-    this.authServerUrl = authServerUrl;
     this.oAuthHelper = oAuthHelper;
-    this.imageStoragePath = imageStoragePath;
-    this.defaultAccountImagePath = defaultAccountImagePath;
+    this.fabricService = fabricService;
+    this.applicationProperties = applicationProperties;
   }
 
   public List<Account> getAll() {
@@ -156,7 +151,7 @@ public class AccountsService {
   }
 
   private void storeFile(MultipartFile file, String uri) {
-    String url = this.imageStoragePath + uri;
+    String url = applicationProperties.getImage().getStorage().getPath() + uri;
     File storedFile = new File(url);
     try {
       FileUtils.deleteDirectory(storedFile.getParentFile());
@@ -181,7 +176,7 @@ public class AccountsService {
   }
 
   public byte[] getImage(String uri) {
-    String fullPath = this.imageStoragePath + uri;
+    String fullPath = applicationProperties.getImage().getStorage().getPath() + uri;
     File file = new File(fullPath);
     InputStream in;
     try {
@@ -198,7 +193,7 @@ public class AccountsService {
   }
 
   public byte[] getDefaultImage() {
-    return this.getImage(this.defaultAccountImagePath);
+    return this.getImage(applicationProperties.getImage().getAccount().getDefaultUrl());
   }
 
   public void reset() {
@@ -220,7 +215,9 @@ public class AccountsService {
   Account getAccountIfExistInLdapBase(String ldapId) {
     try {
       return oAuthHelper
-          .getForEntityWithToken(authServerUrl + "/v1/users/" + ldapId, Account.class).getBody();
+          .getForEntityWithToken(applicationProperties
+              .getAuth().getServer().getUrl() + "/v1/users/" + ldapId, Account.class)
+          .getBody();
     } catch (RestClientException rce) {
       return null;
     }

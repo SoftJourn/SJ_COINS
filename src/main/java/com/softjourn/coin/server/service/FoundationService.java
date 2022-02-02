@@ -1,5 +1,6 @@
 package com.softjourn.coin.server.service;
 
+import com.softjourn.coin.server.config.ApplicationProperties;
 import com.softjourn.coin.server.dto.AllowanceRequestDTO;
 import com.softjourn.coin.server.dto.CreateFoundationProjectDTO;
 import com.softjourn.coin.server.dto.FilterDTO;
@@ -33,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -44,12 +44,7 @@ public class FoundationService {
 
   private final FabricService fabricService;
   private final AccountsService accountsService;
-
-  @Value("${treasury.account}")
-  private String treasuryAccount;
-
-  @Value("${image.path:/static/images/project}")
-  private String imagePath;
+  private final ApplicationProperties applicationProperties;
 
   /**
    * Create new foundation project.
@@ -109,7 +104,7 @@ public class FoundationService {
     return fabricService.invoke(
         account.getEmail(),
         Chaincode.FOUNDATION,
-        FabricFoundationsFunction.CREATE.getName(),
+        FabricFoundationsFunction.CREATE,
         project,
         InvokeResponseDTO.class
     ).getTransactionID();
@@ -132,7 +127,7 @@ public class FoundationService {
     String txid = fabricService.invoke(
         account.getEmail(),
         Chaincode.FOUNDATION,
-        FabricFoundationsFunction.UPDATE.getName(),
+        FabricFoundationsFunction.UPDATE,
         updateDto,
         InvokeResponseDTO.class
     ).getTransactionID();
@@ -149,9 +144,9 @@ public class FoundationService {
    */
   public List<FoundationViewDTO> getAll() {
     InvokeResponseDTO.FoundationViewList response = fabricService.query(
-        treasuryAccount,
+        applicationProperties.getTreasury().getAccount(),
         Chaincode.FOUNDATION,
-        FabricFoundationsFunction.GET_ALL.getName(),
+        FabricFoundationsFunction.GET_ALL,
         new FilterDTO(
             null,
             ProjectStatus.ACTIVE.getValue() | ProjectStatus.CLOSED.getValue()),
@@ -172,7 +167,7 @@ public class FoundationService {
     InvokeResponseDTO.FoundationViewList response = fabricService.query(
         account.getEmail(),
         Chaincode.FOUNDATION,
-        FabricFoundationsFunction.GET_ALL.getName(),
+        FabricFoundationsFunction.GET_ALL,
         new FilterDTO(
             account.getEmail(),
             ProjectStatus.ACTIVE.getValue() | ProjectStatus.CLOSED.getValue()),
@@ -193,7 +188,7 @@ public class FoundationService {
     InvokeResponseDTO.FoundationViewList response = fabricService.query(
         account.getEmail(),
         Chaincode.FOUNDATION,
-        FabricFoundationsFunction.GET_ALL.getName(),
+        FabricFoundationsFunction.GET_ALL,
         new FilterDTO(account.getEmail(), 0),
         InvokeResponseDTO.FoundationViewList.class
     );
@@ -213,7 +208,7 @@ public class FoundationService {
     InvokeResponseDTO.FoundationView response = fabricService.query(
         account.getEmail(),
         Chaincode.FOUNDATION,
-        FabricFoundationsFunction.GET_ONE.getName(),
+        FabricFoundationsFunction.GET_ONE,
         new String[]{name},
         InvokeResponseDTO.FoundationView.class
     );
@@ -233,7 +228,7 @@ public class FoundationService {
     return fabricService.invoke(
         account.getEmail(),
         Chaincode.FOUNDATION,
-        FabricFoundationsFunction.DONATE.getName(),
+        FabricFoundationsFunction.DONATE,
         donation,
         InvokeResponseDTO.class
     ).getTransactionID();
@@ -252,7 +247,7 @@ public class FoundationService {
     return fabricService.invoke(
         account.getEmail(),
         Chaincode.FOUNDATION,
-        FabricFoundationsFunction.CLOSE.getName(),
+        FabricFoundationsFunction.CLOSE,
         new String[]{projectName},
         InvokeResponseDTO.Uint.class
     ).getPayload();
@@ -271,7 +266,7 @@ public class FoundationService {
     return fabricService.invoke(
         account.getEmail(),
         Chaincode.FOUNDATION,
-        FabricFoundationsFunction.SET_ALLOWANCE.getName(),
+        FabricFoundationsFunction.SET_ALLOWANCE,
         request,
         InvokeResponseDTO.class
     ).getTransactionID();
@@ -290,7 +285,7 @@ public class FoundationService {
     return fabricService.invoke(
         account.getEmail(),
         Chaincode.FOUNDATION,
-        FabricFoundationsFunction.WITHDRAW.getName(),
+        FabricFoundationsFunction.WITHDRAW,
         request,
         InvokeResponseDTO.class
     ).getTransactionID();
@@ -303,7 +298,8 @@ public class FoundationService {
    * @return
    */
   public byte[] getImage(String uri) {
-    String fullPath = getClass().getResource(imagePath).getPath() + "/" + uri;
+    String fullPath = getClass()
+        .getResource(applicationProperties.getImage().getStorage().getPath()).getPath() + "/" + uri;
     File file = new File(fullPath);
     InputStream in;
     try {
