@@ -16,7 +16,7 @@
     <com.google.zxing.core.version>3.4.1</com.google.zxing.core.version>
     <com.jayway.jsonpath.json-path.version>2.6.0</com.jayway.jsonpath.json-path.version>
     <com.neovisionaries.nv-websocket-client.version>2.14</com.neovisionaries.nv-websocket-client.version>
-    <com.softjourn.common.version>0.4.4</com.softjourn.common.version>
+    <com.softjourn.common.version>0.5</com.softjourn.common.version>
     <commons-codec.commons-codec.version>1.15</commons-codec.commons-codec.version>
     <commons-fileupload.commons-fileupload.version>1.4</commons-fileupload.commons-fileupload.version>
     <java.version>11</java.version>
