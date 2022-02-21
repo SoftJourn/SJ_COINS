@@ -72,10 +72,8 @@ public class FoundationService {
       throw new ValidationException("Image has not supported type.");
     }
 
-    String imagePath = "/static/images/project";
-    String path = getClass().getResource(imagePath).getPath();
     String filename = imageFilename.toString();
-    File file = new File(path, filename);
+    File file = new File(applicationProperties.getImage().getStorage().getPath(), filename);
     byte[] fileBytes = Base64.getDecoder().decode(createDto.getImage());
     try {
       FileUtils.writeByteArrayToFile(file, fileBytes);
@@ -298,8 +296,7 @@ public class FoundationService {
    * @return
    */
   public byte[] getImage(String uri) {
-    String fullPath = getClass()
-        .getResource(applicationProperties.getImage().getStorage().getPath()).getPath() + "/" + uri;
+    String fullPath = applicationProperties.getImage().getStorage().getPath() + "/" + uri;
     File file = new File(fullPath);
     InputStream in;
     try {

@@ -1,7 +1,5 @@
 package com.softjourn.coin.server.service;
 
-import static com.softjourn.coin.server.entity.AccountType.REGULAR;
-
 import com.softjourn.coin.server.config.ApplicationProperties;
 import com.softjourn.coin.server.dto.BalancesDTO;
 import com.softjourn.coin.server.dto.EnrollResponseDTO;
@@ -255,7 +253,7 @@ public class AccountsService {
   public Account createAccount(String ldapId) {
     return Optional.ofNullable(getAccountIfExistInLdapBase(ldapId))
         .map(this::buildAccount)
-        .map(a -> accountRepository.save(a))
+        .map(accountRepository::save)
         .orElseThrow(() -> new AccountNotFoundException(ldapId));
   }
 
@@ -264,7 +262,6 @@ public class AccountsService {
     account.setImage(DEFAULT_IMAGE_NAME);
     account.setAccountType(AccountType.REGULAR);
     account.setNew(true);
-    account.setAccountType(REGULAR);
     return account;
   }
 
