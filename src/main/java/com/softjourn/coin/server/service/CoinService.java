@@ -40,6 +40,8 @@ import org.springframework.stereotype.Service;
 public class CoinService {
 
   private static final String USER_PREFIX = "user_";
+  private static final Boolean EXPIRABLE = Boolean.TRUE;
+  private static final Boolean NON_EXPIRABLE = Boolean.FALSE;
 
   private final AccountsService accountsService;
   private final FabricService fabricService;
@@ -70,7 +72,10 @@ public class CoinService {
           applicationProperties.getTreasury().getAccount(),
           Chaincode.COINS,
           FabricCoinsFunction.TRANSFER,
-          new String[]{USER_PREFIX, account.getEmail(), amount.toBigInteger().toString()},
+          new String[]{
+              USER_PREFIX, account.getEmail(),
+              amount.toBigInteger().toString(), NON_EXPIRABLE.toString()
+          },
           InvokeResponseDTO.class);
 
       Transaction transaction = new Transaction();
@@ -108,7 +113,7 @@ public class CoinService {
         applicationProperties.getTreasury().getAccount(),
         Chaincode.COINS,
         FabricCoinsFunction.BATCH_TRANSFER,
-        transferRequests,
+        new Object[]{transferRequests, NON_EXPIRABLE},
         InvokeResponseDTO.class);
 
     Transaction transaction = new Transaction();
