@@ -149,7 +149,7 @@ public class CoinService {
     }
 
     InvokeResponseDTO.Balance move =
-        move(donorAccount.getEmail(), acceptorAccount.getEmail(), amount);
+        move(donorAccount.getEmail(), acceptorAccount.getEmail(), amount, EXPIRABLE);
 
     Transaction transaction = new Transaction();
     transaction.setAmount(amount);
@@ -245,7 +245,7 @@ public class CoinService {
       Account merchantAccount = removeIsNewStatus(destinationName);
 
       InvokeResponseDTO.Balance move =
-          move(account.getEmail(), merchantAccount.getEmail(), amount);
+          move(account.getEmail(), merchantAccount.getEmail(), amount, EXPIRABLE);
 
       Transaction transaction = new Transaction();
       transaction.setAmount(amount);
@@ -270,7 +270,7 @@ public class CoinService {
     Account user = transaction.getAccount();
     Account merchant = transaction.getDestination();
     BigDecimal amount = transaction.getAmount();
-    InvokeResponseDTO.Balance move = move(merchant.getEmail(), user.getEmail(), amount);
+    InvokeResponseDTO.Balance move = move(merchant.getEmail(), user.getEmail(), amount, EXPIRABLE);
     Transaction rollbackTx = new Transaction();
     rollbackTx.setTransactionId(move.getTransactionID());
     rollbackTx.setAccount(merchant);
@@ -303,8 +303,10 @@ public class CoinService {
       throw new NotEnoughAmountInAccountException();
     }
 
-    InvokeResponseDTO.Balance move =
-        move(account.getEmail(), applicationProperties.getTreasury().getAccount(), amount);
+    InvokeResponseDTO.Balance move = move(
+        account.getEmail(),
+        applicationProperties.getTreasury().getAccount(),
+        amount, NON_EXPIRABLE);
 
     return Transaction.builder()
         .transactionId(move.getTransactionID())
@@ -339,12 +341,14 @@ public class CoinService {
    * @param amount Amount of coins.
    * @return Balance response.
    */
-  private InvokeResponseDTO.Balance move(String from, String to, BigDecimal amount) {
+  private InvokeResponseDTO.Balance move(
+      String from, String to, BigDecimal amount, Boolean expirable
+  ) {
     return fabricService.invoke(
         from,
         Chaincode.COINS,
         FabricCoinsFunction.TRANSFER,
-        new String[]{USER_PREFIX, to, amount.toBigInteger().toString()},
+        new String[]{USER_PREFIX, to, amount.toBigInteger().toString(), expirable.toString()},
         InvokeResponseDTO.Balance.class);
   }
 
