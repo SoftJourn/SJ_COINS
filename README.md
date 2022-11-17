@@ -48,21 +48,8 @@ CREATE DATABASE sj_coins CHARACTER SET utf8;
 
 #### NOTE: All the tables will be created during the first service start.
 
-### Step 2: Add sensitive properties:
-
-```bash
-mkdir $HOME/.coins
-mkdir $HOME/.coins/images
-```
-
-### Step 4: Add logback configuration
-
-```bash
-cd $HOME/.coins
-touch logback.xml
-```
-
-Add basic configuration to the file
+### Step 2: Add logback configuration
+Add basic configuration to the file which is specified in env variable SJ_COINS_SERVER_LOGGING_CONFIG_FILE.
 
 ```xml
 <configuration debug="true" scan="true" scanPeriod="30">
@@ -79,4 +66,7 @@ Add basic configuration to the file
 </configuration>
 ```
 
-### Step 5: Run project
+### Step 3: Run project
+```bash
+mvn spring-boot:run
+```
