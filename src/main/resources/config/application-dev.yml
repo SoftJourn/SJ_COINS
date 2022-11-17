@@ -1,0 +1,7 @@
+spring:
+  jpa:
+    show-sql: true
+  flyway:
+    baseline-on-migrate: true
+    ignore-future-migration: true
+    ignore-missing-migration: true

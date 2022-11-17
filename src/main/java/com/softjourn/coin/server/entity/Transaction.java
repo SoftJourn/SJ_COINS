@@ -28,7 +28,7 @@ import lombok.Data;
 @Entity
 @Table(name = "transactions")
 @AllArgsConstructor
-public class Transaction<T> implements Serializable {
+public class Transaction implements Serializable {
 
   @FilterIgnore
   @JsonView({JsonViews.DETAILED.class, JsonViews.REGULAR.class})
@@ -74,7 +74,7 @@ public class Transaction<T> implements Serializable {
 
   @JsonIgnore
   @FilterIgnore
-  private transient T value;
+  private transient Object value;
 
   @JsonView(JsonViews.DETAILED.class)
   @FilterIgnore

@@ -51,16 +51,16 @@ public class GlobalExceptionHandler {
     return buildErrorDetails(e, 40906, e.getMessage());
   }
 
-  @ResponseStatus(value = HttpStatus.CONFLICT, reason = "No free eris account")
+  @ResponseStatus(value = HttpStatus.CONFLICT, reason = "Invoke request failed")
   @ExceptionHandler(FabricRequestInvokeException.class)
   public ErrorDetail handleFabricRequestInvokeException(FabricRequestInvokeException e) {
-    log.info("Request for assign free eris account. " + e.getLocalizedMessage());
+    log.info("Request for invoke. " + e.getLocalizedMessage());
     return buildErrorDetails(e, 40907, e.getMessage());
   }
 
   @ResponseStatus(HttpStatus.CONFLICT)
   @ExceptionHandler(AccountEnrollException.class)
-  public ErrorDetail handleErisContractInstanceNotFound(AccountEnrollException e) {
+  public ErrorDetail handleContractInstanceNotFound(AccountEnrollException e) {
     log.warn(e.getLocalizedMessage());
     return buildErrorDetails(e, 40908, e.getLocalizedMessage());
   }

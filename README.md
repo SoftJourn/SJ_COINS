@@ -35,9 +35,9 @@ export SJ_COINS_SERVER_AUTH_PUBKEY_PATH='/path/to/coins/auth.pub'
 #### Enter as root user and create user for these databases using commands:
 
 ```sql
-CREATE USER 'user'@'localhost' IDENTIFIED BY 'somePassword';
+CREATE USER '<user>'@'localhost' IDENTIFIED BY '<password>';
 
-GRANT ALL PRIVILEGES ON *.* TO 'user'@'localhost';
+GRANT ALL PRIVILEGES ON sj_coins.* TO '<user>'@'localhost';
 ```
 
 #### Enter as this new user and create databases:
@@ -48,12 +48,7 @@ CREATE DATABASE sj_coins CHARACTER SET utf8;
 
 #### NOTE: All the tables will be created during the first service start.
 
-### Step 2: Install and create application with the help of Monax Platform:
-
-Please read the "Getting started" tutorial [here](https://monax.io/docs/getting-started/)
-
-
-### Step 3: Add sensitive properties:
+### Step 2: Add sensitive properties:
 
 ```bash
 mkdir $HOME/.coins

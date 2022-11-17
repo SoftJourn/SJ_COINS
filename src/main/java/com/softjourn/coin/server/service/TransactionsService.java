@@ -5,11 +5,9 @@ import static com.softjourn.coin.server.service.GenericFilter.Condition.eq;
 import com.softjourn.coin.server.controller.TransactionsController;
 import com.softjourn.coin.server.dto.MobileTransactionDTO;
 import com.softjourn.coin.server.entity.Transaction;
-import com.softjourn.coin.server.entity.TransactionStatus;
 import com.softjourn.coin.server.repository.TransactionRepository;
 import com.softjourn.common.export.ExcelExport;
 import com.softjourn.common.export.ExportDefiner;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class TransactionsService implements TransactionMapper {
+public class TransactionsService {
 
   private final TransactionRepository repository;
 
@@ -75,24 +73,5 @@ public class TransactionsService implements TransactionMapper {
 
     return new ExcelExport()
         .export("Transactions report", transactions.getContent(), definers);
-  }
-
-  /**
-   * Method prepares Transaction object
-   *
-   * @param o Some object?
-   * @param erisTransactionId Transaction ID.
-   * @param comment Comment for transaction.
-   * @return Transaction.
-   */
-  public Transaction prepareTransaction(Object o, String erisTransactionId, String comment) {
-    // TODO: Why'd we use parameterized Transaction class? What the purpose of the parameter?
-    Transaction<Object> transaction = new Transaction<>(erisTransactionId);
-    transaction.setComment(comment);
-    transaction.setAmount(null);
-    transaction.setStatus(TransactionStatus.SUCCESS);
-    transaction.setCreated(Instant.now());
-    transaction.setValue(o);
-    return transaction;
   }
 }
