@@ -77,14 +77,11 @@ public class AccountsService {
     Sort sort = Sort.by(
         new Sort.Order(Sort.Direction.DESC, "isNew"),
         new Sort.Order(Sort.Direction.ASC, "fullName"));
-
     return accountRepository.getAccountsByType(accountType, sort);
   }
 
   public Account getAccount(String ldapId) {
-    return Optional
-        .ofNullable(accountRepository.findOneUndeleted(ldapId))
-        .orElseGet(() -> createAccount(ldapId));
+    return accountRepository.findOneUndeleted(ldapId).orElseGet(() -> createAccount(ldapId));
   }
 
   public List<Account> getAmounts(List<Account> accounts) {
@@ -168,17 +165,14 @@ public class AccountsService {
    * @throws AccountNotFoundException in case of account does not exists
    */
   private Account checkAccountExists(String accountName) {
-    return Optional
-        .ofNullable(accountRepository.findOneUndeleted(accountName))
+    return accountRepository.findOneUndeleted(accountName)
         .orElseThrow(() -> new AccountNotFoundException(accountName));
   }
 
   public byte[] getImage(String uri) {
-    String fullPath = applicationProperties.getImage().getStorage().getPath() + uri;
-    File file = new File(fullPath);
-    InputStream in;
-    try {
-      in = new FileInputStream(file);
+    File file = new File(applicationProperties.getImage().getStorage().getPath() + uri);
+
+    try (InputStream in = new FileInputStream(file)) {
       return IOUtils.toByteArray(in);
     } catch (FileNotFoundException e) {
       throw new NotFoundException("There is no image with this passed uri");
@@ -187,7 +181,6 @@ public class AccountsService {
       log.error("Method getImage uri. File can't be read", e);
       throw new RuntimeException("File can't be read");
     }
-
   }
 
   public byte[] getDefaultImage() {
@@ -212,8 +205,7 @@ public class AccountsService {
 
   Account getAccountIfExistInLdapBase(String ldapId) {
     try {
-      return oAuthHelper
-          .getForEntityWithToken(applicationProperties
+      return oAuthHelper.getForEntityWithToken(applicationProperties
               .getAuth().getServer().getUrl() + "/v1/users/" + ldapId, Account.class)
           .getBody();
     } catch (RestClientException rce) {
@@ -227,7 +219,6 @@ public class AccountsService {
 
   Account changeIsNewStatus(Boolean isNew, @NonNull Account account) {
     account.setNew(isNew);
-
     return accountRepository.save(account);
   }
 

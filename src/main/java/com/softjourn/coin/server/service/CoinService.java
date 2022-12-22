@@ -125,41 +125,32 @@ public class CoinService {
   }
 
   /**
+   * Buy something.
+   *
+   * @param recipientId Merchant account name.
+   * @param senderId Account name.
+   * @param amount Amount of coins.
+   * @return Transaction for buying.
+   */
+  @SaveTransaction(comment = "Buying", type = EXPENSE)
+  public Transaction buy(
+      @NonNull String senderId, @NonNull String recipientId, @NonNull BigDecimal amount) {
+    return transferWithTransaction(senderId, recipientId, amount, NON_EXPIRABLE);
+  }
+
+  /**
    * Move coins.
    *
-   * @param accountName From account.
-   * @param destinationName To account.
+   * @param senderId From account.
+   * @param recipientId To account.
    * @param amount Amount.
-   * @param comment Comment for transaction.
    * @return Transaction of moved coins.
    */
   @SuppressWarnings("unused")
   @SaveTransaction(comment = "Transfer money", type = TRANSFER)
-  public synchronized Transaction move(@NonNull String accountName,
-      @NonNull String destinationName,
-      @NonNull BigDecimal amount,
-      String comment) {
-    checkAmountIsPositive(amount);
-
-    Account donorAccount = removeIsNewStatus(accountName);
-    Account acceptorAccount = removeIsNewStatus(destinationName);
-
-    if (!isEnoughAmount(donorAccount.getEmail(), amount)) {
-      throw new NotEnoughAmountInAccountException();
-    }
-
-    InvokeResponseDTO.Balance move =
-        move(donorAccount.getEmail(), acceptorAccount.getEmail(), amount, EXPIRABLE);
-
-    Transaction transaction = new Transaction();
-    transaction.setAmount(amount);
-    transaction.setStatus(TransactionStatus.SUCCESS);
-    transaction.setAccount(donorAccount);
-    transaction.setDestination(acceptorAccount);
-    transaction.setTransactionId(move.getTransactionID());
-    transaction.setRemain(move.getPayload().getBalance());
-
-    return transaction;
+  public synchronized Transaction move(
+      @NonNull String senderId, @NonNull String recipientId, @NonNull BigDecimal amount) {
+    return transferWithTransaction(senderId, recipientId, amount, EXPIRABLE);
   }
 
   /**
@@ -223,42 +214,6 @@ public class CoinService {
   }
 
   /**
-   * Buy something.
-   *
-   * @param destinationName Merchant account name.
-   * @param accountName Account name.
-   * @param amount Amount of coins.
-   * @param comment Comment for transaction.
-   * @return Transaction for buying.
-   */
-  @SuppressWarnings("unused")
-  @SaveTransaction(comment = "Buying", type = EXPENSE)
-  public Transaction buy(
-      @NonNull String destinationName, @NonNull String accountName,
-      @NonNull BigDecimal amount, String comment
-  ) {
-    synchronized (getMonitor(accountName)) {
-      Account account = accountsService.getAccount(accountName);
-      checkEnoughAmount(account.getEmail(), amount);
-      removeIsNewStatus(accountName);
-
-      Account merchantAccount = removeIsNewStatus(destinationName);
-
-      InvokeResponseDTO.Balance move =
-          move(account.getEmail(), merchantAccount.getEmail(), amount, EXPIRABLE);
-
-      Transaction transaction = new Transaction();
-      transaction.setAmount(amount);
-      transaction.setAccount(account);
-      transaction.setStatus(TransactionStatus.SUCCESS);
-      transaction.setDestination(merchantAccount);
-      transaction.setTransactionId(move.getTransactionID());
-      transaction.setRemain(move.getPayload().getBalance());
-      return transaction;
-    }
-  }
-
-  /**
    * Rollback transaction.
    *
    * @param txId Transaction ID.
@@ -270,7 +225,7 @@ public class CoinService {
     Account user = transaction.getAccount();
     Account merchant = transaction.getDestination();
     BigDecimal amount = transaction.getAmount();
-    InvokeResponseDTO.Balance move = move(merchant.getEmail(), user.getEmail(), amount, EXPIRABLE);
+    InvokeResponseDTO.Balance move = transfer(merchant.getEmail(), user.getEmail(), amount, EXPIRABLE);
     Transaction rollbackTx = new Transaction();
     rollbackTx.setTransactionId(move.getTransactionID());
     rollbackTx.setAccount(merchant);
@@ -303,7 +258,7 @@ public class CoinService {
       throw new NotEnoughAmountInAccountException();
     }
 
-    InvokeResponseDTO.Balance move = move(
+    InvokeResponseDTO.Balance move = transfer(
         account.getEmail(),
         applicationProperties.getTreasury().getAccount(),
         amount, NON_EXPIRABLE);
@@ -320,35 +275,57 @@ public class CoinService {
   /**
    * Check if amount of account is enough.
    *
-   * @param accountName Account name.
+   * @param accountEmail Account name.
    * @param amount Needed amount.
    */
-  private void checkEnoughAmount(String accountName, BigDecimal amount) {
+  private void checkEnoughAmount(String accountEmail, BigDecimal amount) {
     checkAmountIsPositive(amount);
-
-    BigDecimal currentAmount = getAmount(accountName);
-
+    BigDecimal currentAmount = getAmount(accountEmail);
     if (currentAmount.compareTo(amount) < 0) {
       throw new NotEnoughAmountInAccountException();
+    }
+  }
+
+  private Transaction transferWithTransaction(
+      String senderId, String recipientId, BigDecimal amount, boolean expirable) {
+    synchronized (getMonitor(senderId)) {
+      Account donorAccount = removeIsNewStatus(senderId);
+      Account acceptorAccount = removeIsNewStatus(recipientId);
+
+      checkEnoughAmount(donorAccount.getEmail(), amount);
+
+      InvokeResponseDTO.Balance balanceResponse =
+          transfer(donorAccount.getEmail(), acceptorAccount.getEmail(), amount, expirable);
+
+      Transaction transaction = new Transaction();
+      transaction.setAccount(donorAccount);
+      transaction.setDestination(acceptorAccount);
+      transaction.setAmount(amount);
+      transaction.setStatus(TransactionStatus.SUCCESS);
+      transaction.setTransactionId(balanceResponse.getTransactionID());
+      transaction.setRemain(balanceResponse.getPayload().getBalance());
+
+      return transaction;
     }
   }
 
   /**
    * Move coins.
    *
-   * @param from From entity.
-   * @param to To entity.
+   * @param senderEmail From entity.
+   * @param recipientEmail To entity.
    * @param amount Amount of coins.
    * @return Balance response.
    */
-  private InvokeResponseDTO.Balance move(
-      String from, String to, BigDecimal amount, Boolean expirable
+  private InvokeResponseDTO.Balance transfer(
+      String senderEmail, String recipientEmail, BigDecimal amount, Boolean expirable
   ) {
     return fabricService.invoke(
-        from,
+        senderEmail,
         Chaincode.COINS,
         FabricCoinsFunction.TRANSFER,
-        new String[]{USER_PREFIX, to, amount.toBigInteger().toString(), expirable.toString()},
+        new String[]{
+            USER_PREFIX, recipientEmail, amount.toBigInteger().toString(), expirable.toString()},
         InvokeResponseDTO.Balance.class);
   }
 

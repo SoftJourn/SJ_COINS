@@ -49,30 +49,22 @@ public class CoinsController {
 
   @PostMapping("/buy/{merchantLdapId}")
   @PreAuthorize("authenticated")
-  public Transaction spentAmount(Principal principal,
-      @RequestBody AmountDTO amountDto,
-      @PathVariable String merchantLdapId) {
-    return coinService.buy(
-        merchantLdapId,
-        principal.getName(),
-        amountDto.getAmount(),
-        amountDto.getComment());
+  public Transaction spentAmount(
+      Principal principal, @RequestBody AmountDTO amountDto, @PathVariable String merchantLdapId) {
+    return coinService.buy(principal.getName(), merchantLdapId, amountDto.getAmount());
+  }
+
+  @PostMapping("/move/{accountLdapId}")
+  @PreAuthorize("authenticated")
+  public Transaction moveAmount(
+      Principal principal, @RequestBody AmountDTO amountDTO, @PathVariable String accountLdapId) {
+    return coinService.move(principal.getName(), accountLdapId, amountDTO.getAmount());
   }
 
   @PostMapping("/rollback/{txId}")
   @PreAuthorize("#oauth2.hasScope('rollback')")
-  public Transaction rollback(@PathVariable Long txId, Principal principal) {
-    System.out.println(principal); // TODO: Why principal is here?
+  public Transaction rollback(@PathVariable Long txId) {
     return coinService.rollback(txId);
-  }
-
-  @PostMapping("/move/{account}")
-  @PreAuthorize("authenticated")
-  public Transaction moveAmount(Principal principal,
-      @RequestBody AmountDTO amountDTO,
-      @PathVariable String account) {
-    return coinService
-        .move(principal.getName(), account, amountDTO.getAmount(), amountDTO.getComment());
   }
 
   @PostMapping("/move/{account}/treasury")
