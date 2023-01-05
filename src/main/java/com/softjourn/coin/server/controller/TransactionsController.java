@@ -34,13 +34,6 @@ public class TransactionsController {
   private final TransactionsService service;
   private final AutocompleteService<Transaction> autocompleteService;
 
-  @PostMapping
-  @JsonView(JsonViews.REGULAR.class)
-  @PreAuthorize("hasRole('BILLING')")
-  public Page<Transaction> getFiltered(@RequestBody GenericFilter<Transaction> filter) {
-    return service.getFiltered(filter, filter.getPageable().toPageable());
-  }
-
   @GetMapping("/{id}")
   @PreAuthorize("hasRole('BILLING')")
   public Transaction get(@PathVariable Long id) {
@@ -66,6 +59,13 @@ public class TransactionsController {
   @PreAuthorize("hasRole('BILLING')")
   public List getAutocompleteOptions(@RequestParam String field) {
     return autocompleteService.getAutocomplete(field);
+  }
+
+  @PostMapping
+  @JsonView(JsonViews.REGULAR.class)
+  @PreAuthorize("hasRole('BILLING')")
+  public Page<Transaction> getFiltered(@RequestBody GenericFilter<Transaction> filter) {
+    return service.getFiltered(filter, filter.getPageable().toPageable());
   }
 
   @PostMapping("/export")

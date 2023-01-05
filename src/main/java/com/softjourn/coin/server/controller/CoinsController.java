@@ -47,18 +47,53 @@ public class CoinsController {
     return responseBody;
   }
 
-  @PostMapping("/buy/{merchantLdapId}")
-  @PreAuthorize("authenticated")
-  public Transaction spentAmount(
-      Principal principal, @RequestBody AmountDTO amountDto, @PathVariable String merchantLdapId) {
-    return coinService.buy(principal.getName(), merchantLdapId, amountDto.getAmount());
+  @GetMapping("/template")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
+  public ResponseEntity<Void> getTemplate(HttpServletResponse response) throws IOException {
+    String contentDisposition = "attachment; filename=\"template.csv\"";
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
+    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
+    response.setContentType("application/csv");
+    response.setCharacterEncoding("UTF-8");
+
+    fillAccountsService.getAccountDTOTemplate(response.getWriter());
+
+    return new ResponseEntity<>(headers, HttpStatus.OK);
   }
 
-  @PostMapping("/move/{accountLdapId}")
+  @GetMapping("/amount/treasury")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
+  public Map<String, BigDecimal> getTreasuryAmount() {
+    HashMap<String, BigDecimal> responseBody = new HashMap<>();
+    responseBody.put("amount", coinService.getTreasuryAmount());
+    return responseBody;
+  }
+
+  @GetMapping("/amount/{accountType}")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
+  public Map<String, BigDecimal> getAmountByAccountType(@PathVariable String accountType) {
+    HashMap<String, BigDecimal> responseBody = new HashMap<>();
+    responseBody.put(
+        "amount",
+        coinService.getAmountByAccountType(AccountType.valueOf(accountType.toUpperCase())));
+
+    return responseBody;
+  }
+
+  @PostMapping("/buy/{merchantId}")
+  @PreAuthorize("authenticated")
+  public Transaction spentAmount(
+      Principal principal, @RequestBody AmountDTO amountDto, @PathVariable String merchantId) {
+    return coinService.buy(principal.getName(), merchantId, amountDto.getAmount());
+  }
+
+  @PostMapping("/move/{accountId}")
   @PreAuthorize("authenticated")
   public Transaction moveAmount(
-      Principal principal, @RequestBody AmountDTO amountDTO, @PathVariable String accountLdapId) {
-    return coinService.move(principal.getName(), accountLdapId, amountDTO.getAmount());
+      Principal principal, @RequestBody AmountDTO amountDTO, @PathVariable String accountId) {
+    return coinService.move(principal.getName(), accountId, amountDTO.getAmount());
   }
 
   @PostMapping("/rollback/{txId}")
@@ -88,44 +123,9 @@ public class CoinsController {
     fillAccountsService.fillAccounts(file);
   }
 
-  @GetMapping("/template")
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
-  public ResponseEntity<Void> getTemplate(HttpServletResponse response) throws IOException {
-    String contentDisposition = "attachment; filename=\"template.csv\"";
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
-    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
-    response.setContentType("application/csv");
-    response.setCharacterEncoding("UTF-8");
-
-    fillAccountsService.getAccountDTOTemplate(response.getWriter());
-
-    return new ResponseEntity<>(headers, HttpStatus.OK);
-  }
-
   @PostMapping("/distribute")
   @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
   public void distribute(@RequestBody AmountDTO amount) {
     coinService.distribute(amount.getAmount(), "Distribute money for all accounts.");
-  }
-
-  @GetMapping("/amount/treasury")
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
-  public Map<String, BigDecimal> getTreasuryAmount() {
-    HashMap<String, BigDecimal> responseBody = new HashMap<>();
-    responseBody.put("amount", coinService.getTreasuryAmount());
-    return responseBody;
-  }
-
-  @GetMapping("/amount/{accountType}")
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','BILLING')")
-  public Map<String, BigDecimal> getAmountByAccountType(@PathVariable String accountType) {
-    HashMap<String, BigDecimal> responseBody = new HashMap<>();
-    responseBody.put(
-        "amount",
-        coinService.getAmountByAccountType(AccountType.valueOf(accountType.toUpperCase())));
-
-    return responseBody;
   }
 }

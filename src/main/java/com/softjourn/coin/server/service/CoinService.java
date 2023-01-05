@@ -222,18 +222,21 @@ public class CoinService {
   @SaveTransaction(comment = "Rollback previous transaction.", type = ROLLBACK)
   public Transaction rollback(Long txId) {
     Transaction transaction = transactionRepository.findOne(txId);
-    Account user = transaction.getAccount();
-    Account merchant = transaction.getDestination();
+    Account donorAccount = transaction.getAccount();
+    Account acceptorAccount = transaction.getDestination();
     BigDecimal amount = transaction.getAmount();
-    InvokeResponseDTO.Balance move = transfer(merchant.getEmail(), user.getEmail(), amount, EXPIRABLE);
+
+    InvokeResponseDTO.Balance balanceResponse =
+        transfer(acceptorAccount.getEmail(), donorAccount.getEmail(), amount, EXPIRABLE);
+
     Transaction rollbackTx = new Transaction();
-    rollbackTx.setTransactionId(move.getTransactionID());
-    rollbackTx.setAccount(merchant);
-    rollbackTx.setDestination(user);
+    rollbackTx.setTransactionId(balanceResponse.getTransactionID());
+    rollbackTx.setAccount(acceptorAccount);
+    rollbackTx.setDestination(donorAccount);
     rollbackTx.setAmount(amount);
-    transaction.setStatus(TransactionStatus.SUCCESS);
+    rollbackTx.setStatus(TransactionStatus.SUCCESS);
     rollbackTx.setComment("Rollback buying transaction. ID: " + txId);
-    transaction.setRemain(move.getPayload().getBalance());
+    rollbackTx.setRemain(balanceResponse.getPayload().getBalance());
     return rollbackTx;
   }
 

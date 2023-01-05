@@ -63,10 +63,8 @@ public class AccountsController {
   @GetMapping("/accounts/all")
   @PreAuthorize("authenticated")
   public List<AccountDTO> getAccounts() {
-    return accountsService.getAll().stream()
-        .filter(account -> account.getAccountType() == AccountType.REGULAR)
-        .map(account ->
-            new AccountDTO(account.getLdapId(), account.getEmail()))
+    return accountsService.getAll(AccountType.REGULAR).stream()
+        .map(account -> new AccountDTO(account.getLdapId(), account.getEmail()))
         .collect(Collectors.toList());
   }
 
